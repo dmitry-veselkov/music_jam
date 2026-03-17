@@ -15,33 +15,21 @@ authors = [
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.15.0"
-flake8 = "^7.2.0"
-flake8-pyproject = "^1.2.3"
 pre-commit = "^4.2.0"
-black = "^25.1.0"
-isort = "^6.0.1"
+ruff = "^0.6.9"
 
-[tool.black]
+[tool.ruff]
 line-length = 120
-target-version = ['py312', 'py313']
-skip-string-normalization = true
+target-version = "py312"
+src = ["isort", "test"]
+extend-exclude = [".git", "__pycache__", ".venv"]
 
-[tool.isort]
-profile = "hug"
-src_paths = ["isort", "test"]
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+ignore = ["E203"]
 
-[tool.flake8]
-max-line-length = 120
-ignore = [
-  "E203",
-  "W503"
-]
-exclude = [
-  ".git",
-  "__pycache__",
-  ".venv"
-]
-show-source = true
+[tool.ruff.format]
+quote-style = "preserve"
 
 [tool.mypy]
 python_version = 3.12
