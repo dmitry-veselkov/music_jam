@@ -1,17 +1,19 @@
-[project]
-name = "music_jam"
+[tool.poetry]
+name = "music_jam_backend"
 version = "0.0.1"
 description = "MusicJam. Guess music, enjoy with friends!"
-readme = "README.md"
-requires-python = ">=3.10,<4.0"
+authors = [
+    "Alex Spirin",
+    "Dmitry Veselkov",
+    "Elizaveta Vinogradova",
+    "FayTim"
+]
 package-mode = false
 
-authors = [
-    { name = "Alex Spirin" },
-    { name = "Dmitry Veselkov" },
-    { name = "Elizaveta Vinogradova" },
-    { name = "FayTim" }
-]
+[tool.poetry.dependencies]
+python = ">=3.10,<4.0"
+flask = "^3.0.0"
+flask-socketio = "^5.3.6"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.15.0"

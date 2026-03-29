@@ -1,0 +1,18 @@
+﻿:root {
+    --color-bg: #121212;
+    --color-surface: #1e1e1e;
+    --color-primary: #1db954;
+    --color-primary-hover: #1ed760;
+    --color-secondary: #282828;
+    --color-secondary-hover: #3E3E3E;
+    --color-text: #ffffff;
+    --color-text-muted: #a0a0a0;
+    --color-border: #3e3e3e;
+
+    --spacing-xs: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 32px;
+    --spacing-xl: 40px;
+
+    --transition-fast: 0.2s ease;
+}
