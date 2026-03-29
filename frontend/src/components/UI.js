@@ -64,5 +64,5 @@ export const GameTable = (categories = [], costs = []) => {
                 </tbody>
             </table>
         </div>
-    `;  
+    `;
 };
