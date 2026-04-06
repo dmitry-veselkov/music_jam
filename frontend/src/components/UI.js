@@ -7,12 +7,12 @@
     `;
 };
 
-export const Input = ({id, placeholder, maxLength = 10, type = 'text'}) => {
+export const Input = ({id, placeholder, maxLength = 10, type = 'text', classType = 'ui-input'}) => {
     return `
         <input 
             type="${type}" 
             id="${id}" 
-            class="ui-input" 
+            class="${classType}"
             placeholder="${placeholder}" 
             maxlength="${maxLength}" 
             autocomplete="off"
@@ -21,14 +21,14 @@ export const Input = ({id, placeholder, maxLength = 10, type = 'text'}) => {
 };
 
 export const Logo = (extraClass = '') => `
-    <div class="logo-text ${extraClass}">MusicJam</div>
+    <div class="text logo-text ${extraClass}">MusicJam</div>
 `;
 
-export const Header = () => `
+export const Header = ({text = ''}) => `
     <header class="start-header">
         ${Logo()}
         <div class="auth-buttons">
-            ${Button({text: 'регистрация/войти→', id: 'login-btn', variant: 'register', icon: '/icons/user-icon.svg', textClass: 'register-text'})}
+            ${Button({text: `${text}`, id: 'login-btn', variant: 'register', icon: '/icons/user-icon.svg', textClass: 'register-text'})}
         </div>
     </header>
 `;

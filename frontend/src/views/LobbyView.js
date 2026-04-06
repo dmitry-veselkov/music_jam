@@ -1,28 +1,27 @@
 ﻿import {Component} from "../core/Component.js";
-import {Button, Input, Logo} from "../components/UI.js";
+import {Button, Footer, Header, Input, Logo} from "../components/UI.js";
 import {checkRoomInfo} from "../services/RoomService.js";
 
 
 export class LobbyView extends Component {
     render() {
-        return `
+            return `
             <div class="lobby-page">
-                ${Logo('logo-corner')}
+                <div class="header-top">
+                   ${Header({})}
+                </div>
                 
                 <main class="lobby-container">
-                    <h2 class="lobby-title">Вход в комнату</h2>
-                    <p class="lobby-description">
-                        Введите короткий код, который вам дал создатель игры, 
-                        чтобы присоединиться к музыкальному свояку.
-                    </p>
-                    
-                    <div class="join-form">
-                        ${Input({id: 'room-code', placeholder: 'Код (например, X7B9)', maxLength: 6, type: 'text'})}
-                        ${Button({text: 'Подключиться', id: 'join-btn', variant: 'primary', extraClass: 'btn-full'})}
+                    <label for="room-code"><span class="participate-block">Введите код комнаты</span></label>
+                    <div>
+                        ${Input({id: 'room-code', placeholder: 'Ваш код...', maxLength: 6, type: 'text'})}
+                        ${Button({text: 'Присоединиться', id: 'join-btn', variant: 'code', textClass: 'participate-text'})}
                     </div>
 
-                    <a href="/" class="back-link">← Назад</a>
+                    <a href="/" class="back-link"><span class="participate-text">← Назад</span></a>
                 </main>
+
+                ${Footer()}
             </div>
         `;
     }

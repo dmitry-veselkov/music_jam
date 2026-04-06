@@ -37,6 +37,7 @@
 }
 
 .start-footer {
+    margin-top: auto;
     padding: var(--spacing-lg);
     text-align: center;
     color: var(--color-text-muted);

@@ -9,7 +9,9 @@ export class StartView extends Component {
         return `
             <div class="start-page page-layout">
                 <div class="header-top">
-                   ${Header()}
+                   ${Header({
+            text: 'регистрация/войти→'
+        })}
                 </div>
                 
                 <main class="hero-section main-content">
