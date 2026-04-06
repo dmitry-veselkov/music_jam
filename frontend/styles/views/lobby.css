@@ -3,10 +3,11 @@
     justify-content: center;
     align-items: center;
     min-height: 100vh;
+    background: #000;
 }
 
 .logo-corner {
-    position: absolute;
+    position: relative;
     top: 20px;
     left: 40px;
 }
@@ -26,4 +27,15 @@
     flex-direction: column;
     gap: var(--spacing-md);
     margin: var(--spacing-lg) 0;
+}
+
+.action-buttons{
+    width: 100%;
+    max-width: 400px;
+    height: 100px;
+    display: flex;
+    border: 1px solid #FFF;
+    background: #000;
+    justify-content: center;
+    align-items: center;
 }

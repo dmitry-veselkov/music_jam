@@ -13,18 +13,12 @@ export class StartView extends Component {
                 </div>
                 
                 <main class="hero-section main-content">
-                    <h1 class="hero-title">Угадывай мелодии быстрее всех</h1>
-                    <p class="hero-description">
-                        Музыкальный свояк в реальном времени. Создавай приватные комнаты, 
-                        зови друзей и соревнуйся в знании любимых треков.
-                    </p>
-                    
-                    <div class="action-buttons">
+                    <div class="action-buttons" >
                         ${Button({
-            text: 'Подключиться к игре',
+            text: 'Присоединиться',
             id: 'join-game-btn',
-            variant: 'primary',
-            extraClass: 'btn-large'
+            variant: 'participate',
+            textClass: 'participate-text'
         })}
                     </div>
                 </main>

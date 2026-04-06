@@ -1,7 +1,8 @@
-﻿export const Button = ({text, id = '', variant = 'primary', extraClass = ''}) => {
+﻿export const Button = ({text = '', id = '', variant = 'primary', extraClass = '', icon = '', textClass = 'text'}) => {
     return `
         <button id="${id}" class="btn btn-${variant} ${extraClass}">
-            ${text}
+            <span class="${textClass}">${text}</span>
+            ${icon ? `<img src="${icon}"/>` : ''}
         </button>
     `;
 };
@@ -20,15 +21,14 @@ export const Input = ({id, placeholder, maxLength = 10, type = 'text'}) => {
 };
 
 export const Logo = (extraClass = '') => `
-    <div class="logo-text ${extraClass}">🎵 MusicJam</div>
+    <div class="logo-text ${extraClass}">MusicJam</div>
 `;
 
 export const Header = () => `
     <header class="start-header">
         ${Logo()}
         <div class="auth-buttons">
-            ${Button({text: 'Вход', id: 'login-btn', variant: 'outline'})}
-            ${Button({text: 'Регистрация', id: 'register-btn', variant: 'secondary'})}
+            ${Button({text: 'регистрация/войти→', id: 'login-btn', variant: 'register', icon: '/icons/user-icon.svg', textClass: 'register-text'})}
         </div>
     </header>
 `;

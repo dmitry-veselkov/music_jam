@@ -2,13 +2,20 @@
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    background: black;
 }
 
 .start-header {
     display: flex;
     justify-content: space-between;
-    /*align-items: center;*/
     margin: 0;
+    color: #FFF;
+    font-family: "Roboto Flex";
+    font-size: 64px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 124.324px;
+    background: black;
 }
 
 .hero-section {
@@ -18,7 +25,7 @@
     justify-content: center;
     align-items: center;
     text-align: center;
-    padding: 0 var(--spacing-md);
+    background: black;
 }
 
 .hero-title {
@@ -33,4 +40,9 @@
     padding: var(--spacing-lg);
     text-align: center;
     color: var(--color-text-muted);
+}
+
+body {
+    margin: 0;
+    background: black;
 }
