@@ -1,0 +1,141 @@
+﻿.waiting-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    padding: 100px 2rem 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    height: 100vh;
+    align-items: center;
+}
+
+.card {
+    background: var(--color-surface, #1e1e1e);
+    border: 1px solid var(--color-border, #333);
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.room-badge {
+    background: var(--color-secondary, #333);
+    display: inline-block;
+    padding: 0.4rem 1rem;
+    border-radius: 2rem;
+    margin-bottom: 1rem;
+    font-family: monospace;
+    font-size: 1.1rem;
+    color: var(--color-primary, #ffcc00);
+}
+
+.game-title {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.game-author {
+    color: var(--color-text-muted, #888);
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+}
+
+.team-form-container {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 1.5rem;
+    border-radius: 0.8rem;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.text-muted {
+    color: var(--color-text-muted, #888);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.mt-3 {
+    margin-top: 1rem;
+}
+
+.teams-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--color-border, #333);
+}
+
+.team-count {
+    color: var(--color-text-muted, #888);
+}
+
+.pulse-indicator {
+    color: var(--color-primary, #ffcc00);
+    font-size: 0.9rem;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 0.5;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0.5;
+    }
+}
+
+.teams-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.team-item {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 1rem;
+    margin-bottom: 0.5rem;
+    border-radius: 0.5rem;
+    font-size: 1.1rem;
+    transition: background 0.2s;
+}
+
+.team-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.team-item.my-team {
+    border: 1px solid var(--color-primary, #ffcc00);
+    background: rgba(255, 204, 0, 0.1);
+}
+
+.team-icon {
+    margin-right: 1rem;
+    font-size: 1.2rem;
+}
+
+.team-name {
+    flex-grow: 1;
+}
+
+.badge-you {
+    background: var(--color-primary, #ffcc00);
+    color: #000;
+    font-size: 0.8rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 0.3rem;
+    font-weight: bold;
+}
+
+.empty-state {
+    text-align: center;
+    color: var(--color-text-muted, #888);
+    padding: 2rem 0;
+    font-style: italic;
+}

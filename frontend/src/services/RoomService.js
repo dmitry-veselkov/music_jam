@@ -1,33 +1,72 @@
-﻿export async function checkRoomInfo(code) {
-    // TODO Написать на бэке обработку с проверкой введенного кода
-    const url = `/api/check_room?roomCode=${code}`;
+﻿export async function tryGetRoomInfo(code) {
     try {
-        const fetchResult = await fetch(url);
-        if (fetchResult.ok) {
-            const data = await fetchResult.json();
-            return {
-                exists: data['exists'],
-                roomCode: data['code'],
-                status: data['status'],
-            };
+        // TODO Запрос на бэк
+        const response = await fetch(`/api/check_room?roomCode=${code}`);
+        if (!response.ok) {
+            throw new Error(`Ошибка сервера: ${response.status}`);
         }
+
+        return await response.json();
+
     } catch (error) {
-        console.error(`Ошибка сети: ${error}`);
+        console.error('Ошибка: ', error);
+        return {exists: false, roomCode: code, roomInfo: null};
     }
 }
 
-export async function tryEnterToRoom(data) {
-    const d = await checkRoomInfo(data.roomCode);
-    console.log(d);
-    if (!d.exists) {
-        return false;
-    }
+export async function getTeamNameByUUID(uuid) {
+    try {
+        // TODO Запрос на бэк
+        const response = await fetch(`/api/get_team_name`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                "uuid": uuid,
+            })
+        });
+        if (!response.ok) {
+            throw new Error(`Ошибка сервера: ${response.status}`);
+        }
 
-    data.roomCode = d.roomCode;
-    return true;
+        const json = await response.json();
+        return json['teamName'];
+
+    } catch (error) {
+        console.error('Ошибка: ', error);
+        return null;
+    }
+}
+
+export async function setTeamName(teamId, newName) {
+    try {
+        const response = await fetch(`/api/set_team_name`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                "teamId": teamId,
+                "newName": newName,
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`Ошибка сервера: ${response.status}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Ошибка: ', error);
+    }
 }
 
 export function get404() {
+    /**
+     * Струтура страницы 404, которая будет отображаться,
+     * когда страница была не найдена
+     */
     return `
             <div class="page-layout">
                 <main class="main-content">

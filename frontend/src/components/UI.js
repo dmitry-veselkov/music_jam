@@ -6,7 +6,14 @@
     `;
 };
 
-export const Input = ({id, placeholder, maxLength = 10, type = 'text'}) => {
+export const Input = ({
+                          id,
+                          placeholder,
+                          maxLength = 10,
+                          type = 'text',
+                          value = '',
+                          disabled = false
+                      }) => {
     return `
         <input 
             type="${type}" 
@@ -15,6 +22,8 @@ export const Input = ({id, placeholder, maxLength = 10, type = 'text'}) => {
             placeholder="${placeholder}" 
             maxlength="${maxLength}" 
             autocomplete="off"
+            value="${value}"
+            ${disabled ? 'disabled' : ''} 
         >
     `;
 };
@@ -36,7 +45,7 @@ export const Header = () => `
 export const Footer = () => `
     <footer class="start-footer">
         <div class="creators">
-            <p>Разработано командой: <strong>Бой с Панасовой</strong> © 2026</p>
+            <p>Разработано командой: <strong>MusicJam</strong> © 2026</p>
             <a href="https://github.com/dmitry-veselkov/music_jam" target="_blank" class="github-link">GitHub проекта</a>
         </div>
     </footer>
