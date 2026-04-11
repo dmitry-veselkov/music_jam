@@ -1,8 +1,8 @@
-﻿import { Component } from "../core/Component.js";
+import { Component } from "../core/Component.js";
 import {Header, Footer, Button} from "../components/UI.js";
 
 
-export class LoginView extends Component {
+export class RegisterView extends Component {
     // TODO ЛИЗА Доделать header: кнопки должы перекидывать на соответсвующие страницы
     // TODO ЛИЗА После входа или регистрации в углу должен отображаться пользователь (логин, ава?)
     render() {

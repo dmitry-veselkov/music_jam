@@ -20,31 +20,37 @@ export class Router {
     }
 
     handleRoute() {
-        const fullpath = window.location.pathname;
-        let path = fullpath;
-        let data = {};
-
-        if (path.includes('room')) {
-            const [roomCode] = path.split('/').slice(-1);
-            path = path.slice(0, path.length - roomCode.length - 1);
-            data.roomCode = roomCode;
-        }
+        let dataForView = {};
+        const path = this._updateRoomPath(window.location.pathname, dataForView);
 
         const historyState = window.history.state || {};
-        const combinedData = {...historyState, ...data};
+        const combinedData = {...historyState, ...dataForView};
+
         const View = this.routes[path];
-
         if (View) {
-            if (this.currentView) {
-                this.currentView.unmount();
-            }
-
-            this.currentView = new View(this.container, combinedData);
-            console.log(this.currentView);
-            this.currentView.mount();
+            this._showView(View, combinedData);
         } else {
             this.container.innerHTML = get404();
         }
+    }
+
+    _updateRoomPath(path, dataForView) {
+        if (path.includes('room')) {
+            const [roomCode] = path.split('/').slice(-1);
+            dataForView.roomCode = roomCode;
+            return path.slice(0, path.length - roomCode.length - 1);
+        }
+
+        return path;
+    }
+
+    _showView(View, data) {
+        if (this.currentView) {
+            this.currentView.unmount();
+        }
+
+        this.currentView = new View(this.container, data);
+        this.currentView.mount();
     }
 
     navigate(path) {

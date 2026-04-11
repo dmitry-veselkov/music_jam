@@ -1,6 +1,6 @@
 ﻿import { Component } from "../core/Component.js";
 import { Logo } from "../components/UI.js";
-import { get404, tryEnterToRoom } from "../services/RoomService.js";
+import {get404, tryGetRoomInfo} from "../services/RoomService.js";
 
 export class GameSettingsView extends Component {
     constructor(container, data) {
@@ -18,11 +18,13 @@ export class GameSettingsView extends Component {
     }
 
     async mount() {
-        if (await tryEnterToRoom(this.data)) {
-            this.updateDOM();
-        } else {
+        const roomInfo = await tryGetRoomInfo(this.data.roomCode);
+        if (!roomInfo.exists) {
             this.container.innerHTML = get404();
+            return;
         }
+
+        this.updateDOM();
     }
 
     updateDOM() {
