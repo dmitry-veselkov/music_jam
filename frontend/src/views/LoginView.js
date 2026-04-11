@@ -1,5 +1,5 @@
 ﻿import { Component } from "../core/Component.js";
-import {Header, Footer, Button} from "../components/UI";
+import {Header, Footer, Button} from "../components/UI.js";
 
 
 export class LoginView extends Component {

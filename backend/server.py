@@ -62,39 +62,39 @@ def catch_all(path):
         return send_from_directory(app.static_folder, path)
     return send_from_directory(app.static_folder, 'index.html')
 
-@app.route('/login', methods=['POST'])
-def login():
-    data = request.get_json()
-    username = data.get('name')
-    password = data.get('password')
-    user = users_db.get(username)
-    if not user:
-        return jsonify({"error": "Пользователь не найден"}), 404
-    if user["password"] != password:
-        return jsonify({"error": "Неверный пароль"}), 401
-    return jsonify({
-        "message": "Успешный вход",
-        "user": {
-            "name": username
-        }
-    })
-
-@app.route('/register', methods=['POST'])
-def register():
-    data = request.get_json()
-    username = data.get('name')
-    password = data.get('password')
-    if username in users_db:
-        return jsonify({"error": "Пользователь уже существует"}), 400
-    users_db[username] = {
-        "password": password
-    }
-    return jsonify({
-        "message": "Регистрация успешна",
-        "user": {
-            "name": username
-        }
-    })
+# @app.route('/login', methods=['POST'])
+# def login():
+#     data = request.get_json()
+#     username = data.get('name')
+#     password = data.get('password')
+#     user = users_db.get(username)
+#     if not user:
+#         return jsonify({"error": "Пользователь не найден"}), 404
+#     if user["password"] != password:
+#         return jsonify({"error": "Неверный пароль"}), 401
+#     return jsonify({
+#         "message": "Успешный вход",
+#         "user": {
+#             "name": username
+#         }
+#     })
+#
+# @app.route('/register', methods=['POST'])
+# def register():
+#     data = request.get_json()
+#     username = data.get('name')
+#     password = data.get('password')
+#     if username in users_db:
+#         return jsonify({"error": "Пользователь уже существует"}), 400
+#     users_db[username] = {
+#         "password": password
+#     }
+#     return jsonify({
+#         "message": "Регистрация успешна",
+#         "user": {
+#             "name": username
+#         }
+#     })
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

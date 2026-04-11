@@ -14,6 +14,7 @@ const routes = {
     '/lobby': LobbyView,
     '/room/game_settings': GameSettingsView,
     '/room/waiting': WaitingRoomView,
+    '/login': LoginView,
 };
 
 const router = new Router(routes, appContainer);

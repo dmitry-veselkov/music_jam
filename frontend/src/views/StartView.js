@@ -49,7 +49,6 @@ export class StartView extends Component {
 
         if (registerBtn) {
             registerBtn.addEventListener('click', () => {
-                alert(1);
                 window.history.pushState({}, '', '/register');
                 window.dispatchEvent(new Event('popstate'));
             });
@@ -57,7 +56,6 @@ export class StartView extends Component {
 
         if (loginBtn) {
             loginBtn.addEventListener('click', () => {
-                alert(1);
                 window.history.pushState({}, '', '/login');
                 window.dispatchEvent(new Event('popstate'));
             });
