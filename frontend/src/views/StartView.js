@@ -36,11 +36,29 @@ export class StartView extends Component {
 
     mount() {
         this.container.innerHTML = this.render();
-
+        const registerBtn = this.container.querySelector('#register-btn');
+        const loginBtn = this.container.querySelector('#login-btn');
         const joinBtn = this.container.querySelector('#join-game-btn');
+
         if (joinBtn) {
             joinBtn.addEventListener('click', () => {
                 window.history.pushState({}, '', '/lobby');
+                window.dispatchEvent(new Event('popstate'));
+            });
+        }
+
+        if (registerBtn) {
+            registerBtn.addEventListener('click', () => {
+                alert(1);
+                window.history.pushState({}, '', '/register');
+                window.dispatchEvent(new Event('popstate'));
+            });
+        }
+
+        if (loginBtn) {
+            loginBtn.addEventListener('click', () => {
+                alert(1);
+                window.history.pushState({}, '', '/login');
                 window.dispatchEvent(new Event('popstate'));
             });
         }
