@@ -1,10 +1,69 @@
 ﻿import {Component} from "../core/Component.js";
 import {Button, Input, Logo} from "../components/UI.js";
-import {checkRoomInfo} from "../services/RoomService.js";
+import {tryGetRoomInfo} from "../services/RoomService.js";
 
 
 export class LobbyView extends Component {
+    mount() {
+        this.container.innerHTML = this.render();
+
+        this.joinButton = this.container.querySelector('#join-btn');
+        this.codeInput = this.container.querySelector('#room-code');
+
+        this._setEventListeners();
+        this.codeInput.focus();
+    }
+
+    _setEventListeners() {
+        this.joinButton.addEventListener('click', () => this._handleJoin());
+        this.codeInput.addEventListener('keypress', async (e) => {
+            if (e.key === 'Enter') {
+                await this._handleJoin();
+            }
+        });
+
+        this.codeInput.addEventListener('input', (e) => {
+            e.target.value = e.target.value.toUpperCase();
+        });
+    }
+
+    async _handleJoin() {
+        const code = this.codeInput.value.trim().toUpperCase();
+
+        if (code.length < 3) {
+            // TODO ДИМА заменить alert на сообщение красным текстом под полем ввода
+            alert("Код комнаты слишком короткий!");
+            return;
+        }
+
+        const data = await tryGetRoomInfo(code);
+        if (!data.exists) {
+            // TODO ДИМА заменить alert на сообщение красным текстом под полем ввода
+            alert("Комната не найдена!")
+        } else if (data.roomInfo.status === 'waiting') {
+            window.history.pushState({roomCode: code}, '', `/room/waiting/${code}`);
+            window.dispatchEvent(new Event('popstate'));
+        } else {
+            // TODO ДИМА заменить alert на сообщение красным текстом под полем ввода
+            alert("Рановато зашел ты, приятель...")
+        }
+    }
+
     render() {
+        const inputSettings = {
+            id: 'room-code',
+            placeholder: 'Код (например, X7B9)',
+            maxLength: 6,
+            type: 'text'
+        }
+
+        const buttonSettings = {
+            text: 'Подключиться',
+            id: 'join-btn',
+            variant: 'primary',
+            extraClass: 'btn-full'
+        }
+
         return `
             <div class="lobby-page">
                 ${Logo('logo-corner')}
@@ -17,52 +76,13 @@ export class LobbyView extends Component {
                     </p>
                     
                     <div class="join-form">
-                        ${Input({id: 'room-code', placeholder: 'Код (например, X7B9)', maxLength: 6, type: 'text'})}
-                        ${Button({text: 'Подключиться', id: 'join-btn', variant: 'primary', extraClass: 'btn-full'})}
+                        ${Input(inputSettings)}
+                        ${Button(buttonSettings)}
                     </div>
 
                     <a href="/" class="back-link">← Назад</a>
                 </main>
             </div>
         `;
-    }
-
-    mount() {
-        this.container.innerHTML = this.render();
-
-        const joinBtn = this.container.querySelector('#join-btn');
-        const codeInput = this.container.querySelector('#room-code');
-
-        const handleJoin = async () => {
-            const code = codeInput.value.trim().toUpperCase();
-
-            if (code.length < 3) {
-                alert("Код комнаты слишком короткий!");
-                return;
-            }
-
-            const data = await checkRoomInfo(code);
-            if (!data['exists']) {
-                alert("Комната не найдена!")
-            } else if (data['status'] === 'waiting') {
-                window.history.pushState({ roomCode: code }, '', `/room/waiting/${code}`);
-                window.dispatchEvent(new Event('popstate'));
-            } else {
-                alert("Рановато зашел ты, приятель...")
-            }
-        };
-
-        joinBtn.addEventListener('click', handleJoin);
-        codeInput.addEventListener('keypress', async (e) => {
-            if (e.key === 'Enter') {
-                await handleJoin();
-            }
-        });
-
-        codeInput.addEventListener('input', (e) => {
-            e.target.value = e.target.value.toUpperCase();
-        });
-
-        codeInput.focus();
     }
 }
