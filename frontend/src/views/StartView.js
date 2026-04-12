@@ -1,21 +1,24 @@
 ﻿import {Component} from "../core/Component.js";
 import {Button, Header, Footer} from "../components/UI.js";
+import {tryGetUserInfo} from "../services/AccountServices.js";
 
 export class StartView extends Component {
-    // TODO ЛИЗА Доделать header: кнопки должы перекидывать на соответсвующие страницы
-    // TODO ЛИЗА После входа или регистрации в углу должен отображаться пользователь (логин, ава?)
-    render() {
-        const buttonSettings = {
-            text: 'Подключиться к игре',
-            id: 'join-game-btn',
-            variant: 'primary',
-            extraClass: 'btn-large'
-        }
+    async mount() {
+        /**
+         * Получаем информацию о пользователе и отображаем главную страницу.
+         * Если пользователь авторизован, то в правом верхнем углу будет ссылка на личный кабинет.
+         * Иначе будут кнопки Входа/Регистрации
+         */
+        window.currentUser = await tryGetUserInfo();
+        this.container.innerHTML = this.render();
+        this._addEventListeners();
+    }
 
+    render() {
         return `
             <div class="start-page page-layout">
                 <div class="header-top">
-                   ${Header()}
+                   ${Header(window.currentUser !== null)}
                 </div>
                 
                 <main class="hero-section main-content">
@@ -25,40 +28,35 @@ export class StartView extends Component {
                     </p>
                     
                     <div class="action-buttons">
-                        ${Button(buttonSettings)}
+                        ${Button(this._connectButtonSettings)}
                     </div>
                 </main>
-
                 ${Footer()}
             </div>
         `;
     }
 
-    mount() {
-        this.container.innerHTML = this.render();
-        const registerBtn = this.container.querySelector('#register-btn');
-        const loginBtn = this.container.querySelector('#login-btn');
-        const joinBtn = this.container.querySelector('#join-game-btn');
+    _addEventListeners() {
+        const buttonRoutes = {
+            '/lobby': this.container.querySelector('#join-game-btn'),
+            '/login': this.container.querySelector('#login-btn'),
+            '/register': this.container.querySelector('#register-btn'),
+        };
 
-        if (joinBtn) {
-            joinBtn.addEventListener('click', () => {
-                window.history.pushState({}, '', '/lobby');
-                window.dispatchEvent(new Event('popstate'));
-            });
+        for (const [route, obj] of Object.entries(buttonRoutes)) {
+            if (obj) {
+                obj.addEventListener('click', () => {
+                    window.history.pushState({}, '', route);
+                    window.dispatchEvent(new Event('popstate'));
+                });
+            }
         }
+    }
 
-        if (registerBtn) {
-            registerBtn.addEventListener('click', () => {
-                window.history.pushState({}, '', '/register');
-                window.dispatchEvent(new Event('popstate'));
-            });
-        }
-
-        if (loginBtn) {
-            loginBtn.addEventListener('click', () => {
-                window.history.pushState({}, '', '/login');
-                window.dispatchEvent(new Event('popstate'));
-            });
-        }
+    _connectButtonSettings = {
+        text: 'Подключиться к игре',
+        id: 'join-game-btn',
+        variant: 'primary',
+        extraClass: 'btn-large'
     }
 }

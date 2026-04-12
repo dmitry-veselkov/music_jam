@@ -32,15 +32,33 @@ export const Logo = (extraClass = '') => `
     <div class="logo-text ${extraClass}">🎵 MusicJam</div>
 `;
 
-export const Header = () => `
-    <header class="start-header">
-        ${Logo()}
-        <div class="auth-buttons">
-            ${Button({text: 'Вход', id: 'login-btn', variant: 'outline'})}
-            ${Button({text: 'Регистрация', id: 'register-btn', variant: 'secondary'})}
-        </div>
-    </header>
-`;
+export const Header = (isAuth = false) => {
+    const loginBtnSettings = {text: 'Вход', id: 'login-btn', variant: 'outline'}
+    const registerBtnSettings = {text: 'Регистрация', id: 'register-btn', variant: 'secondary'}
+
+    const enterButtons = `<div class="auth-buttons">
+                                    ${Button(loginBtnSettings)}
+                                    ${Button(registerBtnSettings)}
+                                </div>`
+
+    const account = `
+        <a href="/account" class="user-profile-link" data-link>
+            <div class="user-info">
+                <span class="user-name">Личный кабинет</span>
+                <div class="user-avatar">
+                    <i class="icon-user"></i> <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                </div>
+            </div>
+        </a>`;
+
+    return `<header class="start-header">
+                ${Logo()}
+                ${isAuth ? account : enterButtons}
+            </header>
+`};
 
 export const Footer = () => `
     <footer class="start-footer">

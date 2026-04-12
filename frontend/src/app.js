@@ -7,6 +7,7 @@ import {GameSettingsView} from "./views/GameSettingsView.js";
 import {WaitingRoomView} from "./views/WaitingRoomView.js";
 import {LoginView} from "./views/LoginView.js";
 import {RegisterView} from "./views/RegisterView.js";
+import {AccountView} from "./views/AccountView.js";
 
 const bus = new EventBus();
 const appContainer = document.getElementById('app');
@@ -17,6 +18,7 @@ const routes = {
     '/room/waiting': WaitingRoomView,
     '/login': LoginView,
     '/register': RegisterView,
+    '/account': AccountView
 };
 
 const router = new Router(routes, appContainer);

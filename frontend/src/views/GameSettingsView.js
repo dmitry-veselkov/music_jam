@@ -1,6 +1,7 @@
-﻿import { Component } from "../core/Component.js";
-import { Logo } from "../components/UI.js";
+﻿import {Component} from "../core/Component.js";
+import {Logo} from "../components/UI.js";
 import {get404, tryGetRoomInfo} from "../services/RoomService.js";
+import {loadUserInfoOrRedirect} from "../services/AccountServices.js";
 
 export class GameSettingsView extends Component {
     constructor(container, data) {
@@ -18,6 +19,10 @@ export class GameSettingsView extends Component {
     }
 
     async mount() {
+        const userInfo = await loadUserInfoOrRedirect();
+        if (!userInfo) {
+            return;
+        }
         const roomInfo = await tryGetRoomInfo(this.data.roomCode);
         if (!roomInfo.exists) {
             this.container.innerHTML = get404();

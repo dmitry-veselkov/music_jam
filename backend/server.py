@@ -1,5 +1,6 @@
-﻿from flask import Flask, send_from_directory, jsonify, request
+﻿from flask import Flask, send_from_directory, jsonify, request, abort, make_response
 import os
+import secrets
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 FRONTEND_DIR = os.path.abspath(os.path.join(BASE_DIR, '..', 'frontend'))
@@ -11,7 +12,21 @@ teams = {
     "fake-uuid-2": "Недавно гипербола"
 }
 
-users_db = {}
+users_db = {
+    'pupu@yandex.ru': {'name': "Дмитрий", 'password': '123'},
+}
+
+sessions = {
+
+}
+
+games = {
+    'pupu@yandex.ru': [
+        {'id': "g1", 'title': "Музыкальный Квиз", 'date': "10 апр 2026", 'code': "12345"},
+        {'id': "g2", 'title': "Новогодний Свояк", 'date': "25 дек 2025", 'code': "98765"},
+    ]
+}
+
 
 @app.route('/api/check_room', methods=['GET'])
 def get_room_info():
@@ -27,6 +42,77 @@ def get_room_info():
     } if exists else None
 
     return jsonify({"roomCode": code, "exists": exists, "roomInfo": room_info})
+
+
+@app.route('/api/login', methods=['POST'])
+def login():
+    data = request.get_json()
+
+    email = data.get('email')
+    password = data.get('password')
+
+    if email in users_db and users_db[email]['password'] == password:
+        token = secrets.token_hex(16)
+        sessions[token] = email
+        response = make_response()
+        response.set_cookie('token', token, httponly=True, samesite='Lax')
+        return response, 200
+    else:
+        return jsonify({"message": "Invalid credentials"}), 400
+
+
+@app.route('/api/register', methods=['POST'])
+def register():
+    data = request.get_json()
+
+    name = data.get('name')
+    email = data.get('email')
+    password = data.get('password')
+
+    if email in users_db:
+        return jsonify({"message": "Пользователь уже существует"}), 400
+
+    users_db[email] = {
+        'name': name,
+        "password": password
+    }
+
+    token = secrets.token_hex(16)
+    sessions[token] = email
+
+    response = make_response(jsonify({
+        "user": {
+            "name": name,
+            "email": email,
+        }
+    }))
+
+    response.set_cookie('token', token, httponly=True, samesite='Lax')
+    return response, 200
+
+
+@app.route('/api/get_user_info', methods=['GET'])
+def get_user_info():
+    token = request.cookies.get('token')
+
+    if not token:
+        return jsonify({"message": "Not authenticated"}), 401
+
+    email = sessions.get(token)
+    user = users_db.get(email)
+
+    return jsonify({
+        "email": email,
+        "name": user['name']
+    }), 200
+
+
+@app.route('/api/get_all_user_games', methods=['GET'])
+def get_all_user_games():
+    email = request.args.get('email')
+    print(request.args)
+    user_games = games[email]
+    return jsonify({"games": user_games}), 200
 
 
 @app.route('/api/set_team_name', methods=['POST'])
@@ -62,39 +148,6 @@ def catch_all(path):
         return send_from_directory(app.static_folder, path)
     return send_from_directory(app.static_folder, 'index.html')
 
-# @app.route('/login', methods=['POST'])
-# def login():
-#     data = request.get_json()
-#     username = data.get('name')
-#     password = data.get('password')
-#     user = users_db.get(username)
-#     if not user:
-#         return jsonify({"error": "Пользователь не найден"}), 404
-#     if user["password"] != password:
-#         return jsonify({"error": "Неверный пароль"}), 401
-#     return jsonify({
-#         "message": "Успешный вход",
-#         "user": {
-#             "name": username
-#         }
-#     })
-#
-# @app.route('/register', methods=['POST'])
-# def register():
-#     data = request.get_json()
-#     username = data.get('name')
-#     password = data.get('password')
-#     if username in users_db:
-#         return jsonify({"error": "Пользователь уже существует"}), 400
-#     users_db[username] = {
-#         "password": password
-#     }
-#     return jsonify({
-#         "message": "Регистрация успешна",
-#         "user": {
-#             "name": username
-#         }
-#     })
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
