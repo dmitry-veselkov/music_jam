@@ -27,6 +27,31 @@ games = {
     ]
 }
 
+game_characteristics = {
+    '12345': {
+        'name': 'Крутая игра',
+        'author': 'Dima',
+        'description': 'фывар',
+        'categories': ['asdf', 'asdf'],
+        'costs': [100, 200]
+    }
+}
+
+@app.route('/api/gameSettings', methods=['GET'])
+def get_room_settings():
+    code = request.args.get('roomCode', '').upper()
+
+    game = game_characteristics.get(code)
+
+    if not game:
+        return jsonify({
+            "exists": False
+        })
+    return jsonify({
+        "exists": True,
+        "roomCode": code,
+        **game
+    })
 
 @app.route('/api/check_room', methods=['GET'])
 def get_room_info():

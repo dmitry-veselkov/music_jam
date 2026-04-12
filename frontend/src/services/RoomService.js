@@ -14,6 +14,20 @@
     }
 }
 
+export async function tryGetRoomSettings(code){
+    // TODO Запрос на бэк
+    try{
+        const response = await fetch(`/api/gameSettings?roomCode=${code}`);
+        if (!response.ok) {
+            throw new Error(`Ошибка сервера: ${response.status}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Ошибка: ', error);
+        return {exists: false, roomCode: code, roomInfo: null};
+    }
+}
+
 export async function getTeamNameByUUID(uuid) {
     try {
         // TODO Запрос на бэк

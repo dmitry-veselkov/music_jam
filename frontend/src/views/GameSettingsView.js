@@ -1,6 +1,6 @@
 ﻿import {Component} from "../core/Component.js";
 import {Logo} from "../components/UI.js";
-import {get404, tryGetRoomInfo} from "../services/RoomService.js";
+import {get404, tryGetRoomInfo, tryGetRoomSettings} from "../services/RoomService.js";
 import {loadUserInfoOrRedirect} from "../services/AccountServices.js";
 
 export class GameSettingsView extends Component {
@@ -23,13 +23,25 @@ export class GameSettingsView extends Component {
         if (!userInfo) {
             return;
         }
-        const roomInfo = await tryGetRoomInfo(this.data.roomCode);
+        const roomInfo = await tryGetRoomSettings(this.data.roomCode);
         if (!roomInfo.exists) {
             this.container.innerHTML = get404();
             return;
         }
-
+        this._applyRoomInfo(roomInfo);
         this.updateDOM();
+    }
+
+    _applyRoomInfo(roomInfo) {
+        this.state.settings = {
+            name: roomInfo.name ?? '',
+            author: roomInfo.author ?? '',
+            description: roomInfo.description ?? '',
+            maxTeams: roomInfo.maxTeams ?? 4
+        };
+
+        this.state.categories = roomInfo.categories ?? ['Категория 1', 'Категория 2'];
+        this.state.costs = roomInfo.costs ?? [100, 200, 300];
     }
 
     updateDOM() {
