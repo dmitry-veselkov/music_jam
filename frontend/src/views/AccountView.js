@@ -35,8 +35,17 @@ export class AccountView extends Component {
                     <p class="text-muted">Создана: ${game.date}</p>
                     <p class="room-code">Код лобби: <strong>${game.code}</strong></p>
                     <div class="game-actions mt-3">
-                        <button class="btn btn-outline btn-sm" data-edit-id="${game.id}">Редактировать</button>
-                        <button class="btn btn-primary btn-sm" data-start-id="${game.id}">Запустить</button>
+                        <button 
+                            class="btn btn-outline btn-sm" 
+                            data-edit-id="${game.id}"
+                            data-game-code="${game.code}">
+                        Редактировать
+                        </button>
+                        <button 
+                            class="btn btn-primary btn-sm" 
+                            data-start-id="${game.id}"
+                            data-game-code="${game.code}"
+                            >Запустить</button>
                     </div>
                 </div>
             `)
@@ -83,6 +92,28 @@ export class AccountView extends Component {
                 window.history.pushState({}, '', '/room/game_settings/12345');
                 window.dispatchEvent(new Event('popstate'));
             })
+        }
+
+        const editGameButtons = document.querySelectorAll("[data-edit-id]");
+        if (editGameButtons) {
+            editGameButtons.forEach(button => {
+                button.addEventListener("click", (event) => {
+                    const gameId = event.currentTarget.dataset.gameCode;
+                    window.history.pushState({}, '', `/room/game_settings/${gameId}`);
+                    window.dispatchEvent(new Event('popstate'));
+                });
+            });
+        }
+
+        const startButtons = this.container.querySelectorAll("[data-start-id]");
+        if (startButtons) {
+            startButtons.forEach(button => {
+                button.addEventListener("click", (event) => {
+                    const gameId = event.currentTarget.dataset.gameCode;
+                    window.history.pushState({}, '', `/room/waiting/${gameId}`);
+                    window.dispatchEvent(new Event('popstate'));
+                });
+            });
         }
     }
 }
