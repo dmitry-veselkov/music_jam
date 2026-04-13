@@ -34,8 +34,8 @@ export class WaitingRoomView extends Component {
 
         const roomInfo = roomData.roomInfo;
         this._setState({
-            gameName: roomInfo.gameName || 'Без названия',
-            creator: roomInfo.creator || 'неизвесный...',
+            gameName: roomInfo.name || 'Без названия',
+            creator: roomInfo.author || 'неизвестный...',
             teams: roomInfo.teams || []
         })
     }

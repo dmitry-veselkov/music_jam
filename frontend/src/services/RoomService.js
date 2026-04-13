@@ -14,6 +14,22 @@
     }
 }
 
+export async function tryGetAllPlayers(code) {
+    try {
+        // TODO Запрос на бэк
+        const response = await fetch(`/api/check_room?roomCode=${code}`);
+        if (!response.ok) {
+            throw new Error(`Ошибка сервера: ${response.status}`);
+        }
+
+        return await response.json();
+
+    } catch (error) {
+        console.error('Ошибка: ', error);
+        return {exists: false, roomCode: code, roomInfo: null};
+    }
+}
+
 export async function tryGetRoomSettings(code){
     // TODO Запрос на бэк
     try{

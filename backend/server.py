@@ -37,6 +37,18 @@ game_characteristics = {
     }
 }
 
+game_active = {
+    '12345': {
+        "status": "waiting",
+        'name': 'Крутая игра',
+        'author': 'Dima',
+        'description': 'фывар',
+        'categories': ['asdf', 'asdf'],
+        'costs': [100, 200],
+        'teams' : list(teams.values())
+    }
+}
+
 @app.route('/api/gameSettings', methods=['GET', 'POST'])
 def get_room_settings():
     if request.method == 'GET':
@@ -81,16 +93,12 @@ def get_room_settings():
 @app.route('/api/check_room', methods=['GET'])
 def get_room_info():
     code = request.args.get('roomCode').upper()
-
-    # TODO Переделать MOCK
-    exists = code == "12345"
-    room_info = {
-        "status": "waiting",
-        "gameName": "Хиты 80-х",
-        "creator": "Очень добрый человек",
-        "teams": list(teams.values())
-    } if exists else None
-
+    try:
+        room_info = game_active[code]
+        exists = True
+    except:
+        room_info = None
+        exists = False
     return jsonify({"roomCode": code, "exists": exists, "roomInfo": room_info})
 
 
