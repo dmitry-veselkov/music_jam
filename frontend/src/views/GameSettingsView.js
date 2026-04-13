@@ -228,14 +228,17 @@ export class GameSettingsView extends Component {
             closeBtn.onclick = () => this.closeModal();
         }
 
+        const closeBtnKrest = this.container.querySelector('#close-modal');
+        if (closeBtnKrest) {
+            closeBtnKrest.onclick = () => this.closeModal();
+        }
+
         const saveBtn = this.container.querySelector('#save-track');
         if (saveBtn) {
             saveBtn.onclick = () => {
                 const input = this.container.querySelector('#track-input');
                 const value = input.value;
-
                 console.log('Трек:', value, 'ячейка:', this.currentCell);
-
                 this.closeModal();
             };
         }
