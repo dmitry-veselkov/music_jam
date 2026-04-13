@@ -193,48 +193,24 @@ export class GameView extends Component {
 
                     <div class="form-group">
                         <label>Название</label>
-                        <input
-                            type="text"
-                            class="ui-input sync-input"
-                            data-key="name"
-                            value="${this.state.settings.name}"
-                            placeholder="Название квиза"
-                        >
+                        <div class="ui-input readonly-field">${this.state.settings.name || '—'}</div>
                     </div>
 
                     <div class="form-group">
                         <label>Автор</label>
-                        <input
-                            type="text"
-                            class="ui-input sync-input"
-                            data-key="author"
-                            value="${this.state.settings.author}"
-                            placeholder="Ваше имя"
-                        >
+                        <div class="ui-input readonly-field">${this.state.settings.author || '—'}</div>
                     </div>
 
                     <div class="form-group">
                         <label>Описание</label>
-                        <textarea
-                            class="ui-input sync-input"
-                            data-key="description"
-                            rows="3"
-                            placeholder="О чем эта игра?"
-                        >${this.state.settings.description}</textarea>
+                        <div class="ui-input readonly-field readonly-textarea">
+                            ${this.state.settings.description || '—'}
+                        </div>
                     </div>
 
                     <div class="form-group">
-                        <label>
-                            Команд (макс): <span id="team-val">${this.state.settings.maxTeams}</span>
-                        </label>
-                        <input
-                            type="range"
-                            class="sync-input"
-                            data-key="maxTeams"
-                            min="2"
-                            max="8"
-                            value="${this.state.settings.maxTeams}"
-                        >
+                        <label>Команд (макс)</label>
+                        <div class="ui-input readonly-field">${this.state.settings.maxTeams || '—'}</div>
                     </div>
 
                     <div class="btn-group-vertical">
@@ -246,6 +222,7 @@ export class GameView extends Component {
             <main class="editor-main">
                 <div class="table-header-actions">
                     <div class="badge">Код комнаты: ${this.data.roomCode}</div>
+                    <div class="badge">Режим организатора</div>
                 </div>
 
                 <div class="scroll-container">
@@ -253,16 +230,10 @@ export class GameView extends Component {
                         <thead>
                             <tr>
                                 <th class="corner-cell">Категория / Цена</th>
-                                ${this.state.costs.map((cost, idx) => `
+                                ${this.state.costs.map(cost => `
                                     <th class="cost-th">
-                                        <div class="th-content">
-                                            <input
-                                                type="number"
-                                                class="cost-edit"
-                                                data-idx="${idx}"
-                                                value="${cost}"
-                                            >
-                                            <button class="remove-btn remove-col" data-idx="${idx}">×</button>
+                                        <div class="th-content readonly-th">
+                                            <span>${cost}</span>
                                         </div>
                                     </th>
                                 `).join('')}
@@ -273,14 +244,8 @@ export class GameView extends Component {
                             ${this.state.categories.map((cat, rIdx) => `
                                 <tr>
                                     <td class="cat-td">
-                                        <div class="td-content">
-                                            <input
-                                                type="text"
-                                                class="cat-edit"
-                                                data-idx="${rIdx}"
-                                                value="${cat}"
-                                            >
-                                            <button class="remove-btn remove-row" data-idx="${rIdx}">×</button>
+                                        <div class="td-content readonly-td">
+                                            <span>${cat}</span>
                                         </div>
                                     </td>
 
@@ -302,10 +267,10 @@ export class GameView extends Component {
                                                     data-track="${trackValue ? trackValue : ''}"
                                                 >
                                                     <div class="cell-main">
-                                                        ${trackValue ? trackValue : cost}
+                                                        ${cost}
                                                     </div>
-                                                    <div class="cell-sub">
-                                                        ${trackValue ? '▶ Запустить' : '+ Добавить трек'}
+                                                    <div class="cell-sub" style="width: 100%">
+                                                        ${trackValue ? '▶ Запустить' : 'Нет трека'}
                                                     </div>
                                                 </button>
                                             </td>
@@ -317,42 +282,6 @@ export class GameView extends Component {
                     </table>
                 </div>
             </main>
-        </div>
-
-        <div id="track-modal" class="modal hidden">
-            <div class="modal-backdrop"></div>
-
-            <div class="modal-dialog">
-                <button class="modal-close" id="close-modal" aria-label="Закрыть">×</button>
-
-                <div class="modal-header">
-                    <div class="modal-badge">🎵 Трек</div>
-                    <h3 class="modal-title">Добавить трек</h3>
-                    <p class="modal-subtitle">
-                        Укажи название композиции, чтобы привязать её к выбранной ячейке.
-                    </p>
-                </div>
-
-                <div class="modal-body">
-                    <label for="track-input" class="modal-label">Название трека</label>
-                    <input
-                        type="text"
-                        id="track-input"
-                        class="modal-input"
-                        placeholder="Например: Queen — Bohemian Rhapsody"
-                    >
-
-                    <div class="track-preview-card">
-                        <div class="track-preview-icon">♪</div>
-                        <div class="track-preview-text">
-                            <div class="track-preview-title">Будущий трек</div>
-                            <div class="track-preview-subtitle">
-                                Здесь можно потом показать выбранный трек, автора или ссылку
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     `;
     }
