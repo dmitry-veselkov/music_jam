@@ -110,8 +110,10 @@ export class GameSettingsView extends Component {
                                                 <button class="remove-btn remove-row" data-idx="${rIdx}">×</button>
                                             </div>
                                         </td>
-                                        ${this.state.costs.map(cost => `
-                                            <td><div class="preview-cell">${cost}</div></td>
+                                        ${this.state.costs.map((cost, cIdx) => `
+                                            <td><div class="preview-cell"
+                                                     data-row="${rIdx}"
+                                                     data-col="${cIdx}">${cost}</div></td>
                                         `).join('')}
                                     </tr>
                                 `).join('')}
@@ -119,6 +121,46 @@ export class GameSettingsView extends Component {
                         </table>
                     </div>
                 </main>
+            </div>
+            <div id="track-modal" class="modal hidden">
+                <div class="modal-backdrop"></div>
+
+                    <div class="modal-dialog">
+                        <button class="modal-close" id="close-modal" aria-label="Закрыть">×</button>
+
+                    <div class="modal-header">
+                        <div class="modal-badge">🎵 Трек</div>
+                            <h3 class="modal-title">Добавить трек</h3>
+                                <p class="modal-subtitle">
+                                    Укажи название композиции, чтобы привязать её к выбранной ячейке.
+                                </p>
+                        </div>
+
+                        <div class="modal-body">
+                            <label for="track-input" class="modal-label">Название трека</label>
+                                <input
+                                    type="text"
+                                    id="track-input"
+                                    class="modal-input"
+                                    placeholder="Например: Queen — Bohemian Rhapsody"
+                                >
+
+                        <div class="track-preview-card">
+                            <div class="track-preview-icon">♪</div>
+                                <div class="track-preview-text">
+                                    <div class="track-preview-title">Будущий трек</div>
+                                        <div class="track-preview-subtitle">
+                                            Здесь можно потом показать выбранный трек, автора или ссылку
+                                        </div>
+                                    </div>
+                                </div>
+                        </div>
+
+                        <div class="modal-actions">
+                            <button class="btn btn-secondary" id="cancel-track">Отмена</button>
+                            <button class="btn btn-primary" id="save-track">Сохранить</button>
+                        </div>
+                </div>
             </div>
         `;
     }
@@ -171,5 +213,44 @@ export class GameSettingsView extends Component {
                 this.state.categories[e.target.dataset.idx] = e.target.value;
             };
         });
+
+        this.container.querySelectorAll('.preview-cell').forEach(cell => {
+            cell.addEventListener('click', (e) => {
+                const row = e.currentTarget.dataset.row;
+                const col = e.currentTarget.dataset.col;
+
+                this.openModal(row, col);
+            });
+        });
+
+        const closeBtn = this.container.querySelector('#cancel-track');
+        if (closeBtn) {
+            closeBtn.onclick = () => this.closeModal();
+        }
+
+        const saveBtn = this.container.querySelector('#save-track');
+        if (saveBtn) {
+            saveBtn.onclick = () => {
+                const input = this.container.querySelector('#track-input');
+                const value = input.value;
+
+                console.log('Трек:', value, 'ячейка:', this.currentCell);
+
+                this.closeModal();
+            };
+        }
+
+    }
+
+    openModal(row, col) {
+        this.currentCell = { row, col };
+
+        const modal = this.container.querySelector('#track-modal');
+        modal.classList.remove('hidden');
+    }
+
+    closeModal() {
+        const modal = this.container.querySelector('#track-modal');
+        modal.classList.add('hidden');
     }
 }
