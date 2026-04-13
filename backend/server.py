@@ -37,21 +37,46 @@ game_characteristics = {
     }
 }
 
-@app.route('/api/gameSettings', methods=['GET'])
+@app.route('/api/gameSettings', methods=['GET', 'POST'])
 def get_room_settings():
-    code = request.args.get('roomCode', '').upper()
+    if request.method == 'GET':
+        code = request.args.get('roomCode', '').upper()
+        game = game_characteristics.get(code)
 
-    game = game_characteristics.get(code)
-
-    if not game:
+        if not game:
+            return jsonify({
+                "exists": False
+            })
         return jsonify({
-            "exists": False
+            "exists": True,
+            "roomCode": code,
+            **game
         })
-    return jsonify({
-        "exists": True,
-        "roomCode": code,
-        **game
-    })
+    else:
+        data = request.get_json()
+        code = data.get('roomCode', '').upper()
+        if not code:
+            return jsonify({
+                "success": False,
+                "error": "roomCode is required"
+            }), 400
+
+        game_characteristics[code] = {
+            'name': data.get('name', ''),
+            'author': data.get('author', ''),
+            'description': data.get('description', ''),
+            'maxTeams': data.get('maxTeams', 4),
+            'categories': data.get('categories', []),
+            'costs': data.get('costs', []),
+            'tracks': data.get('tracks', {})
+        }
+
+        return jsonify({
+            "success": True,
+            "roomCode": code,
+            "game": game_characteristics[code]
+        })
+
 
 @app.route('/api/check_room', methods=['GET'])
 def get_room_info():

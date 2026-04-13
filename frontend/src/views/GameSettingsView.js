@@ -1,6 +1,6 @@
 ﻿import {Component} from "../core/Component.js";
 import {Logo} from "../components/UI.js";
-import {get404, tryGetRoomInfo, tryGetRoomSettings} from "../services/RoomService.js";
+import {get404, tryGetRoomInfo, tryGetRoomSettings, saveGameSettings} from "../services/RoomService.js";
 import {loadUserInfoOrRedirect} from "../services/AccountServices.js";
 
 export class GameSettingsView extends Component {
@@ -14,7 +14,8 @@ export class GameSettingsView extends Component {
                 maxTeams: 4
             },
             categories: ['Категория 1', 'Категория 2'],
-            costs: [100, 200, 300]
+            costs: [100, 200, 300],
+            tracks : {}
         };
     }
 
@@ -42,6 +43,7 @@ export class GameSettingsView extends Component {
 
         this.state.categories = roomInfo.categories ?? ['Категория 1', 'Категория 2'];
         this.state.costs = roomInfo.costs ?? [100, 200, 300];
+        this.state.tracks = roomInfo.tracks ?? {};
     }
 
     updateDOM() {
@@ -73,7 +75,10 @@ export class GameSettingsView extends Component {
                             <label>Команд (макс): <span id="team-val">${this.state.settings.maxTeams}</span></label>
                             <input type="range" class="sync-input" data-key="maxTeams" min="2" max="8" value="${this.state.settings.maxTeams}">
                         </div>
-                        <button class="btn btn-primary w-100" id="save-btn">Создать игру</button>
+                        <div class="btn-group-vertical">
+                            <button class="btn btn-primary w-100" id="save-btn">Создать игру</button>
+                            <button class="btn btn-primary w-100" id="save-changes">Сохранить изменения</button>
+                        </div>
                     </div>
                 </aside>
 
@@ -110,13 +115,15 @@ export class GameSettingsView extends Component {
                                                 <button class="remove-btn remove-row" data-idx="${rIdx}">×</button>
                                             </div>
                                         </td>
-                                        ${this.state.costs.map((cost, cIdx) => `
+                                        ${this.state.costs.map((cost, cIdx) => {
+                                            const trackKey = `${rIdx}-${cIdx}`;
+                                            const trackValue = this.state.tracks[trackKey];
+                                            return `
                                             <td><div class="preview-cell"
                                                      data-row="${rIdx}"
-                                                     data-col="${cIdx}">${cost}</div></td>
-                                        `).join('')}
-                                    </tr>
-                                `).join('')}
+                                                     data-col="${cIdx}">${trackValue ? trackValue : cost}</div></td>`}).join('')}
+                                        </tr>
+                                    `).join('')}
                             </tbody>
                         </table>
                     </div>
@@ -235,14 +242,26 @@ export class GameSettingsView extends Component {
 
         const saveBtn = this.container.querySelector('#save-track');
         if (saveBtn) {
-            saveBtn.onclick = () => {
+            saveBtn.onclick = async () => {
                 const input = this.container.querySelector('#track-input');
                 const value = input.value;
-                console.log('Трек:', value, 'ячейка:', this.currentCell);
+                if (!value || !this.currentCell) return;
+
+                const key = `${this.currentCell.row}-${this.currentCell.col}`;
+                this.state.tracks[key] = value;
+                await saveGameSettings(this.getPayload());
                 this.closeModal();
+                this.updateDOM();
             };
         }
 
+        const saveChangesBtn = this.container.querySelector('#save-changes');
+        if (saveChangesBtn) {
+            saveChangesBtn.onclick = async () => {
+                await saveGameSettings(this.getPayload());
+                this.updateDOM();
+            };
+        }
     }
 
     openModal(row, col) {
@@ -255,5 +274,18 @@ export class GameSettingsView extends Component {
     closeModal() {
         const modal = this.container.querySelector('#track-modal');
         modal.classList.add('hidden');
+    }
+
+    getPayload(){
+        return {
+            roomCode: this.data.roomCode,
+            name: this.state.settings.name,
+            author: this.state.settings.author,
+            description: this.state.settings.description,
+            maxTeams: Number(this.state.settings.maxTeams),
+            categories: this.state.categories,
+            costs: this.state.costs,
+            tracks: this.state.tracks
+        };
     }
 }

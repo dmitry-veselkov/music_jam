@@ -28,6 +28,28 @@ export async function tryGetRoomSettings(code){
     }
 }
 
+export async function saveGameSettings(payload){
+    // TODO Запрос на бэк
+    try {
+        const response = await fetch('/api/gameSettings', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            throw new Error('Ошибка сохранения');
+        }
+
+        const result = await response.json();
+        console.log('Сохранено:', result);
+    } catch (error) {
+        console.error('Не удалось сохранить игру:', error);
+    }
+}
+
 export async function getTeamNameByUUID(uuid) {
     try {
         // TODO Запрос на бэк

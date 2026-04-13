@@ -315,3 +315,9 @@ input[type="range"] {
     gap: 12px;
     margin-top: 24px;
 }
+
+.btn-group-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
