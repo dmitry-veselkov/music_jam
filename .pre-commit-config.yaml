@@ -12,7 +12,7 @@
       - id: mypy
         language: system
         args:
-          - "--config-file=pyproject.toml"
+          - "--config-file=backend/pyproject.toml"
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
