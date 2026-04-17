@@ -29,7 +29,10 @@ export const Input = ({
 };
 
 export const Logo = (extraClass = '') => `
-    <div class="logo-text ${extraClass}">🎵 MusicJam</div>
+    <div class="logo-text ${extraClass}">
+        <a href="/">
+            🎵 MusicJam
+        </a></div>
 `;
 
 export const Header = (isAuth = false) => {
