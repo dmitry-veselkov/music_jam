@@ -144,24 +144,22 @@ export class GameSettingsView extends Component {
                         </div>
 
                         <div class="modal-body">
-                            <label for="track-input" class="modal-label">Название трека</label>
+                            <label for="track-input" class="modal-label">Аудио для вопроса</label>
                                 <input
-                                    type="text"
+                                    type="file"
                                     id="track-input"
                                     class="modal-input"
-                                    placeholder="Например: Queen — Bohemian Rhapsody"
+                                    placeholder="Аудио для вопроса"
                                 >
-
-                        <div class="track-preview-card">
-                            <div class="track-preview-icon">♪</div>
-                                <div class="track-preview-text">
-                                    <div class="track-preview-title">Будущий трек</div>
-                                        <div class="track-preview-subtitle">
-                                            Здесь можно потом показать выбранный трек, автора или ссылку
-                                        </div>
-                                    </div>
-                                </div>
-                        </div>
+                                
+                        <div class="modal-body">
+                            <label for="track-input" class="modal-label">Ответ</label>
+                                <input
+                                    type="file"
+                                    id="track-input"
+                                    class="modal-input"
+                                    placeholder="Ответ"
+                                >        
 
                         <div class="modal-actions">
                             <button class="btn btn-secondary" id="cancel-track">Отмена</button>
