@@ -1,6 +1,6 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
-from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.orm import sessionmaker
 
 
 class Settings(BaseSettings):
@@ -10,21 +10,25 @@ class Settings(BaseSettings):
     DB_PASS: str
     DB_NAME: str
 
+    model_config = SettingsConfigDict(
+        env_file="../../.env",
+        extra="ignore"
+    )
+    print(model_config)
     @property
-    def DATABASE_URL_asyncpg(self):
-        return f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASS}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
-    model_config = SettingsConfigDict(env_file=".env")
+    def db_url(self):
+        return (
+            f"postgresql+asyncpg://"
+            f"{self.DB_USER}:{self.DB_PASS}"
+            f"@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+        )
+
+
 settings = Settings()
-async_engine = create_async_engine(
-    url=settings.DATABASE_URL_asyncpg,
-    echo=True,
-)
-async_session_factory = async_sessionmaker(
-    async_engine,
-    expire_on_commit=False
-)
-class Base(DeclarativeBase):
-    pass
-async def get_db() -> AsyncSession:
-    async with async_session_factory() as session:
-        yield session
+
+engine = create_async_engine(settings.db_url, echo=True)
+
+SessionLocal = sessionmaker(engine, class_= AsyncSession, expire_on_commit = False)
+
+async def get_session() -> AsyncSession:
+    return SessionLocal()

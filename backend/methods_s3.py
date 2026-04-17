@@ -1,11 +1,12 @@
 import os
 import boto3
-
+from dotenv import load_dotenv
 
 def Download_Song(name : str):
     """ Скачивание файла по имени
     :param name полное название песни, включая расширение, которое лежит в хранилище"""
     # if name.endswith(('.mp3', '.m4a', '.aac', '.wav'))
+    load_dotenv()
     s3 = boto3.client(
         "s3",
         endpoint_url="https://storage.yandexcloud.net",
@@ -19,6 +20,7 @@ def Upload_Song(file_path : str, file_name : str):
     """Загрузка файла в хранилище
     :param file_path абсолютный путь до файла
     :param file_name название файла, включая расширение, который будет загружен в хранилище"""
+    load_dotenv()
     s3 = boto3.client(
         "s3",
         endpoint_url="https://storage.yandexcloud.net",
