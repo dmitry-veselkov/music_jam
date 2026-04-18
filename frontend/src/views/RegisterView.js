@@ -65,8 +65,7 @@ export class RegisterView extends Component {
 
     async _register(name, email, password) {
         try {
-            const user = await registerNewUser(name, email, password);
-            window.currentUser = user;
+            window.currentUser = await registerNewUser(name, email, password);
             redirectTo('/account');
         } catch (e) {
             alert(e.message);

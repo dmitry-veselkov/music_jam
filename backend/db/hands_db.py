@@ -3,6 +3,8 @@ import asyncio
 
 
 class DatabaseHands:
+    _ALLOWED_GAME_COLUMNS = {"admin_user_id", "title", "join_code", "scheduled_at", "status"}
+
     def __init__(self, database) -> None:
         self.db = database;
 
@@ -13,12 +15,6 @@ class DatabaseHands:
                 {"email": email}
             )
             return result.fetchone()
-
-    # async def get_status_game_kode(kode):
-    #     session = await get_session()
-    #
-    #
-    #     session.close()
 
     async def insert_user(self, name, hash_password, email):
         async with self.db.get_session() as session:
@@ -61,6 +57,7 @@ class DatabaseHands:
             return row
 
     async def get_room_info(self, code):
+        print(code)
         async with self.db.get_session() as session:
             result = await session.execute(
                 text("SELECT title, name, join_code, status, team_name, score, game_id "
@@ -135,19 +132,17 @@ class DatabaseHands:
         await session.commit()
         await session.close()
 
-    async def update_game_any_param(self, game_id, column, value):
-        ALLOWED_COLUMNS = {"admin_user_id", "title", "join_code", "scheduled_at"}
-        if column not in ALLOWED_COLUMNS:
-            return "Такого столбца нет в таблице games"
-        session = await self.db.get_session()
-        await session.execute(
-            text("UPDATE games "
-                 f"SET {column} = :value "
-                 "WHERE game_id = :game_id"),
-            {
-                "value": value,
-                "game_id": game_id
-            }
-        )
-        await session.commit()
-        await session.close()
+    async def update_game_any_param(self, join_code, column, value):
+        if column not in self._ALLOWED_GAME_COLUMNS:
+            return
+        async with self.db.get_session() as session:
+            await session.execute(
+                text("UPDATE games "
+                     f"SET {column} = :value "
+                     "WHERE join_code = :join_code"),
+                {
+                    "value": value,
+                    "join_code": join_code
+                }
+            )
+            await session.commit()

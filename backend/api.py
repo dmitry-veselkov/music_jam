@@ -1,39 +1,10 @@
-from fastapi import APIRouter, HTTPException, Response, status, Cookie
-from pydantic import BaseModel
-
-from typing import Any
+from fastapi import APIRouter, HTTPException, Response, status, Cookie, WebSocket, WebSocketDisconnect
+from collections import defaultdict
 from logging import Logger
 
 from services import Services
 from db.hands_db import DatabaseHands
-
-
-class LoginSchema(BaseModel):
-    email: str
-    password: str
-
-
-class RegisterSchema(BaseModel):
-    email: str
-    name: str
-    password: str
-
-
-class TeamSchema(BaseModel):
-    id: int
-    uuid: str
-    name: str
-
-
-class SaveGameSchema(BaseModel):
-    roomCode: str
-    name: str = ""
-    author: str = ""
-    description: str = ""
-    maxTeams: int = 4
-    categories: list[str] = []
-    costs: list[int] = []
-    tracks: dict[str, Any] = {}
+from api_schemes import LoginSchema, RegisterSchema, SaveGameSchema, TeamSchema
 
 
 class ApiRouter:
@@ -43,6 +14,9 @@ class ApiRouter:
         self.services = services
         self._setup_routes()
         self.logger = logger
+
+        self.rooms: dict[str, set[WebSocket]] = defaultdict(set)
+        self.room_state: dict[str, dict] = defaultdict(lambda: {"teams": []})
 
     def _setup_routes(self):
         @self.router.post("/login")
@@ -60,7 +34,7 @@ class ApiRouter:
             token = self.services.get_jwt_token(_id, _name, _email)
             response.set_cookie("token", token, httponly=True, samesite="lax")
 
-            return {"message": "Success enter"}
+            return True
 
         @self.router.post("/register")
         async def register(data: RegisterSchema, response: Response):
@@ -93,7 +67,7 @@ class ApiRouter:
             for game in user_games:
                 game['scheduled_at'] = game['scheduled_at'].strftime("%Y-%m-%d %H:%M:%S")
 
-            return {"games": user_games}
+            return user_games
 
         @self.router.get('/get_user_info')
         async def get_user_info(token: str | None = Cookie(None)):
@@ -112,10 +86,9 @@ class ApiRouter:
             max_times = 0
             while max_times < 10:
                 code = self.services.generate_new_code()
-                print(code)
                 game_info = await self.db_hands.get_game_info(code)
                 if game_info is None:
-                    return {"code": code}
+                    return code
                 max_times += 1
 
             raise HTTPException(
@@ -162,31 +135,58 @@ class ApiRouter:
         async def get_room_info(code: str):
             code = code.upper().strip()
             room_info = await self.db_hands.get_room_info(code)
-
-            if not room_info:
-                return None
-
-            first = room_info[0]
-            title, author, _status, _id = first['title'], first['name'], first['status'], first['game_id']
-            teams = [f['team_name'] for f in room_info]
-
-            return {
-                'id': _id,
-                'status': _status,
-                'title': title,
-                'author': author,
-                'teams': teams
-            }
+            return self.services.parse_room_info(room_info) if room_info else None
 
         @self.router.post('/set_team_name')
         async def set_team_name(data: TeamSchema):
             is_new = await self.db_hands.insert_or_update_team(data.id, data.uuid, data.name)
-            return {'status': 'ok', 'new': is_new}
+            code = data.code
+            await self._ensure_room_loaded(code)
+
+            teams = self.room_state[code]["teams"]
+
+            if is_new:
+                if data.name not in teams:
+                    teams.append(data.name)
+            else:
+                for i, t in enumerate(teams):
+                    if t == data.oldName:
+                        teams[i] = data.name
+                        break
+
+            await self._broadcast_room(code)
+            return {"status": "ok", "new": is_new}
 
         @self.router.get('/get_team_name')
         async def get_team_name(uuid: str) -> Response:
-            team_name = await self.db_hands.get_team_name(uuid)
-            return {"name": team_name}
+            return await self.db_hands.get_team_name(uuid)
+
+        @self.router.get('/run_game')
+        async def run_game(code: str = ''):
+            code = code.upper().strip()
+            await self.db_hands.update_game_any_param(code, "status", "waiting")
+            room_info = await self.db_hands.get_room_info(code)
+            return self.services.parse_room_info(room_info) if room_info else None
+
+        @self.router.websocket("/ws/room/{code}")
+        async def room_ws(websocket: WebSocket, code: str):
+            code = code.upper().strip()
+
+            await websocket.accept()
+            self.rooms[code].add(websocket)
+
+            await self._ensure_room_loaded(code)
+
+            await websocket.send_json({
+                "type": "init",
+                "teams": self.room_state[code]["teams"]
+            })
+
+            try:
+                while True:
+                    await websocket.receive_json()
+            except WebSocketDisconnect:
+                self.rooms[code].discard(websocket)
 
     def _get_token_payload(self, token):
         if not token:
@@ -197,3 +197,26 @@ class ApiRouter:
             return None
 
         return payload
+
+    async def _ensure_room_loaded(self, code: str):
+        if self.room_state[code]["teams"]:
+            return
+        room_info = await self.db_hands.get_room_info(code)
+        if room_info:
+            self.room_state[code]["teams"] = self.services.parse_room_info(room_info)['teams']
+
+    async def _broadcast_room(self, code: str):
+        payload = {
+            "type": "update",
+            "teams": self.room_state[code]["teams"]
+        }
+
+        dead = []
+        for ws in self.rooms[code]:
+            try:
+                await ws.send_json(payload)
+            except:
+                dead.append(ws)
+
+        for ws in dead:
+            self.rooms[code].discard(ws)

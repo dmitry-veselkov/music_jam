@@ -1,6 +1,7 @@
 ﻿import {Component} from "../core/Component.js";
 import {Logo} from "../components/UI.js";
-import {get404, tryGetRoomInfo, tryGetGameSettings, saveGameSettings} from "../services/RoomService.js";
+import {tryGetGameSettings, saveGameSettings} from "../services/GamesServices.js";
+import {get404} from "../services/RouteServices.js";
 import {loadUserInfoOrRedirect} from "../services/AccountServices.js";
 
 export class GameSettingsView extends Component {

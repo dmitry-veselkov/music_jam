@@ -1,4 +1,4 @@
-﻿import {EventBus} from "./core/EventBus.js";
+﻿// import {EventBus} from "./core/EventBus.js";
 import {Router} from "./core/Router.js";
 
 import {StartView} from "./views/StartView.js";
@@ -9,8 +9,9 @@ import {LoginView} from "./views/LoginView.js";
 import {RegisterView} from "./views/RegisterView.js";
 import {AccountView} from "./views/AccountView.js";
 import {GameView} from "./views/GameView.js";
+import {AdminWaitingRoomView} from "./views/AdminWaitingRoomView.js";
 
-const bus = new EventBus();
+// const bus = new EventBus();
 const appContainer = document.getElementById('app');
 const routes = {
     '/': StartView,
@@ -21,6 +22,7 @@ const routes = {
     '/register': RegisterView,
     '/account': AccountView,
     '/room/active' : GameView,
+    '/room/admin_waiting': AdminWaitingRoomView,
 };
 
 const router = new Router(routes, appContainer);

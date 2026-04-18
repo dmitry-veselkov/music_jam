@@ -1,5 +1,4 @@
 import pathlib
-from typing import Any
 
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
@@ -14,6 +13,7 @@ from settings import Settings
 from db.database import Database
 from db.hands_db import DatabaseHands
 from services import Services
+
 
 class App:
     BASE_DIR = pathlib.Path(__file__).parent.parent
@@ -46,6 +46,7 @@ class App:
     def _initialize_static(self):
         if self.FRONTEND_DIR.exists():
             self.app.mount("/static", StaticFiles(directory=str(self.FRONTEND_DIR)), name="static")
+
             @self.app.get("/{path_name:path}")
             async def catch_all(request: Request, path_name: str):
                 file_path = self.FRONTEND_DIR / path_name
@@ -55,12 +56,6 @@ class App:
 
     def run(self):
         uvicorn.run(self.app, host="127.0.0.1", port=5000)
-
-    # def _initialize_game_urls(self):
-    #     self.app.add_url_rule('/api/check_room', view_func=self.api.get_room_info, methods=['GET'])
-    #     self.app.add_url_rule('/api/set_team_name', view_func=self.api.set_team_name, methods=['POST'])
-    #     # сделать бы на GET обычный, но тут хз
-    #     self.app.add_url_rule('/api/get_team_name', view_func=self.api.get_team_name, methods=['POST'])
 
 
 if __name__ == "__main__":

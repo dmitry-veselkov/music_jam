@@ -37,6 +37,7 @@ export class LobbyView extends Component {
         }
 
         const data = await tryGetRoomInfo(code);
+        console.log(data);
         if (data && data.status === 'waiting') {
             window.history.pushState({roomCode: code}, '', `/room/waiting/${code}`);
             window.dispatchEvent(new Event('popstate'));

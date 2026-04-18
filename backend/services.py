@@ -37,3 +37,17 @@ class Services:
 
     def generate_new_code(self):
         return ''.join(secrets.choice(self._CODE_ALPHABET) for _ in range(self._CODE_LENGTH))
+
+    @staticmethod
+    def parse_room_info(room_info):
+        first = room_info[0]
+        teams = [f['team_name'] for f in room_info]
+
+        return {
+            'id': first['game_id'],
+            'code': first['join_code'],
+            'status': first['status'],
+            'title': first['title'],
+            'author': first['name'],
+            'teams': teams
+        }

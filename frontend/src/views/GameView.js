@@ -1,6 +1,7 @@
 import {Component} from "../core/Component.js";
 import {Logo} from "../components/UI.js";
-import {get404, tryGetGameSettings, saveGameSettings} from "../services/RoomService.js";
+import {get404} from "../services/RouteServices.js";
+import {tryGetGameSettings, saveGameSettings} from "../services/GamesServices.js";
 import {loadUserInfoOrRedirect} from "../services/AccountServices.js";
 
 export class GameView extends Component {
@@ -15,10 +16,10 @@ export class GameView extends Component {
             },
             categories: ['Категория 1', 'Категория 2'],
             costs: [100, 200, 300],
-            tracks : {},
+            tracks: {},
             activeCell: null,
-            playedTracks : {},
-            players : {}
+            playedTracks: {},
+            players: {}
         };
     }
 
@@ -293,7 +294,6 @@ export class GameView extends Component {
     }
 
 
-
     attachEvents() {
         this.container.querySelectorAll('.sync-input').forEach(input => {
             input.addEventListener('input', (e) => {
@@ -387,7 +387,7 @@ export class GameView extends Component {
     }
 
     openModal(row, col) {
-        this.currentCell = { row, col };
+        this.currentCell = {row, col};
 
         const modal = this.container.querySelector('#track-modal');
         modal.classList.remove('hidden');
@@ -398,7 +398,7 @@ export class GameView extends Component {
         modal.classList.add('hidden');
     }
 
-    getPayload(){
+    getPayload() {
         return {
             roomCode: this.data.roomCode,
             name: this.state.settings.name,

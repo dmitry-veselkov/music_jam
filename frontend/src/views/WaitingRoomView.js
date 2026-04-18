@@ -1,5 +1,6 @@
 ﻿import {Component} from "../core/Component.js";
-import {get404, tryGetRoomInfo, setTeamName, getTeamNameByUUID} from "../services/RoomService.js";
+import {tryGetRoomInfo, setTeamName, getTeamNameByUUID} from "../services/RoomService.js";
+import {get404} from "../services/RouteServices.js";
 import {Logo, Input, Button} from "../components/UI.js";
 
 export class WaitingRoomView extends Component {
@@ -31,11 +32,14 @@ export class WaitingRoomView extends Component {
             return;
         }
 
+        this._connectSocket();
+
         const uuid = this._setUUID();
         await this._loadTeamInfoByUUID(uuid);
 
         this._setState({
             gameId: roomData.id,
+            roomCode: roomData.code,
             gameName: roomData.title || 'Без названия',
             creator: roomData.author || 'неизвестный...',
             teams: roomData.teams || []
@@ -170,21 +174,36 @@ export class WaitingRoomView extends Component {
             this.state.isNameSaved = true;
 
             const uuid = localStorage.getItem('team-uuid');
-            const resp = await setTeamName(this.state.gameId, uuid, this.state.myTeamName);
+            const resp = await setTeamName(
+                this.state.gameId,
+                this.state.roomCode,
+                uuid,
+                this._savedName,
+                this.state.myTeamName
+            );
             if (resp.status !== 'ok') {
                 alert("Имя не было сохранено. Повторите попытку!");
                 return;
             }
 
-            if (resp.new) {
-                this.state.teams.push(this.state.myTeamName);
-            } else {
-                const index = this.state.teams.indexOf(this._savedName);
-                this.state.teams[index] = this.state.myTeamName;
-            }
-
             this._savedName = this.state.myTeamName;
             this.updateDOM();
         }
+    }
+
+    _connectSocket() {
+        const protocol = window.location.protocol === "https:" ? "wss" : "ws";
+        this.ws = new WebSocket(
+            `${protocol}://${window.location.host}/api/ws/room/${this.data.roomCode}`
+        );
+
+        this.ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+
+            if (data.type === "init" || data.type === "update") {
+                this.state.teams = data.teams;
+                this.updateDOM();
+            }
+        };
     }
 }

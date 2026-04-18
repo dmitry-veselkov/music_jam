@@ -1,19 +1,22 @@
-﻿export async function getAllUserGames() {
-    const response = await fetch(`/api/get_all_user_games`);
-    if (response.ok) {
-        const json = await response.json();
-        return json.games;
-    } else {
-        return [];
-    }
+﻿import {fetchGetTo, fetchPostTo} from "./NetServices.js";
+
+export async function getAllUserGames() {
+    const games = await fetchGetTo(`/api/get_all_user_games`);
+    return games ?? [];
 }
 
 export async function generateEmptyGame() {
-    const response = await fetch(`/api/get_new_game_code`);
-    if (response.ok) {
-        const json = await response.json();
-        return json.code;
-    } else {
-        return null;
-    }
+    return await fetchGetTo(`/api/get_new_game_code`);
+}
+
+export async function tryRunGame(code) {
+    return await fetchGetTo(`/api/run_game?code=${code}`);
+}
+
+export async function tryGetGameSettings(code) {
+    return await fetchGetTo(`/api/gameSettings?code=${code}`);
+}
+
+export async function saveGameSettings(payload) {
+    return await fetchPostTo('/api/gameSettings', payload);
 }
