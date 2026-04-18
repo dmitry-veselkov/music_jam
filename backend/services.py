@@ -1,9 +1,13 @@
 ﻿import hashlib
 import datetime
 import jwt
+import secrets
 
 
 class Services:
+    _CODE_ALPHABET = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ"
+    _CODE_LENGTH = 6
+
     def __init__(self, secret_jwt) -> None:
         self.secret_jwt = secret_jwt
 
@@ -30,3 +34,6 @@ class Services:
         except jwt.PyJWTError as e:
             print(e)
             return None
+
+    def generate_new_code(self):
+        return ''.join(secrets.choice(self._CODE_ALPHABET) for _ in range(self._CODE_LENGTH))

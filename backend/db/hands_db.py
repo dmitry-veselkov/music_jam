@@ -47,7 +47,7 @@ class DatabaseHands:
                 {"admin_id": _id})
             return [dict(r) for r in result.mappings().all()]
 
-    async def get_info_game_invite_kode(self, code):
+    async def get_game_info(self, code):
         async with self.db.get_session() as session:
             result = await session.execute(
                 text("SELECT * FROM games WHERE join_code = :join_code"),

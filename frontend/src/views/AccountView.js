@@ -1,7 +1,7 @@
 ﻿import {Component} from "../core/Component.js";
 import {Logo, Button} from "../components/UI.js";
 import {loadUserInfoOrRedirect} from "../services/AccountServices.js";
-import {getAllUserGames} from "../services/GamesServices.js";
+import {generateEmptyGame, getAllUserGames} from "../services/GamesServices.js";
 
 export class AccountView extends Component {
     constructor(container, data) {
@@ -23,16 +23,13 @@ export class AccountView extends Component {
 
     async _setState(userInfo) {
         this.state.userName = userInfo.name;
-        console.log('load all user games')
-        this.state.games = await getAllUserGames();
-        // const loadedUserGames = localStorage.getItem("loadedUserGames");
-        // console.log(loadedUserGames);
-        // if (!loadedUserGames) {
-        //     this.state.games = await getAllUserGames(userInfo.email);
-        //     localStorage.setItem("loadedUserGames", JSON.stringify(this.state.games));
-        // } else {
-        //     this.state.games = JSON.parse(loadedUserGames);
-        // }
+        const loadedUserGames = localStorage.getItem("loadedUserGames");
+        if (!loadedUserGames) {
+            this.state.games = await getAllUserGames(userInfo.email);
+            localStorage.setItem("loadedUserGames", JSON.stringify(this.state.games));
+        } else {
+            this.state.games = JSON.parse(loadedUserGames);
+        }
     }
 
     _renderGamesList() {
@@ -96,10 +93,13 @@ export class AccountView extends Component {
         const createNewGameButton = document.querySelector("#create-game-btn");
 
         if (createNewGameButton) {
-            createNewGameButton.addEventListener("click", () => {
-                window.history.pushState({}, '', '/room/game_settings/12345');
-                window.dispatchEvent(new Event('popstate'));
-            })
+            createNewGameButton.addEventListener("click", async () => {
+                try {
+                    await this._createNewGame();
+                } catch (err) {
+                    console.error("Ошибка при создании игры:", err);
+                }
+            });
         }
 
         const editGameButtons = document.querySelectorAll("[data-edit-id]");
@@ -122,6 +122,14 @@ export class AccountView extends Component {
                     window.dispatchEvent(new Event('popstate'));
                 });
             });
+        }
+    }
+
+    async _createNewGame() {
+        const code = await generateEmptyGame();
+        if (code) {
+            window.history.pushState({isNew: true}, '', `/room/game_settings/${code}`);
+            window.dispatchEvent(new Event('popstate'));
         }
     }
 }

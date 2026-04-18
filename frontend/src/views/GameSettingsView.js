@@ -15,7 +15,7 @@ export class GameSettingsView extends Component {
             },
             categories: ['Категория 1', 'Категория 2'],
             costs: [100, 200, 300],
-            tracks : {}
+            tracks: {}
         };
     }
 
@@ -24,8 +24,10 @@ export class GameSettingsView extends Component {
         if (!userInfo) {
             return;
         }
+
+        const historyState = window.history.state;
         const roomInfo = await tryGetRoomSettings(this.data.roomCode);
-        if (!roomInfo.exists) {
+        if (!roomInfo.exists && !(historyState && historyState.isNew)) {
             this.container.innerHTML = get404();
             return;
         }
@@ -116,12 +118,13 @@ export class GameSettingsView extends Component {
                                             </div>
                                         </td>
                                         ${this.state.costs.map((cost, cIdx) => {
-                                            const trackKey = `${rIdx}-${cIdx}`;
-                                            const trackValue = this.state.tracks[trackKey];
-                                            return `
+            const trackKey = `${rIdx}-${cIdx}`;
+            const trackValue = this.state.tracks[trackKey];
+            return `
                                             <td><div class="preview-cell"
                                                      data-row="${rIdx}"
-                                                     data-col="${cIdx}">${trackValue ? trackValue : cost}</div></td>`}).join('')}
+                                                     data-col="${cIdx}">${trackValue ? trackValue : cost}</div></td>`
+        }).join('')}
                                         </tr>
                                     `).join('')}
                             </tbody>
@@ -263,7 +266,7 @@ export class GameSettingsView extends Component {
     }
 
     openModal(row, col) {
-        this.currentCell = { row, col };
+        this.currentCell = {row, col};
 
         const modal = this.container.querySelector('#track-modal');
         modal.classList.remove('hidden');
@@ -274,7 +277,7 @@ export class GameSettingsView extends Component {
         modal.classList.add('hidden');
     }
 
-    getPayload(){
+    getPayload() {
         return {
             roomCode: this.data.roomCode,
             name: this.state.settings.name,
