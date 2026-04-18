@@ -1,0 +1,64 @@
+﻿.team-admin-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 10px;
+}
+
+.team-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.score-actions {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.score-input {
+    width: 60px;
+    background: #000;
+    border: 1px solid #444;
+    color: #fff;
+    text-align: center;
+    border-radius: 4px;
+    padding: 4px;
+}
+
+.btn-score {
+    width: 30px;
+    height: 30px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.2s;
+}
+
+.btn-score.plus { background: var(--color-primary); color: #000; }
+.btn-score.minus { background: #444; color: #fff; }
+
+.btn-score:hover { transform: scale(1.1); }
+
+.admin-cell.active {
+    background: var(--color-primary) !important;
+    color: #000 !important;
+    box-shadow: 0 0 15px var(--color-primary);
+}
+
+.correct-answer-box {
+    background: rgba(0, 255, 100, 0.1);
+    border-left: 3px solid #00ff64;
+    padding: 10px;
+    border-radius: 4px;
+}
+
+.answer-text {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #00ff64;
+}

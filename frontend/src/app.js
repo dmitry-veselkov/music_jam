@@ -9,6 +9,7 @@ import {LoginView} from "./views/LoginView.js";
 import {RegisterView} from "./views/RegisterView.js";
 import {AccountView} from "./views/AccountView.js";
 import {GameView} from "./views/GameView.js";
+import {HostAdminView} from "./views/HostAdminView.js";
 
 const bus = new EventBus();
 const appContainer = document.getElementById('app');
@@ -21,6 +22,7 @@ const routes = {
     '/register': RegisterView,
     '/account': AccountView,
     '/room/active' : GameView,
+    '/room/admin_panel': HostAdminView,
 };
 
 const router = new Router(routes, appContainer);
