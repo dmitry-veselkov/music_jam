@@ -49,18 +49,6 @@ game_active = {
     }
 }
 
-@app.route('/api/check_room', methods=['GET'])
-def get_room_info():
-    code = request.args.get('roomCode').upper()
-    try:
-        room_info = game_active[code]
-        exists = True
-    except:
-        room_info = None
-        exists = False
-    return jsonify({"roomCode": code, "exists": exists, "roomInfo": room_info})
-
-
 @app.route('/api/set_team_name', methods=['POST'])
 def set_team_name():
     data = request.get_json()

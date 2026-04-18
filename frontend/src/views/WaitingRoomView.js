@@ -10,6 +10,7 @@ export class WaitingRoomView extends Component {
      */
     constructor(container, data) {
         super(container, data);
+        this._savedName = '';
 
         this.state = {
             gameName: 'Загрузка...',
@@ -23,8 +24,9 @@ export class WaitingRoomView extends Component {
     // TODO ДИМА доделать ограничения на названия команд (уникальность)
 
     async mount() {
+        // TODO делаем еще один запрос... надо фильтровать что уже в лобби нашли инфу всю
         const roomData = await tryGetRoomInfo(this.data.roomCode);
-        if (!roomData) {
+        if (!roomData || roomData.status !== 'waiting') {
             this.container.innerHTML = get404();
             return;
         }
@@ -32,11 +34,11 @@ export class WaitingRoomView extends Component {
         const uuid = this._setUUID();
         await this._loadTeamInfoByUUID(uuid);
 
-        const roomInfo = roomData.roomInfo;
         this._setState({
-            gameName: roomInfo.name || 'Без названия',
-            creator: roomInfo.author || 'неизвестный...',
-            teams: roomInfo.teams || []
+            gameId: roomData.id,
+            gameName: roomData.title || 'Без названия',
+            creator: roomData.author || 'неизвестный...',
+            teams: roomData.teams || []
         })
     }
 
@@ -58,6 +60,7 @@ export class WaitingRoomView extends Component {
 
     _setState(newState) {
         this.state = {...this.state, ...newState};
+        this._savedName = this.state.myTeamName;
         this.updateDOM();
     }
 
@@ -167,20 +170,20 @@ export class WaitingRoomView extends Component {
             this.state.isNameSaved = true;
 
             const uuid = localStorage.getItem('team-uuid');
-            const resp = await setTeamName(uuid, this.state.myTeamName);
+            const resp = await setTeamName(this.state.gameId, uuid, this.state.myTeamName);
             if (resp.status !== 'ok') {
                 alert("Имя не было сохранено. Повторите попытку!");
                 return;
             }
 
-            if (resp.isNewTeam) {
+            if (resp.new) {
                 this.state.teams.push(this.state.myTeamName);
             } else {
-                const oldName = resp.oldName;
-                const index = this.state.teams.indexOf(oldName);
+                const index = this.state.teams.indexOf(this._savedName);
                 this.state.teams[index] = this.state.myTeamName;
             }
 
+            this._savedName = this.state.myTeamName;
             this.updateDOM();
         }
     }

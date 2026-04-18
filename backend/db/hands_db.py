@@ -60,6 +60,20 @@ class DatabaseHands:
                 return None
             return row
 
+    async def get_room_info(self, code):
+        async with self.db.get_session() as session:
+            result = await session.execute(
+                text("SELECT title, name, join_code, status, team_name, score, game_id "
+                     "FROM games as g "
+                     "JOIN game_participants AS gp ON g.id = gp.game_id "
+                     "JOIN users AS u ON g.admin_user_id = u.id "
+                     "WHERE join_code = :join_code"),
+                {
+                    "join_code": code
+                }
+            )
+            return [dict(r) for r in result.mappings().all()]
+
     async def create_game(self, admin_id, title, join_code, scheduled_at):
         async with self.db.get_session() as session:
             await session.execute(
@@ -73,19 +87,37 @@ class DatabaseHands:
                 }
             )
 
-    async def insert_team(self, game_id, user_id, nickname):
-        session = await self.db.get_session()
-        await session.execute(
-            text("INSERT INTO game_participants (game_id, user_id, nickname, score) "
-                 "VALUES(:game_id, :user_id, :nickname, 0)"),
-            {
-                "game_id": game_id,
-                "user_id": user_id,
-                "nickname": nickname,
-            }
-        )
-        await session.commit()
-        await session.close()
+    async def insert_or_update_team(self, game_id, team_id, team_name):
+        async with self.db.get_session() as session:
+            result = await session.execute(
+                text("INSERT INTO game_participants (game_id, team_id, team_name, score) "
+                     "VALUES (:game_id, :team_id, :team_name, 0) "
+                     "ON CONFLICT (game_id, team_id) "
+                     "DO UPDATE SET team_name = EXCLUDED.team_name "
+                     "RETURNING xmax"),
+                {
+                    "game_id": game_id,
+                    "team_id": team_id,
+                    "team_name": team_name,
+                }
+            )
+
+            status = result.scalar_one()
+            await session.commit()
+            return status == 0
+
+    async def get_team_name(self, team_id):
+        async with self.db.get_session() as session:
+            result = await session.execute(
+                text("SELECT team_name "
+                     "FROM game_participants "
+                     "WHERE team_id = :team_id "),
+                {
+                    "team_id": team_id,
+                }
+            )
+
+            return result.scalar_one_or_none()
 
     async def update_score_team(self, game_id, nickname, add_score):
         # TODO: пока хз по нику или по айди

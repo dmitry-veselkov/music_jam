@@ -1,7 +1,6 @@
 ﻿export async function tryGetRoomInfo(code) {
     try {
-        // TODO Запрос на бэк
-        const response = await fetch(`/api/check_room?roomCode=${code}`);
+        const response = await fetch(`/api/get_room_info?code=${code}`);
         if (!response.ok) {
             throw new Error(`Ошибка сервера: ${response.status}`);
         }
@@ -10,30 +9,14 @@
 
     } catch (error) {
         console.error('Ошибка: ', error);
-        return {exists: false, roomCode: code, roomInfo: null};
+        return null;
     }
 }
 
-export async function tryGetAllPlayers(code) {
-    try {
-        // TODO Запрос на бэк
-        const response = await fetch(`/api/check_room?roomCode=${code}`);
-        if (!response.ok) {
-            throw new Error(`Ошибка сервера: ${response.status}`);
-        }
-
-        return await response.json();
-
-    } catch (error) {
-        console.error('Ошибка: ', error);
-        return {exists: false, roomCode: code, roomInfo: null};
-    }
-}
-
-export async function tryGetRoomSettings(code){
+export async function tryGetGameSettings(code) {
     // TODO Запрос на бэк
-    try{
-        const response = await fetch(`/api/gameSettings?roomCode=${code}`);
+    try {
+        const response = await fetch(`/api/gameSettings?code=${code}`);
         if (!response.ok) {
             throw new Error(`Ошибка сервера: ${response.status}`);
         }
@@ -44,7 +27,7 @@ export async function tryGetRoomSettings(code){
     }
 }
 
-export async function saveGameSettings(payload){
+export async function saveGameSettings(payload) {
     // TODO Запрос на бэк
     try {
         const response = await fetch('/api/gameSettings', {
@@ -68,22 +51,16 @@ export async function saveGameSettings(payload){
 
 export async function getTeamNameByUUID(uuid) {
     try {
-        // TODO Запрос на бэк
-        const response = await fetch(`/api/get_team_name`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                "uuid": uuid,
-            })
+        const response = await fetch(`/api/get_team_name?uuid=${uuid}`, {
+            credentials: 'include',
         });
+
         if (!response.ok) {
             throw new Error(`Ошибка сервера: ${response.status}`);
         }
 
         const json = await response.json();
-        return json['teamName'];
+        return json.name;
 
     } catch (error) {
         console.error('Ошибка: ', error);
@@ -91,7 +68,7 @@ export async function getTeamNameByUUID(uuid) {
     }
 }
 
-export async function setTeamName(teamId, newName) {
+export async function setTeamName(gameId, teamId, newName) {
     try {
         const response = await fetch(`/api/set_team_name`, {
             method: 'POST',
@@ -99,8 +76,9 @@ export async function setTeamName(teamId, newName) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                "teamId": teamId,
-                "newName": newName,
+                "id": gameId,
+                "uuid": teamId,
+                "name": newName,
             })
         });
 

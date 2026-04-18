@@ -1,6 +1,6 @@
 ﻿import {Component} from "../core/Component.js";
 import {Logo} from "../components/UI.js";
-import {get404, tryGetRoomInfo, tryGetRoomSettings, saveGameSettings} from "../services/RoomService.js";
+import {get404, tryGetRoomInfo, tryGetGameSettings, saveGameSettings} from "../services/RoomService.js";
 import {loadUserInfoOrRedirect} from "../services/AccountServices.js";
 
 export class GameSettingsView extends Component {
@@ -26,7 +26,7 @@ export class GameSettingsView extends Component {
         }
 
         const historyState = window.history.state;
-        const roomInfo = await tryGetRoomSettings(this.data.roomCode);
+        const roomInfo = await tryGetGameSettings(this.data.roomCode);
         if (!roomInfo.exists && !(historyState && historyState.isNew)) {
             this.container.innerHTML = get404();
             return;

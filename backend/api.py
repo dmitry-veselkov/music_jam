@@ -19,6 +19,12 @@ class RegisterSchema(BaseModel):
     password: str
 
 
+class TeamSchema(BaseModel):
+    id: int
+    uuid: str
+    name: str
+
+
 class SaveGameSchema(BaseModel):
     roomCode: str
     name: str = ""
@@ -152,6 +158,36 @@ class ApiRouter:
                 "game": data
             }
 
+        @self.router.get('/get_room_info')
+        async def get_room_info(code: str):
+            code = code.upper().strip()
+            room_info = await self.db_hands.get_room_info(code)
+
+            if not room_info:
+                return None
+
+            first = room_info[0]
+            title, author, _status, _id = first['title'], first['name'], first['status'], first['game_id']
+            teams = [f['team_name'] for f in room_info]
+
+            return {
+                'id': _id,
+                'status': _status,
+                'title': title,
+                'author': author,
+                'teams': teams
+            }
+
+        @self.router.post('/set_team_name')
+        async def set_team_name(data: TeamSchema):
+            is_new = await self.db_hands.insert_or_update_team(data.id, data.uuid, data.name)
+            return {'status': 'ok', 'new': is_new}
+
+        @self.router.get('/get_team_name')
+        async def get_team_name(uuid: str) -> Response:
+            team_name = await self.db_hands.get_team_name(uuid)
+            return {"name": team_name}
+
     def _get_token_payload(self, token):
         if not token:
             return None
@@ -161,45 +197,3 @@ class ApiRouter:
             return None
 
         return payload
-
-
-'''
-    def get_room_info(self) -> Response:
-        code = request.args.get('roomCode')
-
-        # TODO Переделать MOCK
-        # TODO Переписать self.teams на запросы к БД
-        if code is not None:
-            code = code.upper()
-            exists = code == "12345"
-            room_info = (
-                {
-                    "status": "waiting",
-                    "gameName": "Хиты 80-х",
-                    "creator": "Очень добрый человек",
-                    "teams": list(self.teams.values()),
-                }
-                if exists
-                else None
-            )
-        else:
-            room_info = None
-            exists = False
-
-        return jsonify({"roomCode": code, "exists": exists, "roomInfo": room_info})
-
-    def set_team_name(self) -> Response:
-        data = request.get_json()
-        team_id = data.get('teamId')
-
-        is_new_team = team_id not in self.teams
-        old_name = self.teams.get(team_id)
-
-        self.teams[data.get('teamId')] = data.get('newName')
-        return jsonify({"status": "ok", "isNewTeam": is_new_team, "oldName": old_name, "newName": data.get('newName')})
-
-    def get_team_name(self) -> Response:
-        data = request.get_json()
-        team_name = self.teams.get(data.get('uuid'))
-        return jsonify({"teamName": team_name})
-'''

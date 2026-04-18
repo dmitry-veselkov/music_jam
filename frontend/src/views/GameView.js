@@ -1,6 +1,6 @@
 import {Component} from "../core/Component.js";
 import {Logo} from "../components/UI.js";
-import {get404, tryGetRoomInfo, tryGetRoomSettings, saveGameSettings} from "../services/RoomService.js";
+import {get404, tryGetGameSettings, saveGameSettings} from "../services/RoomService.js";
 import {loadUserInfoOrRedirect} from "../services/AccountServices.js";
 
 export class GameView extends Component {
@@ -40,7 +40,7 @@ export class GameView extends Component {
         if (!userInfo) {
             return;
         }
-        const roomInfo = await tryGetRoomSettings(this.data.roomCode);
+        const roomInfo = await tryGetGameSettings(this.data.roomCode);
         if (!roomInfo.exists) {
             this.container.innerHTML = get404();
             return;

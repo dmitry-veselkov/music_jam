@@ -37,15 +37,12 @@ export class LobbyView extends Component {
         }
 
         const data = await tryGetRoomInfo(code);
-        if (!data.exists) {
-            // TODO ДИМА заменить alert на сообщение красным текстом под полем ввода
-            alert("Комната не найдена!")
-        } else if (data.roomInfo.status === 'waiting') {
+        if (data && data.status === 'waiting') {
             window.history.pushState({roomCode: code}, '', `/room/waiting/${code}`);
             window.dispatchEvent(new Event('popstate'));
         } else {
             // TODO ДИМА заменить alert на сообщение красным текстом под полем ввода
-            alert("Рановато зашел ты, приятель...")
+            alert("Комната не найдена!");
         }
     }
 
