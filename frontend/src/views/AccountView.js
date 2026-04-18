@@ -23,8 +23,16 @@ export class AccountView extends Component {
 
     async _setState(userInfo) {
         this.state.userName = userInfo.name;
-        this.state.games = await getAllUserGames(userInfo.email);
-        console.log(this.state.games);
+        console.log('load all user games')
+        this.state.games = await getAllUserGames();
+        // const loadedUserGames = localStorage.getItem("loadedUserGames");
+        // console.log(loadedUserGames);
+        // if (!loadedUserGames) {
+        //     this.state.games = await getAllUserGames(userInfo.email);
+        //     localStorage.setItem("loadedUserGames", JSON.stringify(this.state.games));
+        // } else {
+        //     this.state.games = JSON.parse(loadedUserGames);
+        // }
     }
 
     _renderGamesList() {
@@ -32,19 +40,19 @@ export class AccountView extends Component {
             .map(game => `
                 <div class="card game-card">
                     <h3>${game.title}</h3>
-                    <p class="text-muted">Создана: ${game.date}</p>
-                    <p class="room-code">Код лобби: <strong>${game.code}</strong></p>
+                    <p class="text-muted">Запланировано на: ${game.scheduled_at}</p>
+                    <p class="room-code">Код лобби: <strong>${game.join_code}</strong></p>
                     <div class="game-actions mt-3">
                         <button 
                             class="btn btn-outline btn-sm" 
                             data-edit-id="${game.id}"
-                            data-game-code="${game.code}">
+                            data-game-code="${game.join_code}">
                         Редактировать
                         </button>
                         <button 
                             class="btn btn-primary btn-sm" 
                             data-start-id="${game.id}"
-                            data-game-code="${game.code}"
+                            data-game-code="${game.join_code}"
                             >Запустить</button>
                     </div>
                 </div>

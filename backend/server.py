@@ -45,9 +45,10 @@ game_active = {
         'description': 'фывар',
         'categories': ['asdf', 'asdf'],
         'costs': [100, 200],
-        'teams' : list(teams.values())
+        'teams': list(teams.values())
     }
 }
+
 
 @app.route('/api/gameSettings', methods=['GET', 'POST'])
 def get_room_settings():
@@ -100,77 +101,6 @@ def get_room_info():
         room_info = None
         exists = False
     return jsonify({"roomCode": code, "exists": exists, "roomInfo": room_info})
-
-
-@app.route('/api/login', methods=['POST'])
-def login():
-    data = request.get_json()
-
-    email = data.get('email')
-    password = data.get('password')
-
-    if email in users_db and users_db[email]['password'] == password:
-        token = secrets.token_hex(16)
-        sessions[token] = email
-        response = make_response()
-        response.set_cookie('token', token, httponly=True, samesite='Lax')
-        return response, 200
-    else:
-        return jsonify({"message": "Invalid credentials"}), 400
-
-
-@app.route('/api/register', methods=['POST'])
-def register():
-    data = request.get_json()
-
-    name = data.get('name')
-    email = data.get('email')
-    password = data.get('password')
-
-    if email in users_db:
-        return jsonify({"message": "Пользователь уже существует"}), 400
-
-    users_db[email] = {
-        'name': name,
-        "password": password
-    }
-
-    token = secrets.token_hex(16)
-    sessions[token] = email
-
-    response = make_response(jsonify({
-        "user": {
-            "name": name,
-            "email": email,
-        }
-    }))
-
-    response.set_cookie('token', token, httponly=True, samesite='Lax')
-    return response, 200
-
-
-@app.route('/api/get_user_info', methods=['GET'])
-def get_user_info():
-    token = request.cookies.get('token')
-
-    if not token:
-        return jsonify({"message": "Not authenticated"}), 401
-
-    email = sessions.get(token)
-    user = users_db.get(email)
-
-    return jsonify({
-        "email": email,
-        "name": user['name']
-    }), 200
-
-
-@app.route('/api/get_all_user_games', methods=['GET'])
-def get_all_user_games():
-    email = request.args.get('email')
-    print(request.args)
-    user_games = games[email]
-    return jsonify({"games": user_games}), 200
 
 
 @app.route('/api/set_team_name', methods=['POST'])
