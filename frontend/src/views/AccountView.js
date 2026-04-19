@@ -69,7 +69,7 @@ export class AccountView extends Component {
         }
 
         return `
-            <div class="page-layout">
+            <div class="page-layout" style="overflow-y: auto; height: 100vh;">
                 <div class="header-top">${Logo()}</div>
                 
                 <main class="dashboard-container">
