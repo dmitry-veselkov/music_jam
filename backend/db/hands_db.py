@@ -71,6 +71,40 @@ class DatabaseHands:
             )
             return [dict(r) for r in result.mappings().all()]
 
+    async def get_room_tracks(self, code):
+        async with self.db.get_session() as session:
+            game_id = (await session.execute(
+                text("SELECT id FROM games WHERE join_code = :join_code"),
+                {
+                    "join_code": code
+                }
+            )).scalar()
+
+            result = (await session.execute(
+                text("SELECT * "
+                     "FROM songs as s "
+                     "JOIN game_songs AS gs ON s.id = gs.song_id "
+                     "WHERE gs.game_id = :game_id"),
+                {
+                    "game_id": game_id
+                }
+            )).mappings().all()
+
+            categories = list({r["category"] for r in result})
+            costs = list({r["price"] for r in result})
+            tracks = {
+                category: {
+                    row["price"]: row["file_url"]
+                    for row in result if row["category"] == category
+                }
+                for category in categories
+            }
+        return {
+            "categories": categories,
+            "costs": costs,
+            "tracks": tracks
+        }
+
     async def create_game(self, admin_id, title, join_code, scheduled_at):
         async with self.db.get_session() as session:
             await session.execute(
@@ -146,3 +180,62 @@ class DatabaseHands:
                 }
             )
             await session.commit()
+
+    async def update_game_settings(self, join_code, songs):
+        categories = songs.get("categories", [])
+        costs = songs.get("costs", [])
+        tracks = songs.get("tracks", {})
+        actual_song_ids = []
+        async with self.db.get_session() as session:
+            game_id = (await session.execute(
+                text("SELECT id FROM games WHERE join_code = :join_code"),
+                {
+                    "join_code": join_code
+                }
+            )).scalar()
+
+            for category in categories:
+                for cost in costs:
+                    value = tracks.get(category, {}).get(cost)
+                    song_id = (await session.execute(
+                         text("INSERT INTO songs (category, price, file_url) "
+                             "VALUES (:category, :price, :file_url) "
+                             "RETURNING id"),
+                        {
+                            "category": category,
+                            "price": cost,
+                            "file_url": value,
+                        }
+                    )).scalar()
+                    actual_song_ids.append(song_id)
+                    await session.execute(
+                        text("INSERT INTO game_songs (game_id, song_id) "
+                             "VALUES (:game_id, :song_id) "
+                             "ON CONFLICT (game_id, song_id) "
+                             "DO UPDATE SET song_id = EXCLUDED.song_id "
+                             "RETURNING id"),
+                        {
+                            "song_id": song_id,
+                            "game_id": game_id,
+                        }
+                    )
+            if actual_song_ids:
+                await session.execute(
+                    text("DELETE FROM game_songs WHERE game_id = :game_id "
+                         "AND song_id NOT IN :song_ids"),
+                    {
+                        "game_id": game_id,
+                        "song_ids": tuple(actual_song_ids)
+                    }
+                )
+            else:
+                await session.execute(
+                    text("DELETE FROM game_songs WHERE game_id = :game_id"),
+                    {
+                        "game_id": game_id
+                    }
+                )
+            await session.commit()
+
+
+

@@ -1,6 +1,6 @@
 ﻿import {Component} from "../core/Component.js";
 import {Logo} from "../components/UI.js";
-import {tryGetGameSettings, saveGameSettings} from "../services/GamesServices.js";
+import {tryGetGameSettings, saveGameSettings, startGame} from "../services/GamesServices.js";
 import {get404} from "../services/RouteServices.js";
 import {loadUserInfoOrRedirect} from "../services/AccountServices.js";
 
@@ -78,9 +78,9 @@ export class GameSettingsView extends Component {
                             <label>Команд (макс): <span id="team-val">${this.state.settings.maxTeams}</span></label>
                             <input type="range" class="sync-input" data-key="maxTeams" min="2" max="8" value="${this.state.settings.maxTeams}">
                         </div>
-                        <div class="btn-group-vertical">
+                        <div class="d-flex flex-column">
                             <button class="btn btn-primary w-100" id="save-btn">Создать игру</button>
-                            <button class="btn btn-primary w-100" id="save-changes">Сохранить изменения</button>
+                            <button class="btn btn-primary w-100" id="save-changes" style="margin-top: 8px;">Сохранить изменения</button>
                         </div>
                     </div>
                 </aside>
@@ -119,15 +119,13 @@ export class GameSettingsView extends Component {
                                             </div>
                                         </td>
                                         ${this.state.costs.map((cost, cIdx) => {
-            const trackKey = `${rIdx}-${cIdx}`;
-            const trackValue = this.state.tracks[trackKey];
-            return `
-                                            <td><div class="preview-cell"
-                                                     data-row="${rIdx}"
-                                                     data-col="${cIdx}">${trackValue ? trackValue : cost}</div></td>`
-        }).join('')}
-                                        </tr>
-                                    `).join('')}
+                                            const trackKey = `${rIdx}-${cIdx}`;
+                                            const trackValue = this.state.tracks[trackKey];
+                                            return `
+                                                    <td><div class="preview-cell"
+                                                                data-row="${rIdx}"
+                                                                data-col="${cIdx}">${trackValue ? trackValue : cost}</div></td>`}).join('')}
+                                    </tr>`).join('')}
                             </tbody>
                         </table>
                     </div>
@@ -261,6 +259,14 @@ export class GameSettingsView extends Component {
         if (saveChangesBtn) {
             saveChangesBtn.onclick = async () => {
                 await saveGameSettings(this.getPayload());
+                this.updateDOM();
+            };
+        }
+
+        const createGameBtn = this.container.querySelector('#save-btn');
+        if (createGameBtn) {
+            createGameBtn.onclick = async () => {
+                await startGame();
                 this.updateDOM();
             };
         }

@@ -8,6 +8,8 @@ from api_schemes import LoginSchema, RegisterSchema, SaveGameSchema, TeamSchema
 
 
 class ApiRouter:
+    SONG_FIELDS = {"categories", "costs", "tracks"}
+
     def __init__(self, db_hands: DatabaseHands, services: Services, logger: Logger):
         self.router = APIRouter()
         self.db_hands = db_hands
@@ -105,25 +107,22 @@ class ApiRouter:
             return {"exists": True, "roomCode": code, **game}
 
         @self.router.post('/gameSettings')
-        async def get_room_settings(data: SaveGameSchema):
+        async def save_room_settings(data: SaveGameSchema):
             code = data.roomCode.upper().strip()
             if not code:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail="roomCode is required"
                 )
+            dumped = data.model_dump()
+            game_fields = {k: v for k, v in dumped.items() if k not in self.SONG_FIELDS}
+            songs_data = {k: v for k, v in dumped.items() if k in self.SONG_FIELDS}
 
-            print(data)
+            for column, value in game_fields.items():
+                await self.db_hands.update_game_any_param(code, column, value)
 
-            # game_characteristics[code] = {
-            #     'name': data.get('name', ''),
-            #     'author': data.get('author', ''),
-            #     'description': data.get('description', ''),
-            #     'maxTeams': data.get('maxTeams', 4),
-            #     'categories': data.get('categories', []),
-            #     'costs': data.get('costs', []),
-            #     'tracks': data.get('tracks', {})
-            # }
+            if any(songs_data.values()):
+                await self.db_hands.update_game_settings(code, songs_data)
 
             return {
                 "success": True,
@@ -135,7 +134,8 @@ class ApiRouter:
         async def get_room_info(code: str):
             code = code.upper().strip()
             room_info = await self.db_hands.get_room_info(code)
-            return self.services.parse_room_info(room_info) if room_info else None
+            songs = await self.db_hands.get_room_tracks(code)
+            return self.services.parse_room_info(room_info, songs) if room_info else None
 
         @self.router.post('/set_team_name')
         async def set_team_name(data: TeamSchema):

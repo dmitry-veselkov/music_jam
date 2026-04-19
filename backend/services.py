@@ -39,7 +39,7 @@ class Services:
         return ''.join(secrets.choice(self._CODE_ALPHABET) for _ in range(self._CODE_LENGTH))
 
     @staticmethod
-    def parse_room_info(room_info):
+    def parse_room_info(room_info, tracks_info):
         first = room_info[0]
         teams = [f['team_name'] for f in room_info]
 
@@ -49,5 +49,8 @@ class Services:
             'status': first['status'],
             'title': first['title'],
             'author': first['name'],
-            'teams': teams
+            'teams': teams,
+            'costs': tracks_info['costs'],
+            'categories': tracks_info['categories'],
+            'tracks': tracks_info['tracks'],
         }
