@@ -176,7 +176,9 @@ class ApiRouter:
             code = code.upper().strip()
             await self.db_hands.update_game_any_param(code, "status", "waiting")
             room_info = await self.db_hands.get_room_info(code)
-            return self.services.parse_room_info(room_info) if room_info else None
+            print(f"code={code!r}, room_info={room_info}")
+            tracks_info = await self.db_hands.get_room_tracks(code)
+            return self.services.parse_room_info(room_info, tracks_info) if room_info else None
 
         @self.router.websocket("/ws/room/{code}")
         async def room_ws(websocket: WebSocket, code: str):

@@ -60,7 +60,7 @@ class DatabaseHands:
             result = await session.execute(
                 text("SELECT title, name, join_code, status, team_name, score, game_id "
                      "FROM games as g "
-                     "JOIN game_participants AS gp ON g.id = gp.game_id "
+                     "LEFT JOIN game_participants AS gp ON g.id = gp.game_id "
                      "JOIN users AS u ON g.admin_user_id = u.id "
                      "WHERE join_code = :join_code"),
                 {

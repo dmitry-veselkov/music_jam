@@ -127,7 +127,6 @@ export class AccountView extends Component {
 
     async _createNewGame() {
         const code = await generateEmptyGame();
-        console.log(code);
         if (code) {
             window.history.pushState({isNew: true}, '', `/room/game_settings/${code}`);
             window.dispatchEvent(new Event('popstate'));
