@@ -23,13 +23,8 @@ export class AccountView extends Component {
 
     async _setState(userInfo) {
         this.state.userName = userInfo.name;
-        const loadedUserGames = localStorage.getItem("loadedUserGames");
-        if (!loadedUserGames) {
-            this.state.games = await getAllUserGames(userInfo.email);
-            localStorage.setItem("loadedUserGames", JSON.stringify(this.state.games));
-        } else {
-            this.state.games = JSON.parse(loadedUserGames);
-        }
+        this.state.games = await getAllUserGames();
+        localStorage.setItem("loadedUserGames", JSON.stringify(this.state.games));
     }
 
     _renderGamesList() {
