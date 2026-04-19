@@ -5,7 +5,7 @@ from logging import Logger
 from services import Services
 from db.hands_db import DatabaseHands
 from api_schemes import LoginSchema, RegisterSchema, SaveGameSchema, TeamSchema
-
+from datetime import datetime
 
 class ApiRouter:
     SONG_FIELDS = {"categories", "costs", "tracks"}
@@ -83,23 +83,31 @@ class ApiRouter:
 
             return {"email": payload["email"], "name": payload['name']}
 
-        @self.router.get('/get_new_game_code')
-        async def create_new_game():
-            max_times = 0
-            while max_times < 10:
+
+        @self.router.post('/create_new_game')
+        async def create_new_game(token: str = Cookie(None)):
+            payload = self.services.try_get_jwt_payload(token)
+            user_id = int(payload["sub"])
+            for max_times in range(10):
                 code = self.services.generate_new_code()
                 game_info = await self.db_hands.get_game_info(code)
                 if game_info is None:
+                    await self.db_hands.create_game(
+                        user_id,
+                        "Новая игра",
+                        code,
+                        datetime.now()
+                    )
                     return code
-                max_times += 1
-
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 detail="Could not generate unique code. Try again later."
             )
 
+
         @self.router.get('/gameSettings')
         async def get_room_settings(code: str = ''):
+            print(code)
             code = code.upper().strip()
             game = await self.db_hands.get_game_info(code)
             if not game:

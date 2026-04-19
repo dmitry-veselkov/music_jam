@@ -6,7 +6,7 @@ export async function getAllUserGames() {
 }
 
 export async function generateEmptyGame() {
-    return await fetchGetTo(`/api/get_new_game_code`);
+    return await fetchPostTo(`/api/create_new_game`);
 }
 
 export async function tryRunGame(code) {
@@ -17,10 +17,10 @@ export async function tryGetGameSettings(code) {
     return await fetchGetTo(`/api/gameSettings?code=${code}`);
 }
 
-export async function saveGameSettings(payload) {
-    return await fetchPostTo('/api/gameSettings', payload);
+export async function saveGameSettings(code, payload) {
+    return await fetchPostTo(`/api/gameSettings?code=${code}`, payload);
 }
 
-export async function startGame() {
-    return await fetchPostTo('/api/gameSettings');
+export async function startGame(code) {
+    return await fetchPostTo(`/api/gameSettings?code=${code}`);
 }
