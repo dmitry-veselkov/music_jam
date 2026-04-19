@@ -31,6 +31,8 @@ export class AdminWaitingRoomView extends Component {
             return;
         }
 
+        this._connectSocket();
+
         this._setState({
             gameId: roomInfo.id,
             roomCode: roomInfo.code,
@@ -51,7 +53,8 @@ export class AdminWaitingRoomView extends Component {
         this.attachEvents();
     }
 
-    _renderWaitingTeamsPanel() {
+    _renderTeamsPanel() {
+        console.log("teams:", this.state.teams);
         const teamsListLogic = this.state.teams.length === 0
             ? `<li class="empty-state">Пока никого нет. Поделитесь кодом, чтобы игроки присоединились!</li>`
             : this.state.teams
@@ -85,11 +88,27 @@ export class AdminWaitingRoomView extends Component {
         return `
             <div class="logo-corner">${Logo()}</div>
             <div class="waiting-layout">
-                ${this._renderWaitingTeamsPanel()}
+                ${this._renderTeamsPanel()}
             </div>
         `;
     }
 
     attachEvents() {
+    }
+
+    _connectSocket() {
+        const protocol = window.location.protocol === "https:" ? "wss" : "ws";
+        this.ws = new WebSocket(
+            `${protocol}://${window.location.host}/api/ws/room/${this.data.roomCode}`
+        );
+
+        this.ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+
+            if (data.type === "init" || data.type === "update") {
+                this.state.teams = data.teams;
+                this.updateDOM();
+            }
+        };
     }
 }
