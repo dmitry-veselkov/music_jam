@@ -53,7 +53,7 @@ export class AdminWaitingRoomView extends Component {
 
     _renderWaitingTeamsPanel() {
         const teamsListLogic = this.state.teams.length === 0
-            ? `<li class="empty-state">Пока никого нет. Будьте первыми!</li>`
+            ? `<li class="empty-state">Пока никого нет. Поделитесь кодом, чтобы игроки присоединились!</li>`
             : this.state.teams
                 .map(team => `
                     <li class="team-item ${team === this.state.myTeamName ? 'my-team' : ''}">

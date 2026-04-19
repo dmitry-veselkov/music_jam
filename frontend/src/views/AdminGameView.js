@@ -4,7 +4,7 @@ import {get404} from "../services/RouteServices.js";
 import {tryGetGameSettings, saveGameSettings} from "../services/GamesServices.js";
 import {loadUserInfoOrRedirect} from "../services/AccountServices.js";
 
-export class GameView extends Component {
+export class AdminGameView extends Component {
     constructor(container, data) {
         super(container, data);
         this.state = {
@@ -62,49 +62,43 @@ export class GameView extends Component {
         return `
         <div class="logo-corner">${Logo()}</div>
 
-        <div class="editor-layout player-mode">
+        <div class="editor-layout organizer-mode">
             <aside class="editor-sidebar">
                 <div class="card">
-                    <h2 class="card-title">Информация об игре</h2>
+                    <h2 class="card-title">Параметры игры</h2>
 
-                    <div class="game-meta">
-                        <p><strong>Название:</strong> ${this.state.settings.name || '—'}</p>
-                        <p><strong>Автор:</strong> ${this.state.settings.author || '—'}</p>
-                        <p><strong>Описание:</strong> ${this.state.settings.description || '—'}</p>
-                        <p><strong>Максимум команд:</strong> ${this.state.settings.maxTeams || '—'}</p>
+                    <div class="form-group">
+                        <label>Название</label>
+                        <div class="ui-input readonly-field">${this.state.settings.name || '—'}</div>
                     </div>
 
-                    <div class="player-status-card">
-                        <div class="modal-badge">🎧 Сейчас играет</div>
+                    <div class="form-group">
+                        <label>Автор</label>
+                        <div class="ui-input readonly-field">${this.state.settings.author || '—'}</div>
+                    </div>
 
-                        <div class="track-preview-title">
-                            ${
-            activeCell
-                ? `${this.state.categories[activeCell.row]} — ${this.state.costs[activeCell.col]}`
-                : 'Ожидание выбора трека'
-        }
-                        </div>
-
-                        <div class="track-preview-subtitle">
-                            ${
-            activeCell
-                ? 'Организатор запустил вопрос. Можно отвечать.'
-                : 'Дождитесь, пока организатор выберет категорию.'
-        }
+                    <div class="form-group">
+                        <label>Описание</label>
+                        <div class="ui-input readonly-field readonly-textarea">
+                            ${this.state.settings.description || '—'}
                         </div>
                     </div>
 
-                    ${
-            activeCell
-                ? `<button class="btn btn-primary w-100" id="answer-btn">Ответить</button>`
-                : `<button class="btn btn-secondary w-100" disabled>Ответить</button>`
-        }
+                    <div class="form-group">
+                        <label>Команд (макс)</label>
+                        <div class="ui-input readonly-field">${this.state.settings.maxTeams || '—'}</div>
+                    </div>
+
+                    <div class="btn-group-vertical">
+                        <button class="btn btn-primary w-100" id="end-btn">Завершить игру</button>
+                    </div>
                 </div>
             </aside>
 
             <main class="editor-main">
                 <div class="table-header-actions">
                     <div class="badge">Код комнаты: ${this.data.roomCode}</div>
+                    <div class="badge">Режим организатора</div>
                 </div>
 
                 <div class="scroll-container">
@@ -142,31 +136,19 @@ export class GameView extends Component {
 
             return `
                                             <td>
-                                                <div
-                                                    class="preview-cell track-cell player-track-cell ${isActive ? 'active' : ''} ${isPlayed ? 'played' : ''}"
+                                                <button
+                                                    class="preview-cell track-cell organizer-track-btn ${isActive ? 'active' : ''} ${isPlayed ? 'played' : ''}"
                                                     data-row="${rIdx}"
                                                     data-col="${cIdx}"
+                                                    data-track="${trackValue ? trackValue : ''}"
                                                 >
                                                     <div class="cell-main">
-                                                        ${isPlayed && trackValue ? trackValue : cost}
+                                                        ${cost}
                                                     </div>
-
-                                                    <div class="cell-sub">
-                                                        ${
-                isActive
-                    ? 'Можно отвечать'
-                    : isPlayed
-                        ? 'Сыграно'
-                        : 'Ожидание'
-            }
+                                                    <div class="cell-sub" style="width: 100%">
+                                                        ${trackValue ? '▶ Запустить' : 'Нет трека'}
                                                     </div>
-
-                                                    ${
-                isActive
-                    ? `<button class="btn btn-primary btn-sm answer-inline-btn" data-row="${rIdx}" data-col="${cIdx}">Ответить</button>`
-                    : ''
-            }
-                                                </div>
+                                                </button>
                                             </td>
                                         `;
         }).join('')}

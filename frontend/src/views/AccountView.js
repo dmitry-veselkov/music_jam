@@ -109,10 +109,11 @@ export class AccountView extends Component {
             });
         }
 
-        const startButtons = this.container.querySelectorAll("[data-start-id]");
+        const startButtons = document.querySelectorAll("[data-start-id]");
         if (startButtons) {
             startButtons.forEach(button => {
                 button.addEventListener("click", async (event) => {
+                    console.log("start button clicked");
                     await this._runGame(event)
                 });
             });
@@ -121,8 +122,11 @@ export class AccountView extends Component {
 
     async _runGame(event) {
         const gameId = event.currentTarget.dataset.gameCode;
+        console.log("navigating to:", `/room/admin_waiting/${gameId}`);
         window.history.pushState({}, '', `/room/admin_waiting/${gameId}`);
+        console.log("current path after push:", window.location.pathname);
         window.dispatchEvent(new Event('popstate'));
+        console.log("popstate dispatched");
     }
 
     async _createNewGame() {

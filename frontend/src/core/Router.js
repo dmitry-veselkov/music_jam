@@ -40,7 +40,6 @@ export class Router {
             dataForView.roomCode = roomCode;
             return path.slice(0, path.length - roomCode.length - 1);
         }
-
         return path;
     }
 
