@@ -1,18 +1,16 @@
+import logging
 import pathlib
 
-from fastapi import FastAPI, Request
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
-from fastapi.middleware.cors import CORSMiddleware
-
 import uvicorn
-import logging
-
 from api import ApiRouter
-from settings import Settings
 from db.database import Database
 from db.hands_db import DatabaseHands
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from services import Services
+from settings import Settings
 
 
 class App:
@@ -39,23 +37,23 @@ class App:
         self._initialize_routers()
         self._initialize_static()
 
-    def _initialize_routers(self):
+    def _initialize_routers(self) -> None:
         api_router = ApiRouter(self.db_hands, self.services, self.logger)
         self.app.include_router(api_router.router, prefix="/api")
 
-    def _initialize_static(self):
+    def _initialize_static(self) -> None:
         if self.FRONTEND_DIR.exists():
             self.app.mount("/static", StaticFiles(directory=str(self.FRONTEND_DIR)), name="static")
+            self.app.add_api_route('/{path_name:path}', self.catch_all, methods=["GET"])
 
-            @self.app.get("/{path_name:path}")
-            async def catch_all(request: Request, path_name: str):
-                file_path = self.FRONTEND_DIR / path_name
-                if file_path.is_file():
-                    return FileResponse(file_path)
-                return FileResponse(self.FRONTEND_DIR / "index.html")
+    async def catch_all(self, request: Request, path_name: str) -> FileResponse:  # а зачем тут request?
+        file_path = self.FRONTEND_DIR / path_name
+        if file_path.is_file():
+            return FileResponse(file_path)
+        return FileResponse(self.FRONTEND_DIR / "index.html")
 
-    def run(self):
-        uvicorn.run(self.app, host="127.0.0.1", port=5000)
+    def run(self, host: str = "127.0.0.1", port: int = 5000, **kwargs) -> None:
+        uvicorn.run(self.app, host=host, port=port, **kwargs)
 
 
 if __name__ == "__main__":

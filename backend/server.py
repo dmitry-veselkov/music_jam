@@ -1,4 +1,4 @@
-﻿# game_characteristics = {
+# game_characteristics = {
 #     '12345': {
 #         'name': 'Крутая игра',
 #         'author': 'Dima',

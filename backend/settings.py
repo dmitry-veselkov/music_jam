@@ -1,23 +1,19 @@
-﻿from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import Field
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    DB_HOST: str
-    DB_PORT: int
-    DB_USER: str
-    DB_PASS: str
-    DB_NAME: str
-    SECRET_JWT: str
+    DB_HOST: str = Field(default="")
+    DB_PORT: int = Field(default=0)
+    DB_USER: str = Field(default="")
+    DB_PASS: str = Field(default="")
+    DB_NAME: str = Field(default="")
+    SECRET_JWT: str = Field(default="")
 
-    model_config = SettingsConfigDict(
-        env_file="../.env",
-        extra="ignore"
-    )
+    model_config = SettingsConfigDict(env_file="../.env", extra="ignore")
 
     @property
-    def db_url(self):
+    def db_url(self) -> str:
         return (
-            f"postgresql+asyncpg://"
-            f"{self.DB_USER}:{self.DB_PASS}"
-            f"@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+            f"postgresql+asyncpg://" f"{self.DB_USER}:{self.DB_PASS}" f"@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
         )
