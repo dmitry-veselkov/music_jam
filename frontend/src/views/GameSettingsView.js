@@ -26,9 +26,9 @@ export class GameSettingsView extends Component {
             return;
         }
 
-        const historyState = window.history.state;
         const roomInfo = await tryGetGameSettings(this.data.roomCode);
-        if (!(historyState && historyState.isNew)) {
+        console.log(roomInfo);
+        if (!roomInfo || !roomInfo.exists) {
             this.container.innerHTML = get404();
             return;
         }

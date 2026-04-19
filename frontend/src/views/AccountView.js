@@ -102,6 +102,7 @@ export class AccountView extends Component {
             editGameButtons.forEach(button => {
                 button.addEventListener("click", (event) => {
                     const gameId = event.currentTarget.dataset.gameCode;
+                    console.log("gameCode:", gameId);
                     window.history.pushState({}, '', `/room/game_settings/${gameId}`);
                     window.dispatchEvent(new Event('popstate'));
                 });
