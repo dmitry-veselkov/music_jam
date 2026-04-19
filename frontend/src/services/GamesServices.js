@@ -17,8 +17,8 @@ export async function tryGetGameSettings(code) {
     return await fetchGetTo(`/api/gameSettings?code=${code}`);
 }
 
-export async function saveGameSettings(code, payload) {
-    return await fetchPostTo(`/api/gameSettings?code=${code}`, payload);
+export async function saveGameSettings(payload) {
+    return await fetchPostTo(`/api/gameSettings`, payload);
 }
 
 export async function startGame(code) {

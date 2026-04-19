@@ -51,10 +51,8 @@ class DatabaseHands:
                     "join_code": code
                 }
             )
-            row = result.fetchall()
-            if not row:
-                return None
-            return row
+            row = result.mappings().first()
+        return dict(row) if row else None
 
     async def get_room_info(self, code):
         print(code)
@@ -117,6 +115,7 @@ class DatabaseHands:
                     "scheduled_at": scheduled_at
                 }
             )
+            await session.commit()
 
     async def insert_or_update_team(self, game_id, team_id, team_name):
         async with self.db.get_session() as session:
@@ -170,6 +169,7 @@ class DatabaseHands:
         if column not in self._ALLOWED_GAME_COLUMNS:
             return
         async with self.db.get_session() as session:
+            print(join_code, "any params")
             await session.execute(
                 text("UPDATE games "
                      f"SET {column} = :value "
@@ -193,7 +193,7 @@ class DatabaseHands:
                     "join_code": join_code
                 }
             )).scalar()
-
+            print(join_code, "game settings")
             for category in categories:
                 for cost in costs:
                     value = tracks.get(category, {}).get(cost)
@@ -222,10 +222,10 @@ class DatabaseHands:
             if actual_song_ids:
                 await session.execute(
                     text("DELETE FROM game_songs WHERE game_id = :game_id "
-                         "AND song_id NOT IN :song_ids"),
+                         "AND song_id != ALL(:song_ids)"),
                     {
                         "game_id": game_id,
-                        "song_ids": tuple(actual_song_ids)
+                        "song_ids": list(actual_song_ids)
                     }
                 )
             else:
