@@ -110,9 +110,10 @@ class ApiRouter:
             print(code)
             code = code.upper().strip()
             game = await self.db_hands.get_game_info(code)
+            songs = await self.db_hands.get_room_tracks(code)
             if not game:
                 return {"exists": False}
-            return {"exists": True, "roomCode": code, **game}
+            return {"exists": True, "roomCode": code, **game, **songs}
 
         @self.router.post('/gameSettings')
         async def save_room_settings(data: SaveGameSchema):

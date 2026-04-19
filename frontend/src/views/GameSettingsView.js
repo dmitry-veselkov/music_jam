@@ -32,6 +32,7 @@ export class GameSettingsView extends Component {
             this.container.innerHTML = get404();
             return;
         }
+        console.log(roomInfo)
         this._applyRoomInfo(roomInfo);
         this.updateDOM();
     }

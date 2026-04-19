@@ -42,7 +42,6 @@ class Services:
     def parse_room_info(room_info, tracks_info):
         first = room_info[0]
         teams = [f['team_name'] for f in room_info]
-
         return {
             'id': first['game_id'],
             'code': first['join_code'],

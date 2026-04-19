@@ -89,7 +89,7 @@ class DatabaseHands:
             )).mappings().all()
 
             categories = list({r["category"] for r in result})
-            costs = list({r["price"] for r in result})
+            costs = sorted(list({r["price"] for r in result}))
             tracks = {
                 category: {
                     row["price"]: row["file_url"]
