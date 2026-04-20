@@ -214,8 +214,9 @@ class ApiRouter:
         if self.room_state[code]["teams"]:
             return
         room_info = await self.db_hands.get_room_info(code)
+        tracks_info = await self.db_hands.get_room_tracks(code)
         if room_info:
-            self.room_state[code]["teams"] = self.services.parse_room_info(room_info)['teams']
+            self.room_state[code]["teams"] = self.services.parse_room_info(room_info, tracks_info)['teams']
 
     async def _broadcast_room(self, code: str):
         payload = {

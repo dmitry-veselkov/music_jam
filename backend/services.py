@@ -43,7 +43,7 @@ class Services:
         first = room_info[0]
         teams = [f['team_name'] for f in room_info if f['team_name']]
         return {
-            'id': first['game_id'],
+            'id': first['id'],
             'code': first['join_code'],
             'status': first['status'],
             'title': first['title'],

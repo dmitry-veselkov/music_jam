@@ -58,7 +58,7 @@ class DatabaseHands:
         print(code)
         async with self.db.get_session() as session:
             result = await session.execute(
-                text("SELECT title, name, join_code, status, team_name, score, game_id "
+                text("SELECT g.id, g.title, u.name, g.join_code, g.status, gp.team_name, gp.score "
                      "FROM games as g "
                      "LEFT JOIN game_participants AS gp ON g.id = gp.game_id "
                      "JOIN users AS u ON g.admin_user_id = u.id "

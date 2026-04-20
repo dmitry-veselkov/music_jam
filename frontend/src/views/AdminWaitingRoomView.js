@@ -25,7 +25,6 @@ export class AdminWaitingRoomView extends Component {
         }
 
         const roomInfo = await tryRunGame(this.data.roomCode);
-        console.log(roomInfo);
         if (!roomInfo) {
             this.container.innerHTML = get404();
             return;
@@ -54,18 +53,17 @@ export class AdminWaitingRoomView extends Component {
     }
 
     _renderTeamsPanel() {
-        console.log("teams:", this.state.teams);
         const teamsListLogic = this.state.teams.length === 0
             ? `<li class="empty-state">Пока никого нет. Поделитесь кодом, чтобы игроки присоединились!</li>`
             : this.state.teams
                 .map(team => `
-                    <li class="team-item ${team === this.state.myTeamName ? 'my-team' : ''}">
+                    <li class="team-item">
                         <span class="team-icon">👥</span>
                         <span class="team-name">${team}</span>
-                        ${team === this.state.myTeamName ? '<span class="badge-you">Вы</span>' : ''}
                     </li>`)
                 .join('')
 
+        const startButton = Button({ text: 'Начать игру', id: 'btn-start-game', variant: 'primary'});
         return `<main class="waiting-teams-panel">
                     <div class="card teams-card">
                         <div class="teams-header">
@@ -80,6 +78,7 @@ export class AdminWaitingRoomView extends Component {
                         <ul class="teams-list">
                             ${teamsListLogic}
                         </ul>
+                        ${startButton}
                     </div>
                 </main>`
     }
