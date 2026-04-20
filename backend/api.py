@@ -21,7 +21,7 @@ class ApiRouter:
 
     def _setup_routes(self) -> None:
         @self.router.post("/login")
-        async def login(data: LoginSchema, response: Response):
+        async def login(data: LoginSchema, response: Response) -> bool:
             pass_hash = self.services.get_hex_hash(data.password)
             user = await self.db_hands.get_user(data.email)
 
@@ -35,7 +35,7 @@ class ApiRouter:
             return True
 
         @self.router.post("/register")
-        async def register(data: RegisterSchema, response: Response):
+        async def register(data: RegisterSchema, response: Response) -> dict[str, str]:
             user = await self.db_hands.get_user(data.email)
             if user:
                 raise HTTPException(
@@ -51,7 +51,7 @@ class ApiRouter:
             return {"name": data.name, "email": data.email}
 
         @self.router.get("/get_all_user_games")
-        async def get_all_user_games(token: str | None = Cookie(None)):
+        async def get_all_user_games(token: str | None = Cookie(None)) -> list[dict[str, Any]]:
             payload = self._get_token_payload(token)
             if not payload:
                 raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
@@ -64,7 +64,7 @@ class ApiRouter:
             return user_games
 
         @self.router.get('/get_user_info')
-        async def get_user_info(token: str | None = Cookie(None)):
+        async def get_user_info(token: str | None = Cookie(None)) -> dict[str, Any]:
             self.logger.info("Что-то ищем")
             payload = self._get_token_payload(token)
             if not payload:
@@ -73,7 +73,7 @@ class ApiRouter:
             return {"email": payload["email"], "name": payload['name']}
 
         @self.router.get('/get_new_game_code')
-        async def create_new_game():
+        async def create_new_game() -> str:
             max_times = 0
             while max_times < 10:
                 code = self.services.generate_new_code()
@@ -96,7 +96,7 @@ class ApiRouter:
             return {"exists": True, "roomCode": code, **game}
 
         @self.router.post('/gameSettings')
-        async def get_room_settings(data: SaveGameSchema):
+        async def get_room_settings(data: SaveGameSchema) -> dict[str, Any]:
             code = data.roomCode.upper().strip()
             if not code:
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="roomCode is required")
@@ -116,13 +116,13 @@ class ApiRouter:
             return {"success": True, "roomCode": code, "game": data}
 
         @self.router.get('/get_room_info')
-        async def get_room_info(code: str):
+        async def get_room_info(code: str) -> dict[str, Any] | None:
             code = code.upper().strip()
             room_info = await self.db_hands.get_room_info(code)
             return self.services.parse_room_info(room_info) if room_info else None
 
         @self.router.post('/set_team_name')
-        async def set_team_name(data: TeamSchema):
+        async def set_team_name(data: TeamSchema) -> dict[str, Any]:
             is_new = await self.db_hands.insert_or_update_team(data.id, data.uuid, data.name)
             code = data.code
             await self._ensure_room_loaded(code)
@@ -142,18 +142,18 @@ class ApiRouter:
             return {"status": "ok", "new": is_new}
 
         @self.router.get('/get_team_name')
-        async def get_team_name(uuid: str) -> Response:
+        async def get_team_name(uuid: str) -> Any | None:
             return await self.db_hands.get_team_name(uuid)
 
         @self.router.get('/run_game')
-        async def run_game(code: str = ''):
+        async def run_game(code: str = '') -> None | dict[str, Any]:
             code = code.upper().strip()
             await self.db_hands.update_game_any_param(code, "status", "waiting")
             room_info = await self.db_hands.get_room_info(code)
             return self.services.parse_room_info(room_info) if room_info else None
 
         @self.router.websocket("/ws/room/{code}")
-        async def room_ws(websocket: WebSocket, code: str):
+        async def room_ws(websocket: WebSocket, code: str) -> None:
             code = code.upper().strip()
 
             await websocket.accept()
@@ -169,7 +169,7 @@ class ApiRouter:
             except WebSocketDisconnect:
                 self.rooms[code].discard(websocket)
 
-    def _get_token_payload(self, token) -> dict[str, Any] | None:
+    def _get_token_payload(self, token: str | None) -> dict[str, Any] | None:
         if not token or not (payload := self.services.try_get_jwt_payload(token)):
             return None
         return payload

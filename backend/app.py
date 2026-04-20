@@ -1,5 +1,6 @@
 import logging
 import pathlib
+from typing import Any
 
 import uvicorn
 from api import ApiRouter
@@ -52,7 +53,7 @@ class App:
             return FileResponse(file_path)
         return FileResponse(self.FRONTEND_DIR / "index.html")
 
-    def run(self, host: str = "127.0.0.1", port: int = 5000, **kwargs) -> None:
+    def run(self, host: str = "127.0.0.1", port: int = 5000, **kwargs: Any) -> None:
         uvicorn.run(self.app, host=host, port=port, **kwargs)
 
 

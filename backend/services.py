@@ -10,7 +10,7 @@ class Services:
     _CODE_ALPHABET = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ"
     _CODE_LENGTH = 6
 
-    def __init__(self, secret_jwt) -> None:
+    def __init__(self, secret_jwt: str) -> None:
         self.secret_jwt = secret_jwt
 
     @staticmethod
@@ -29,7 +29,7 @@ class Services:
 
         return jwt.encode(payload, self.secret_jwt, algorithm="HS256")
 
-    def try_get_jwt_payload(self, token) -> dict[str, Any] | None:
+    def try_get_jwt_payload(self, token: str) -> dict[str, Any] | None:
         try:
             payload = jwt.decode(token, self.secret_jwt, algorithms=["HS256"])
             return payload
@@ -41,7 +41,7 @@ class Services:
         return ''.join(secrets.choice(self._CODE_ALPHABET) for _ in range(self._CODE_LENGTH))
 
     @staticmethod
-    def parse_room_info(room_info) -> dict[str, Any]:
+    def parse_room_info(room_info: list[dict[Any, Any]]) -> dict[str, Any]:
         first = room_info[0]
         teams = [f['team_name'] for f in room_info]
 
