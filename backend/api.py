@@ -166,6 +166,11 @@ class ApiRouter:
             await self._broadcast_room(code)
             return {"status": "ok", "new": is_new}
 
+        @self.router.post('/add_points')
+        async def add_points(points, uuid, game_id):
+            pass
+            # return await self.db_hands.update_score_team(game_id, uuid, points)
+
         @self.router.get('/get_team_name')
         async def get_team_name(uuid: str) -> Response:
             return await self.db_hands.get_team_name(uuid)

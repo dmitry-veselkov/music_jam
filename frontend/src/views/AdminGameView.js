@@ -1,6 +1,6 @@
 import {Component} from "../core/Component.js";
 import {get404} from "../services/RouteServices.js";
-import {tryGetGameSettings, saveGameSettings} from "../services/GamesServices.js";
+import {tryGetGameSettings, saveGameSettings, addPoints} from "../services/GamesServices.js";
 import {loadUserInfoOrRedirect} from "../services/AccountServices.js";
 import {Logo, Input, Button} from "../components/UI.js";
 
@@ -187,22 +187,29 @@ export class AdminGameView extends Component {
 
         const awardCalc = this.container.querySelector('#award-btn');
         if (awardCalc) {
-            awardCalc.addEventListener('click', e => {
-                const points = Number(this.container.querySelectorAll('.points').value);
-                const team = this.state.buzzedTeam;
-                this.ws.send(JSON.stringify({
-                    type : 'award_points',
-                    team, points
-                }));
+            awardCalc.addEventListener('click', async (event) => {
+                const points = Number(this.container.querySelector('#points-input').value);
+                await addPoints(this.data.roomCode, points, this.state.buzzedTeam, this.state.gameId);
                 this.state.buzzedTeam = null;
                 this.state.activeCell = null;
                 this.updateDOM();
             })
         }
 
+        const wrongBtn = this.container.querySelector('#wrong-btn');
+        if (wrongBtn) {
+            wrongBtn.addEventListener('click', async (event) => {
+                const points = Number(this.container.querySelector('#points-input').value);
+                await addPoints(this.data.roomCode, points, this.state.buzzedTeam, this.state.gameId);
+                this.state.buzzedTeam = null;
+                this.state.activeCell = null;
+                this.updateDOM();
+            });
+        }
+
         const endBtn = this.container.querySelector('#end-btn');
         if (endBtn) {
-            endBtn.addEventListener('click', e => {
+            endBtn.addEventListener('click', (event) => {
 
             })
         }
