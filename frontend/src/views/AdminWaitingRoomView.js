@@ -97,7 +97,7 @@ export class AdminWaitingRoomView extends Component {
     attachEvents() {
         const startGame = document.getElementById("start-game");
         startGame.addEventListener("click", (event) => {
-            const gameId = this.state.roomCode;
+            const gameId = this.data.roomCode;
             window.history.pushState({}, '', `/room/admin_active/${gameId}`);
             window.dispatchEvent(new Event('popstate'));
         });
