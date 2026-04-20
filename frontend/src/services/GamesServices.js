@@ -25,6 +25,6 @@ export async function startGame(code){
     return await fetchPostTo(`/api/start_game?code=${code}`);
 }
 
-export async function addPoints(code, points, team, game_id){
+export async function updateTeamScores(code, points, team, game_id){
     return await fetchPostTo(`/api/add_points?code=${code}`);
 }

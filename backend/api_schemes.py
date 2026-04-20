@@ -23,10 +23,8 @@ class TeamSchema(BaseModel):
 
 class SaveGameSchema(BaseModel):
     roomCode: str
-    name: str = ""
-    author: str = ""
-    description: str = ""
-    maxTeams: int = 4
-    categories: list[str] = []
-    costs: list[int] = []
-    tracks: dict[str, Any] = {}
+    title: str
+    description: str
+    categories: list[str]
+    costs: list[int]
+    tracks: list[list[dict | None]]

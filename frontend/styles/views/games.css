@@ -25,7 +25,9 @@
     color: var(--color-primary);
 }
 
-.w-100 { width: 100%; }
+.w-100 {
+    width: 100%;
+}
 
 /* Основная область таблицы */
 .editor-main {
@@ -321,4 +323,18 @@ input[type="range"] {
         opacity: 1;
         transform: translateY(0) scale(1);
     }
+}
+
+.cell-filled {
+    background: #1f2937;
+    color: white;
+}
+
+.cell-active {
+    outline: 3px solid #22c55e;
+}
+
+.disabled-cell {
+    pointer-events: none;
+    opacity: 0.6;
 }

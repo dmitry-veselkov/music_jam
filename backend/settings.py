@@ -2,6 +2,8 @@
 
 
 class Settings(BaseSettings):
+    PUBLIC_KEY: str
+    SECRET_KEY: str
     DB_HOST: str
     DB_PORT: int
     DB_USER: str

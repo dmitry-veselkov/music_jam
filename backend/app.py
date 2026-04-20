@@ -13,6 +13,7 @@ from settings import Settings
 from db.database import Database
 from db.hands_db import DatabaseHands
 from services import Services
+from s3 import S3
 
 
 class App:
@@ -27,6 +28,7 @@ class App:
         self.db = Database(self.settings)
         self.db_hands = DatabaseHands(self.db)
         self.services = Services(self.settings.SECRET_JWT)
+        self.s3 = S3(self.settings.PUBLIC_KEY, self.settings.SECRET_KEY)
         self.logger = logging.getLogger("uvicorn")
 
         self.app.add_middleware(
@@ -40,7 +42,7 @@ class App:
         self._initialize_static()
 
     def _initialize_routers(self):
-        api_router = ApiRouter(self.db_hands, self.services, self.logger)
+        api_router = ApiRouter(self.db_hands, self.services, self.logger, self.s3)
         self.app.include_router(api_router.router, prefix="/api")
 
     def _initialize_static(self):

@@ -2,6 +2,7 @@
 import datetime
 import jwt
 import secrets
+import uuid
 
 
 class Services:
@@ -53,3 +54,7 @@ class Services:
             'categories': tracks_info['categories'],
             'tracks': tracks_info['tracks'],
         }
+
+    @staticmethod
+    def get_unique_s3_uuid(name: str):
+        return f"{uuid.uuid4()}_{name}"

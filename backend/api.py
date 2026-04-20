@@ -1,4 +1,7 @@
-from fastapi import APIRouter, HTTPException, Response, status, Cookie, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, HTTPException, Response, status, Cookie, WebSocket, WebSocketDisconnect, UploadFile, \
+    File, Form
+from fastapi.responses import StreamingResponse
+import requests
 from collections import defaultdict
 from logging import Logger
 
@@ -6,16 +9,19 @@ from services import Services
 from db.hands_db import DatabaseHands
 from api_schemes import LoginSchema, RegisterSchema, SaveGameSchema, TeamSchema
 from datetime import datetime
+from s3 import S3
+
 
 class ApiRouter:
     SONG_FIELDS = {"categories", "costs", "tracks"}
 
-    def __init__(self, db_hands: DatabaseHands, services: Services, logger: Logger):
+    def __init__(self, db_hands: DatabaseHands, services: Services, logger: Logger, s3: S3):
         self.router = APIRouter()
         self.db_hands = db_hands
         self.services = services
         self._setup_routes()
         self.logger = logger
+        self.s3 = s3
 
         self.rooms: dict[str, set[WebSocket]] = defaultdict(set)
         self.room_state: dict[str, dict] = defaultdict(lambda: {"teams": []})
@@ -82,7 +88,6 @@ class ApiRouter:
 
             return {"email": payload["email"], "name": payload['name']}
 
-
         @self.router.post('/create_new_game')
         async def create_new_game(token: str = Cookie(None)):
             payload = self.services.try_get_jwt_payload(token)
@@ -94,6 +99,7 @@ class ApiRouter:
                     await self.db_hands.create_game(
                         user_id,
                         "Новая игра",
+                        '',
                         code,
                         datetime.now()
                     )
@@ -103,40 +109,40 @@ class ApiRouter:
                 detail="Could not generate unique code. Try again later."
             )
 
-
         @self.router.get('/gameSettings')
         async def get_room_settings(code: str = ''):
             print(code)
             code = code.upper().strip()
             game = await self.db_hands.get_game_info(code)
-            songs = await self.db_hands.get_room_tracks(code)
-            print(game, songs)
             if not game:
                 return {"exists": False}
+            songs = await self.db_hands.get_room_tracks(code)
+            print(game, songs)
             return {"exists": True, "roomCode": code, **game, **songs}
 
         @self.router.post('/gameSettings')
         async def save_room_settings(data: SaveGameSchema):
             code = data.roomCode.upper().strip()
+
+            print(data)
+
             if not code:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="roomCode is required"
-                )
-            dumped = data.model_dump()
-            game_fields = {k: v for k, v in dumped.items() if k not in self.SONG_FIELDS}
-            songs_data = {k: v for k, v in dumped.items() if k in self.SONG_FIELDS}
+                raise HTTPException(status_code=400, detail="roomCode required")
 
-            for column, value in game_fields.items():
-                await self.db_hands.update_game_any_param(code, column, value)
+            await self.db_hands.update_game_any_param(code, "title", data.title)
+            await self.db_hands.update_game_any_param(code, "description", data.description)
 
-            if any(songs_data.values()):
-                await self.db_hands.update_game_settings(code, songs_data)
+            print(data.tracks)
+            await self.db_hands.save_game_grid(
+                code,
+                data.categories,
+                data.costs,
+                data.tracks
+            )
 
             return {
                 "success": True,
-                "roomCode": code,
-                "game": data
+                "roomCode": code
             }
 
         @self.router.get('/get_room_info')
@@ -188,8 +194,61 @@ class ApiRouter:
             code = code.upper().strip()
             await self._broadcast_start(code)
             return {
-                "success" : True
+                "success": True
             }
+
+        @self.router.post('/upload_music')
+        async def upload_track(title: str = Form(...),
+                               artist: str = Form(...),
+                               category: str = Form(...),
+                               cost: str = Form(...),
+                               question: UploadFile = File(...),
+                               answer: UploadFile = File(...)):
+
+            if not title.strip() or not artist.strip():
+                return {"error": "Не все поля заполнены"}
+
+            if not question.content_type.startswith("audio/") or not answer.content_type.startswith("audio/"):
+                return {"error": "Один из файл не аудио!"}
+
+            question_name = self.services.get_unique_s3_uuid(question.filename)
+            answer_name = self.services.get_unique_s3_uuid(answer.filename)
+
+            self.s3.upload(question.file, question_name, question.content_type)
+            self.s3.upload(answer.file, answer_name, answer.content_type)
+
+            cost = int(cost)
+
+            return {
+                "status": "ok",
+                "song": {
+                    "title": title,
+                    "artist": artist,
+                    "questionUrl": question_name,
+                    "answerUrl": answer_name
+                }
+            }
+
+        # @self.router.get("/play")
+        # def play_track(url: str):
+        #     response = requests.get(url, stream=True)
+        #     print(response)
+        #     print('test')
+        #
+        #     if response.status_code != 200:
+        #         return {"error": "failed to load audio"}
+        #
+        #     return StreamingResponse(
+        #         response.iter_content(8192),
+        #         media_type="audio/mp3"
+        #     )
+
+        @self.router.get("/play")
+        async def play_song(file_name: str):
+            body, content_type = self.s3.get_stream(file_name)
+            return StreamingResponse(
+                body.iter_chunks(chunk_size=1024 * 512),
+                media_type=content_type)
 
         @self.router.websocket("/ws/room/{code}")
         async def room_ws(websocket: WebSocket, code: str):
@@ -234,7 +293,6 @@ class ApiRouter:
         if room_info:
             self.room_state[code]["teams"] = self.services.parse_room_info(room_info, tracks_info)['teams']
 
-
     async def _broadcast_room(self, code: str):
         payload = {
             "type": "update",
@@ -251,7 +309,7 @@ class ApiRouter:
         for ws in dead:
             self.rooms[code].discard(ws)
 
-    async def _broadcast_room_message(self, code : str, payload : dict):
+    async def _broadcast_room_message(self, code: str, payload: dict):
         dead = []
         for ws in self.rooms[code]:
             try:
@@ -262,11 +320,11 @@ class ApiRouter:
         for ws in dead:
             self.rooms[code].discard(ws)
 
-    async def _broadcast_start(self, code : str):
+    async def _broadcast_start(self, code: str):
         code = code.upper().strip()
         payload = {
-                "type": "game_started",
-            }
+            "type": "game_started",
+        }
         dead = []
         for ws in self.rooms[code]:
             try:

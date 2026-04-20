@@ -71,28 +71,3 @@ export const Footer = () => `
         </div>
     </footer>
 `;
-
-export const GameTable = (categories = [], costs = []) => {
-    const rows = categories.map(category => `
-        <tr class="game-table__row">
-            <td class="game-table__cell game-table__cell--category">
-                ${category}
-            </td>
-            ${costs.map(cost => `
-                <td class="game-table__cell game-table__cell--question" data-cost="${cost}" data-category="${category}">
-                    <button class="game-table__btn">${cost}</button>
-                </td>
-            `).join('')}
-        </tr>
-    `).join('');
-
-    return `
-        <div class="game-table-wrapper">
-            <table class="game-table">
-                <tbody>
-                    ${rows}
-                </tbody>
-            </table>
-        </div>
-    `;
-};

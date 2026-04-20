@@ -3,7 +3,7 @@ import asyncio
 
 
 class DatabaseHands:
-    _ALLOWED_GAME_COLUMNS = {"admin_user_id", "title", "join_code", "scheduled_at", "status"}
+    _ALLOWED_GAME_COLUMNS = {"admin_user_id", "title", "join_code", "scheduled_at", "status", "description"}
 
     def __init__(self, database) -> None:
         self.db = database;
@@ -90,27 +90,35 @@ class DatabaseHands:
 
             categories = list({r["category"] for r in result})
             costs = sorted(list({r["price"] for r in result}))
+
             tracks = {
                 category: {
-                    row["price"]: row["file_url"]
+                    row["price"]: {
+                        'title': row['title'],
+                        'artist': row['artist'],
+                        'question_url': row["question_url"],
+                        'answer_url': row["answer_url"]
+                    }
                     for row in result if row["category"] == category
                 }
                 for category in categories
             }
+
         return {
             "categories": categories,
             "costs": costs,
             "tracks": tracks
         }
 
-    async def create_game(self, admin_id, title, join_code, scheduled_at):
+    async def create_game(self, admin_id, title, description, join_code, scheduled_at):
         async with self.db.get_session() as session:
             await session.execute(
-                text("INSERT INTO games (admin_user_id, title, join_code, scheduled_at) "
-                     "VALUES(:admin_id, :title, :join_code, :scheduled_at)"),
+                text("INSERT INTO games (admin_user_id, title, description, join_code, scheduled_at) "
+                     "VALUES(:admin_id, :title, :description, :join_code, :scheduled_at)"),
                 {
                     "admin_id": admin_id,
                     "title": title,
+                    "description": description,
                     "join_code": join_code,
                     "scheduled_at": scheduled_at
                 }
@@ -212,13 +220,16 @@ class DatabaseHands:
                 for cost in costs:
                     value = tracks.get(category, {}).get(cost)
                     song_id = (await session.execute(
-                         text("INSERT INTO songs (category, price, file_url) "
-                             "VALUES (:category, :price, :file_url) "
+                        text("INSERT INTO songs (category, price, title, artist, question_url, answer_url) "
+                             "VALUES (:category, :price, :title, :artist, :question_url, :answer_url) "
                              "RETURNING id"),
                         {
                             "category": category,
                             "price": cost,
-                            "file_url": value,
+                            'title': value['title'],
+                            'artist': value['artist'],
+                            'question_url': value['question_url'],
+                            'answer_url': value['answer_url'],
                         }
                     )).scalar()
                     actual_song_ids.append(song_id)
@@ -251,5 +262,48 @@ class DatabaseHands:
                 )
             await session.commit()
 
+    async def save_game_grid(self, join_code, categories, costs, grid):
+        async with self.db.get_session() as session:
 
+            game_id = (await session.execute(
+                text("SELECT id FROM games WHERE join_code = :code"),
+                {"code": join_code}
+            )).scalar()
 
+            await session.execute(
+                text("DELETE FROM game_songs WHERE game_id = :game_id"),
+                {"game_id": game_id}
+            )
+
+            for r, category in enumerate(categories):
+                for c, cost in enumerate(costs):
+
+                    cell = grid[r][c] if r < len(grid) and c < len(grid[r]) else None
+                    if not cell:
+                        continue
+
+                    song_id = (await session.execute(
+                        text("""
+                             INSERT INTO songs (category, price, title, artist, question_url, answer_url)
+                             VALUES (:category, :price, :title, :artist, :q, :a)
+                                 RETURNING id
+                             """),
+                        {
+                            "category": category,
+                            "price": cost,
+                            "title": cell["title"],
+                            "artist": cell["artist"],
+                            "q": cell["question_url"],
+                            "a": cell["answer_url"]
+                        }
+                    )).scalar()
+
+                    await session.execute(
+                        text("""
+                             INSERT INTO game_songs (game_id, song_id)
+                             VALUES (:g, :s)
+                             """),
+                        {"g": game_id, "s": song_id}
+                    )
+
+            await session.commit()
