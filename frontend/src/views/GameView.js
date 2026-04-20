@@ -1,5 +1,5 @@
 import {Component} from "../core/Component.js";
-import {Logo} from "../components/UI.js";
+import {Button, Logo} from "../components/UI.js";
 import {get404} from "../services/RouteServices.js";
 import {tryGetGameSettings, saveGameSettings} from "../services/GamesServices.js";
 import {loadUserInfoOrRedirect} from "../services/AccountServices.js";
@@ -42,6 +42,7 @@ export class GameView extends Component {
             this.container.innerHTML = get404();
             return;
         }
+        this._connectSocket();
         this._applyRoomInfo(roomInfo);
         this.updateDOM();
     }
@@ -91,7 +92,7 @@ export class GameView extends Component {
                                                     style="width: 100%;"
                                                 >
                                                     <div class="cell-sub" style="width: 100%">
-                                                        ${trackValue ? '▶ Запустить' : 'Нет трека'}
+                                                        ${trackValue}
                                                     </div>
                                                 </button>
                                             </td>
@@ -103,122 +104,79 @@ export class GameView extends Component {
         }
 
     render() {
-
         return `
-        <div class="logo-corner">${Logo()}</div>
+            <div class="logo-corner">${Logo()}</div>
 
-        <div class="editor-layout player-mode">
-            <aside class="editor-sidebar">
-                <div class="card">
-                    <h2 class="card-title">Информация об игре</h2>
+                <div class="editor-layout player-mode">
+                    <aside class="editor-sidebar">
+                        <div class="card">
+                            <h2 class="card-title">Информация об игре</h2>
 
-                    <div class="game-meta">
-                        <p><strong>Название:</strong> ${this.state.settings.name || '—'}</p>
-                        <p><strong>Автор:</strong> ${this.state.settings.author || '—'}</p>
-                        <p><strong>Описание:</strong> ${this.state.settings.description || '—'}</p>
-                    </div>
+                            <div class="game-meta">
+                                <p><strong>Название:</strong> ${this.state.settings.name || '—'}</p>
+                                <p><strong>Автор:</strong> ${this.state.settings.author || '—'}</p>
+                                <p><strong>Описание:</strong> ${this.state.settings.description || '—'}</p>
+                            </div>
 
-                    <div class="player-status-card">
-                        <div class="modal-badge">🎧 Сейчас играет</div>
+                            <div class="player-status-card">
+                                <div class="modal-badge">🎧 Сейчас играет</div>
+                                <div class="track-preview-subtitle">
+                                    ${this.state.activeCell
+                                        ? 'Организатор запустил вопрос. Можно отвечать.'
+                                        : 'Дождитесь, пока организатор выберет категорию.'}
+                                </div>
+                            </div>
 
-                        <div class="track-preview-title">
-                            ${
-                                activeCell
-                                ? `${this.state.categories[activeCell.row]} — ${this.state.costs[activeCell.col]}`
-                                : 'Ожидание выбора трека'
-                            }
+                            ${this.state.activeCell && this.state.canBuzz
+                            ? Button({ text: 'Ответить', id: 'buzz-btn', extraClass: 'w-100' })
+                                : `<button class="btn btn-secondary w-100" disabled>
+                                    ${this.state.activeCell ? 'Кто-то уже отвечает' : 'Ожидание вопроса'}
+                                </button>`}
                         </div>
+                    </aside>
 
-                        <div class="track-preview-subtitle">
-                            ${
-                                activeCell
-                                ? 'Организатор запустил вопрос. Можно отвечать.' 
-                                    : 'Дождитесь, пока организатор выберет категорию.'
-                            }
-                        </div>
-                    </div>
-                    ${
-                        activeCell
-                        ? `<button class="btn btn-primary w-100" id="answer-btn">Ответить</button>`
-                        : `<button class="btn btn-secondary w-100" disabled>Ответить</button>`
-                    }
-                </div>
-            </aside>
-
-            <main class="editor-main">
-                <div class="table-header-actions">
-                    <div class="badge">Код комнаты: ${this.data.roomCode}</div>
-                </div>
-
-                <div class="scroll-container">
-                    <table class="edit-table game-table">
-                        <thead>
-                            <tr>
-                                <th class="corner-cell">Категория / Цена</th>
-                                ${this.state.costs.map(cost => `
-                                    <th class="cost-th">
-                                        <div class="th-content readonly-th">
-                                            <span>${cost}</span>
-                                        </div>
-                                    </th>
-                                `).join('')}
-                            </tr>
-                        </thead>
-
-                        <tbody>
-                            ${this.state.categories.map((cat, rIdx) => `
-                                <tr>
-                                    <td class="cat-td">
-                                        <div class="td-content readonly-td">
-                                            <span>${cat}</span>
-                                        </div>
-                                    </td>
-
-                                    ${this.state.costs.map((cost, cIdx) => {
-            const trackKey = `${rIdx}-${cIdx}`;
-            const trackValue = this.state.tracks[trackKey];
-            const isActive =
-                activeCell &&
-                Number(activeCell.row) === rIdx &&
-                Number(activeCell.col) === cIdx;
-            const isPlayed = !!playedTracks[trackKey];
-
-            return `
-                     <td>
-                        <div class="preview-cell track-cell player-track-cell ${isActive ? 'active' : ''} ${isPlayed ? 'played' : ''}"
-                                                    data-row="${rIdx}"
-                                                    data-col="${cIdx}"
-                                                >
-                                                    <div class="cell-main">
-                                                        ${isPlayed && trackValue ? trackValue : cost}
-                                                    </div>
-
-                                                    <div class="cell-sub">
-                                                        ${
-                isActive
-                    ? 'Можно отвечать'
-                    : isPlayed
-                        ? 'Сыграно'
-                        : 'Ожидание'
-            }
-                                                    </div>
-
-                                                    ${
-                isActive
-                    ? `<button class="btn btn-primary btn-sm answer-inline-btn" data-row="${rIdx}" data-col="${cIdx}">Ответить</button>`
-                    : ''
-            }
-                                                </div>
-                                            </td>
-                                        `;
-        }).join('')}
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                </div>
-            </main>
-        </div>
+        <main class="editor-main">
+            <div class="table-header-actions">
+                <div class="badge">Код комнаты: ${this.data.roomCode}</div>
+            </div>
+            ${this.renderTable()}
+        </main>
+    </div>
     `;
+    }
+
+    _connectSocket() {
+        if (this.ws) return;
+        const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+        this.ws = new WebSocket(
+            `${protocol}://${window.location.host}/api/ws/room/${this.data.roomCode}`
+        );
+        this.ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            if (data.type === 'track_started') {
+                this.state.activeCell = { row: data.row, col: data.col };
+                this.state.canBuzz = true;
+                this.updateDOM();
+            }
+            if (data.type === 'player_buzzed') {
+                this.state.canBuzz = false;
+                this.updateDOM();
+            }
+        };
+    }
+
+    attachEvents() {
+        const buzzBtn = this.container.querySelector('#buzz-btn');
+        if (buzzBtn) {
+            buzzBtn.addEventListener('click', () => {
+                const team = localStorage.getItem('team-name') ?? 'Неизвестная команда';
+                this.ws.send(JSON.stringify({
+                    type: 'player_buzzed',
+                    team
+                }));
+                this.state.canBuzz = false;
+                this.updateDOM();
+            });
+        }
     }
 }

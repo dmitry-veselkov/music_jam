@@ -202,7 +202,12 @@ class ApiRouter:
 
             try:
                 while True:
-                    await websocket.receive_json()
+                    msg = await websocket.receive_json()
+                    code = code.upper().strip()
+
+                    if msg['type'] == 'track_started' or msg['type'] == 'player_buzzed':
+                        await self._broadcast_room_message(code, msg)
+
             except WebSocketDisconnect:
                 self.rooms[code].discard(websocket)
 
@@ -231,6 +236,17 @@ class ApiRouter:
             "teams": self.room_state[code]["teams"]
         }
 
+        dead = []
+        for ws in self.rooms[code]:
+            try:
+                await ws.send_json(payload)
+            except:
+                dead.append(ws)
+
+        for ws in dead:
+            self.rooms[code].discard(ws)
+
+    async def _broadcast_room_message(self, code : str, payload : dict):
         dead = []
         for ws in self.rooms[code]:
             try:

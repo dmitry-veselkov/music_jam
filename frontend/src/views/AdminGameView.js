@@ -44,6 +44,7 @@ export class AdminGameView extends Component {
             this.container.innerHTML = get404();
             return;
         }
+        this._connectSocket();
         this._applyRoomInfo(roomInfo);
         this.updateDOM();
     }
@@ -51,6 +52,24 @@ export class AdminGameView extends Component {
     updateDOM() {
         this.container.innerHTML = this.render();
         this.attachEvents();
+    }
+
+    renderCalculator() {
+        if (!this.state.buzzedTeam) return '';
+        return `
+        <div class="card calculator-card">
+            <h3>Отвечает: <strong>${this.state.buzzedTeam}</strong></h3>
+            <div class="form-group">
+                <label>Очки</label>
+                <input class="ui-input" id="points-input" type="number" 
+                       value="${this.state.activeCell ? this.state.costs[this.state.activeCell.col] : 0}"/>
+            </div>
+            <div class="btn-group-vertical">
+                ${Button({ text: 'Верно', id: 'award-btn', extraClass: 'w-100' })}
+                ${Button({ text: 'Неверно', id: 'wrong-btn', variant: 'outline', extraClass: 'w-100' })}
+            </div>
+        </div>
+    `;
     }
 
     renderTable(){
@@ -132,6 +151,7 @@ export class AdminGameView extends Component {
                     </div>
                     
                     <div class="btn-group-vertical">
+                        ${this.renderCalculator()}
                         ${endGameBtn}
                     </div>
                 </div>
@@ -149,5 +169,57 @@ export class AdminGameView extends Component {
     }
 
     attachEvents() {
+        this.container.querySelectorAll('.organzer-track-btn').forEach((btn) => {
+            btn.addEventListener('click', e => {
+                const row = e.currentTarget.dataset.row;
+                const col = e.currentTarget.dataset.col;
+                const track = e.currentTarget.dataset.track;
+                if (!track) return;
+
+                this.state.activeCell = {row, col};
+                this.ws.send(JSON.stringify({
+                    type : 'track_started',
+                    row, col, track
+                }));
+                this.updateDOM();
+            })
+        });
+
+        const awardCalc = this.container.querySelector('#award-btn');
+        if (awardCalc) {
+            awardCalc.addEventListener('click', e => {
+                const points = Number(this.container.querySelectorAll('.points').value);
+                const team = this.state.buzzedTeam;
+                this.ws.send(JSON.stringify({
+                    type : 'award_points',
+                    team, points
+                }));
+                this.state.buzzedTeam = null;
+                this.state.activeCell = null;
+                this.updateDOM();
+            })
+        }
+
+        const endBtn = this.container.querySelector('#end-btn');
+        if (endBtn) {
+            endBtn.addEventListener('click', e => {
+
+            })
+        }
+    }
+
+    _connectSocket() {
+        if (this.ws) return;
+        const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+        this.ws = new WebSocket(
+            `${protocol}://${window.location.host}/api/ws/room/${this.data.roomCode}`
+        );
+        this.ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            if (data.type === 'player_buzzed') {
+                this.state.buzzedTeam = data.team;
+                this.updateDOM();
+            }
+        };
     }
 }
