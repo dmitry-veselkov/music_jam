@@ -64,9 +64,7 @@ class ApiRouter:
                     detail="Invalid credentials"
                 )
             _id = int(payload['sub'])
-            print(_id)
             user_games = await self.db_hands.get_all_user_games(_id)
-            print(user_games)
             for game in user_games:
                 game['scheduled_at'] = game['scheduled_at'].strftime("%Y-%m-%d %H:%M:%S")
 

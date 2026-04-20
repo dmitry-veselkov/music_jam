@@ -10,6 +10,7 @@ import {RegisterView} from "./views/RegisterView.js";
 import {AccountView} from "./views/AccountView.js";
 import {GameView} from "./views/GameView.js";
 import {AdminWaitingRoomView} from "./views/AdminWaitingRoomView.js";
+import {AdminGameView} from "./views/AdminGameView.js";
 
 // const bus = new EventBus();
 const appContainer = document.getElementById('app');
@@ -23,6 +24,7 @@ const routes = {
     '/account': AccountView,
     '/room/active' : GameView,
     '/room/admin_waiting': AdminWaitingRoomView,
+    '/room/admin_active': AdminGameView,
 };
 
 const router = new Router(routes, appContainer);

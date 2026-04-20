@@ -136,6 +136,20 @@ class DatabaseHands:
             await session.commit()
             return status == 0
 
+    async def remove_team(self, game_id, team_id):
+        async with self.db.get_session() as session:
+            await session.execute(
+                text("DELETE FROM game_participants "
+                     "WHERE game_id = :game_id AND team_id = :team_id "
+                     "RETURNING team_id"
+                     ),
+                {
+                    "game_id": game_id,
+                    "team_id": team_id,
+                }
+            )
+            await session.commit()
+
     async def get_team_name(self, team_id):
         async with self.db.get_session() as session:
             result = await session.execute(

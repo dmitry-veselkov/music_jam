@@ -63,7 +63,7 @@ export class AdminWaitingRoomView extends Component {
                     </li>`)
                 .join('')
 
-        const startButton = Button({ text: 'Начать игру', id: 'btn-start-game', variant: 'primary'});
+        const startButton = Button({ text: 'Начать игру', id: 'start-game', variant: 'primary'});
         return `<main class="waiting-teams-panel">
                     <div class="card teams-card">
                         <div class="teams-header">
@@ -78,7 +78,7 @@ export class AdminWaitingRoomView extends Component {
                         <ul class="teams-list">
                             ${teamsListLogic}
                         </ul>
-                        <div class="start-btn-wrapper" id="start-game">
+                        <div class="start-btn-wrapper">
                             ${startButton}
                         </div>
                     </div>
@@ -96,9 +96,11 @@ export class AdminWaitingRoomView extends Component {
 
     attachEvents() {
         const startGame = document.getElementById("start-game");
-        startGame.onclick((event) => {
-            event.preventDefault();
-        })
+        startGame.addEventListener("click", (event) => {
+            const gameId = this.state.roomCode;
+            window.history.pushState({}, '', `/room/admin_active/${gameId}`);
+            window.dispatchEvent(new Event('popstate'));
+        });
     }
 
     _connectSocket() {

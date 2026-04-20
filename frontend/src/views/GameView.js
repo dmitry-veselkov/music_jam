@@ -71,7 +71,6 @@ export class GameView extends Component {
                         <p><strong>Название:</strong> ${this.state.settings.name || '—'}</p>
                         <p><strong>Автор:</strong> ${this.state.settings.author || '—'}</p>
                         <p><strong>Описание:</strong> ${this.state.settings.description || '—'}</p>
-                        <p><strong>Максимум команд:</strong> ${this.state.settings.maxTeams || '—'}</p>
                     </div>
 
                     <div class="player-status-card">
@@ -79,26 +78,26 @@ export class GameView extends Component {
 
                         <div class="track-preview-title">
                             ${
-            activeCell
-                ? `${this.state.categories[activeCell.row]} — ${this.state.costs[activeCell.col]}`
-                : 'Ожидание выбора трека'
-        }
+                                activeCell
+                                ? `${this.state.categories[activeCell.row]} — ${this.state.costs[activeCell.col]}`
+                                : 'Ожидание выбора трека'
+                            }
                         </div>
 
                         <div class="track-preview-subtitle">
                             ${
-            activeCell
-                ? 'Организатор запустил вопрос. Можно отвечать.'
-                : 'Дождитесь, пока организатор выберет категорию.'
-        }
+                                activeCell
+                                ? 'Организатор запустил вопрос. Можно отвечать.' 
+                                    : 'Дождитесь, пока организатор выберет категорию.'
+                            }
                         </div>
                     </div>
 
                     ${
-            activeCell
-                ? `<button class="btn btn-primary w-100" id="answer-btn">Ответить</button>`
-                : `<button class="btn btn-secondary w-100" disabled>Ответить</button>`
-        }
+                        activeCell
+                        ? `<button class="btn btn-primary w-100" id="answer-btn">Ответить</button>`
+                        : `<button class="btn btn-secondary w-100" disabled>Ответить</button>`
+                    }
                 </div>
             </aside>
 
@@ -141,9 +140,8 @@ export class GameView extends Component {
             const isPlayed = !!playedTracks[trackKey];
 
             return `
-                                            <td>
-                                                <div
-                                                    class="preview-cell track-cell player-track-cell ${isActive ? 'active' : ''} ${isPlayed ? 'played' : ''}"
+                     <td>
+                        <div class="preview-cell track-cell player-track-cell ${isActive ? 'active' : ''} ${isPlayed ? 'played' : ''}"
                                                     data-row="${rIdx}"
                                                     data-col="${cIdx}"
                                                 >

@@ -113,7 +113,6 @@ export class AccountView extends Component {
         if (startButtons) {
             startButtons.forEach(button => {
                 button.addEventListener("click", async (event) => {
-                    console.log("start button clicked");
                     await this._runGame(event)
                 });
             });

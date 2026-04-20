@@ -28,7 +28,6 @@ export class AdminGameView extends Component {
             name: roomInfo.name ?? '',
             author: roomInfo.author ?? '',
             description: roomInfo.description ?? '',
-            maxTeams: roomInfo.maxTeams ?? 4
         };
 
         this.state.categories = roomInfo.categories ?? ['Категория 1', 'Категория 2'];
@@ -56,9 +55,6 @@ export class AdminGameView extends Component {
     }
 
     render() {
-        const activeCell = this.state.activeCell || null;
-        const playedTracks = this.state.playedTracks || {};
-
         return `
         <div class="logo-corner">${Logo()}</div>
 
@@ -82,11 +78,6 @@ export class AdminGameView extends Component {
                         <div class="ui-input readonly-field readonly-textarea">
                             ${this.state.settings.description || '—'}
                         </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Команд (макс)</label>
-                        <div class="ui-input readonly-field">${this.state.settings.maxTeams || '—'}</div>
                     </div>
 
                     <div class="btn-group-vertical">
@@ -125,19 +116,14 @@ export class AdminGameView extends Component {
                                         </div>
                                     </td>
 
-                                    ${this.state.costs.map((cost, cIdx) => {
-            const trackKey = `${rIdx}-${cIdx}`;
-            const trackValue = this.state.tracks[trackKey];
-            const isActive =
-                activeCell &&
-                Number(activeCell.row) === rIdx &&
-                Number(activeCell.col) === cIdx;
-            const isPlayed = !!playedTracks[trackKey];
+                                     ${this.state.costs.map((cost, cIdx) => {
+                                        const trackKey = `${rIdx}-${cIdx}`;
+                                        const trackValue = this.state.tracks[trackKey];
 
-            return `
+                                        return `
                                             <td>
                                                 <button
-                                                    class="preview-cell track-cell organizer-track-btn ${isActive ? 'active' : ''} ${isPlayed ? 'played' : ''}"
+                                                    class="preview-cell track-cell organizer-track-btn"
                                                     data-row="${rIdx}"
                                                     data-col="${cIdx}"
                                                     data-track="${trackValue ? trackValue : ''}"
@@ -150,8 +136,7 @@ export class AdminGameView extends Component {
                                                     </div>
                                                 </button>
                                             </td>
-                                        `;
-        }).join('')}
+                                        `;}).join('')}
                                 </tr>
                             `).join('')}
                         </tbody>
