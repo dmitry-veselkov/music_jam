@@ -1,6 +1,6 @@
 ﻿import {Component} from "../core/Component.js";
-import {Logo} from "../components/UI.js";
-import {tryGetGameSettings, saveGameSettings, startGame} from "../services/GamesServices.js";
+import {Logo, Button} from "../components/UI.js";
+import {tryGetGameSettings, saveGameSettings, tryRunGame} from "../services/GamesServices.js";
 import {get404} from "../services/RouteServices.js";
 import {loadUserInfoOrRedirect} from "../services/AccountServices.js";
 
@@ -32,7 +32,6 @@ export class GameSettingsView extends Component {
             this.container.innerHTML = get404();
             return;
         }
-        console.log(roomInfo)
         this._applyRoomInfo(roomInfo);
         this.updateDOM();
     }
@@ -80,7 +79,7 @@ export class GameSettingsView extends Component {
                             <input type="range" class="sync-input" data-key="maxTeams" min="2" max="8" value="${this.state.settings.maxTeams}">
                         </div>
                         <div class="d-flex flex-column">
-                            <button class="btn btn-primary w-100" id="save-btn">Создать игру</button>
+                            <button class="btn btn-primary w-100" id="start-game-btn">Создать игру</button>
                             <button class="btn btn-primary w-100" id="save-changes" style="margin-top: 8px;">Сохранить изменения</button>
                         </div>
                     </div>
@@ -264,11 +263,12 @@ export class GameSettingsView extends Component {
             };
         }
 
-        const createGameBtn = this.container.querySelector('#save-btn');
+        const createGameBtn = this.container.querySelector('#start-game-btn');
         if (createGameBtn) {
             createGameBtn.onclick = async () => {
-                await startGame();
-                this.updateDOM();
+                await saveGameSettings(this.getPayload());
+                window.history.pushState({}, '', `/room/admin_waiting/${this.data.roomCode}`);
+                window.dispatchEvent(new Event('popstate'));
             };
         }
     }
