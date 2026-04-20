@@ -1,8 +1,8 @@
 import {Component} from "../core/Component.js";
-import {Logo} from "../components/UI.js";
 import {get404} from "../services/RouteServices.js";
 import {tryGetGameSettings, saveGameSettings} from "../services/GamesServices.js";
 import {loadUserInfoOrRedirect} from "../services/AccountServices.js";
+import {Logo, Input, Button} from "../components/UI.js";
 
 export class AdminGameView extends Component {
     constructor(container, data) {
@@ -25,9 +25,7 @@ export class AdminGameView extends Component {
 
     _applyRoomInfo(roomInfo) {
         this.state.settings = {
-            name: roomInfo.name ?? '',
-            author: roomInfo.author ?? '',
-            description: roomInfo.description ?? '',
+            name: roomInfo['title'] ?? '',
         };
 
         this.state.categories = roomInfo.categories ?? ['Категория 1', 'Категория 2'];
@@ -41,6 +39,7 @@ export class AdminGameView extends Component {
             return;
         }
         const roomInfo = await tryGetGameSettings(this.data.roomCode);
+        console.log(roomInfo);
         if (!roomInfo.exists) {
             this.container.innerHTML = get404();
             return;
@@ -54,45 +53,9 @@ export class AdminGameView extends Component {
         this.attachEvents();
     }
 
-    render() {
+    renderTable(){
         return `
-        <div class="logo-corner">${Logo()}</div>
-
-        <div class="editor-layout organizer-mode">
-            <aside class="editor-sidebar">
-                <div class="card">
-                    <h2 class="card-title">Параметры игры</h2>
-
-                    <div class="form-group">
-                        <label>Название</label>
-                        <div class="ui-input readonly-field">${this.state.settings.name || '—'}</div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Автор</label>
-                        <div class="ui-input readonly-field">${this.state.settings.author || '—'}</div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Описание</label>
-                        <div class="ui-input readonly-field readonly-textarea">
-                            ${this.state.settings.description || '—'}
-                        </div>
-                    </div>
-
-                    <div class="btn-group-vertical">
-                        <button class="btn btn-primary w-100" id="end-btn">Завершить игру</button>
-                    </div>
-                </div>
-            </aside>
-
-            <main class="editor-main">
-                <div class="table-header-actions">
-                    <div class="badge">Код комнаты: ${this.data.roomCode}</div>
-                    <div class="badge">Режим организатора</div>
-                </div>
-
-                <div class="scroll-container">
+        <div class="scroll-container">
                     <table class="edit-table game-table">
                         <thead>
                             <tr>
@@ -117,8 +80,8 @@ export class AdminGameView extends Component {
                                     </td>
 
                                      ${this.state.costs.map((cost, cIdx) => {
-                                        const trackKey = `${rIdx}-${cIdx}`;
-                                        const trackValue = this.state.tracks[trackKey];
+                                            const cat = this.state.categories[cIdx];
+                                            const trackValue = this.state.tracks[cat]?.[cost];
 
                                         return `
                                             <td>
@@ -127,23 +90,64 @@ export class AdminGameView extends Component {
                                                     data-row="${rIdx}"
                                                     data-col="${cIdx}"
                                                     data-track="${trackValue ? trackValue : ''}"
+                                                    style="width: 100%;"
                                                 >
-                                                    <div class="cell-main">
-                                                        ${cost}
-                                                    </div>
                                                     <div class="cell-sub" style="width: 100%">
                                                         ${trackValue ? '▶ Запустить' : 'Нет трека'}
                                                     </div>
                                                 </button>
                                             </td>
                                         `;}).join('')}
-                                </tr>
-                            `).join('')}
+                                </tr>`).join('')}
                         </tbody>
                     </table>
+                </div>`;
+    }
+
+    render() {
+        const endGameBtn = Button({ text: 'Завершить игру', id: 'end-btn', extraClass: 'w-100' });
+        return `
+        <div class="logo-corner">${Logo()}</div>
+
+        <div class="editor-layout organizer-mode">
+            <aside class="editor-sidebar">
+                <div class="card">
+                    <h2 class="card-title">Параметры игры</h2>
+
+                    <div class="form-group">
+                        <label>Название</label>
+                        <div class="ui-input readonly-field">${this.state.settings.name || '—'}</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Автор</label>
+                        <div class="ui-input readonly-field">${this.state.settings.author || '—'}</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Описание</label>
+                        <div class="ui-input readonly-field readonly-textarea">
+                            ${this.state.settings.description || '—'}
+                        </div>
+                    </div>
+                    
+                    <div class="btn-group-vertical">
+                        ${endGameBtn}
+                    </div>
                 </div>
+            </aside>
+
+            <main class="editor-main">
+                <div class="table-header-actions">
+                    <div class="badge">Код комнаты: ${this.data.roomCode}</div>
+                    <div class="badge">Режим организатора</div>
+                </div>
+                    ${this.renderTable()}
             </main>
         </div>
     `;
+    }
+
+    attachEvents() {
     }
 }

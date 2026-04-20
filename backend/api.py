@@ -110,6 +110,7 @@ class ApiRouter:
             code = code.upper().strip()
             game = await self.db_hands.get_game_info(code)
             songs = await self.db_hands.get_room_tracks(code)
+            print(game, songs)
             if not game:
                 return {"exists": False}
             return {"exists": True, "roomCode": code, **game, **songs}
