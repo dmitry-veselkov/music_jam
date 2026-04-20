@@ -1,7 +1,7 @@
 ﻿import {Component} from "../core/Component.js";
 import {Logo, Button} from "../components/UI.js";
 import {loadUserInfoOrRedirect} from "../services/AccountServices.js";
-import {generateEmptyGame, getAllUserGames} from "../services/GamesServices.js";
+import {generateEmptyGame, getAllUserGames, startGame} from "../services/GamesServices.js";
 
 export class AccountView extends Component {
     constructor(container, data) {

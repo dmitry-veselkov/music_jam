@@ -175,9 +175,16 @@ class ApiRouter:
             code = code.upper().strip()
             await self.db_hands.update_game_any_param(code, "status", "waiting")
             room_info = await self.db_hands.get_room_info(code)
-            print(f"code={code!r}, room_info={room_info}")
             tracks_info = await self.db_hands.get_room_tracks(code)
             return self.services.parse_room_info(room_info, tracks_info) if room_info else None
+
+        @self.router.post('/start_game')
+        async def start_game(code: str = ''):
+            code = code.upper().strip()
+            await self._broadcast_start(code)
+            return {
+                "success" : True
+            }
 
         @self.router.websocket("/ws/room/{code}")
         async def room_ws(websocket: WebSocket, code: str):
@@ -224,6 +231,21 @@ class ApiRouter:
             "teams": self.room_state[code]["teams"]
         }
 
+        dead = []
+        for ws in self.rooms[code]:
+            try:
+                await ws.send_json(payload)
+            except:
+                dead.append(ws)
+
+        for ws in dead:
+            self.rooms[code].discard(ws)
+
+    async def _broadcast_start(self, code : str):
+        code = code.upper().strip()
+        payload = {
+                "type": "game_started",
+            }
         dead = []
         for ws in self.rooms[code]:
             try:

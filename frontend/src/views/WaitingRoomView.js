@@ -192,6 +192,7 @@ export class WaitingRoomView extends Component {
     }
 
     _connectSocket() {
+        if (this.ws) return;
         const protocol = window.location.protocol === "https:" ? "wss" : "ws";
         this.ws = new WebSocket(
             `${protocol}://${window.location.host}/api/ws/room/${this.data.roomCode}`
@@ -199,10 +200,17 @@ export class WaitingRoomView extends Component {
 
         this.ws.onmessage = (event) => {
             const data = JSON.parse(event.data);
+            console.log('ws message:', data);
 
             if (data.type === "init" || data.type === "update") {
                 this.state.teams = data.teams;
                 this.updateDOM();
+            }
+
+            if (data.type === "game_started"){
+                console.log("here");
+                window.history.pushState({}, '', `/room/active/${this.data.roomCode}`);
+                window.dispatchEvent(new Event('popstate'));
             }
         };
     }

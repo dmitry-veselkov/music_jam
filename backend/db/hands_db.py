@@ -161,7 +161,7 @@ class DatabaseHands:
                 }
             )
 
-            return result.scalar_one_or_none()
+            return result.scalars().first()
 
     async def update_score_team(self, game_id, nickname, add_score):
         # TODO: пока хз по нику или по айди

@@ -4,7 +4,7 @@ import {get404} from "../services/RouteServices.js";
 
 import {Logo, Input, Button} from "../components/UI.js";
 import {loadUserInfoOrRedirect} from "../services/AccountServices.js";
-import {tryRunGame} from "../services/GamesServices.js";
+import {startGame, tryRunGame} from "../services/GamesServices.js";
 
 export class AdminWaitingRoomView extends Component {
     constructor(container, data) {
@@ -95,15 +95,17 @@ export class AdminWaitingRoomView extends Component {
     }
 
     attachEvents() {
-        const startGame = document.getElementById("start-game");
-        startGame.addEventListener("click", (event) => {
+        const startGameBtn = document.getElementById("start-game");
+        startGameBtn.addEventListener("click", async (event) => {
             const gameId = this.data.roomCode;
+            await startGame(gameId);
             window.history.pushState({}, '', `/room/admin_active/${gameId}`);
             window.dispatchEvent(new Event('popstate'));
         });
     }
 
     _connectSocket() {
+        if (this.ws) return;
         const protocol = window.location.protocol === "https:" ? "wss" : "ws";
         this.ws = new WebSocket(
             `${protocol}://${window.location.host}/api/ws/room/${this.data.roomCode}`

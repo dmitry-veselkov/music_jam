@@ -1,8 +1,9 @@
 ﻿import {Component} from "../core/Component.js";
 import {Logo, Button} from "../components/UI.js";
-import {tryGetGameSettings, saveGameSettings, tryRunGame} from "../services/GamesServices.js";
+import {tryGetGameSettings, saveGameSettings, tryRunGame, startGame} from "../services/GamesServices.js";
 import {get404} from "../services/RouteServices.js";
 import {loadUserInfoOrRedirect} from "../services/AccountServices.js";
+import {fetchPostTo} from "../services/NetServices.js";
 
 export class GameSettingsView extends Component {
     constructor(container, data) {

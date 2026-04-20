@@ -37,10 +37,6 @@ export class GameView extends Component {
     }
 
     async mount() {
-        const userInfo = await loadUserInfoOrRedirect();
-        if (!userInfo) {
-            return;
-        }
         const roomInfo = await tryGetGameSettings(this.data.roomCode);
         if (!roomInfo.exists) {
             this.container.innerHTML = get404();
@@ -55,9 +51,58 @@ export class GameView extends Component {
         this.attachEvents();
     }
 
+    renderTable(){
+        return `
+        <div class="scroll-container">
+                    <table class="edit-table game-table">
+                        <thead>
+                            <tr>
+                                <th class="corner-cell">Категория / Цена</th>
+                                ${this.state.costs.map(cost => `
+                                    <th class="cost-th">
+                                        <div class="th-content readonly-th">
+                                            <span>${cost}</span>
+                                        </div>
+                                    </th>
+                                `).join('')}
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            ${this.state.categories.map((cat, rIdx) => `
+                                <tr>
+                                    <td class="cat-td">
+                                        <div class="td-content readonly-td">
+                                            <span>${cat}</span>
+                                        </div>
+                                    </td>
+
+                                     ${this.state.costs.map((cost, cIdx) => {
+                                         const cat = this.state.categories[cIdx];
+                                        const trackValue = this.state.tracks[cat]?.[cost];
+
+                                        return `
+                                            <td>
+                                                <button
+                                                    class="preview-cell track-cell organizer-track-btn"
+                                                    data-row="${rIdx}"
+                                                    data-col="${cIdx}"
+                                                    data-track="${trackValue ? trackValue : ''}"
+                                                    style="width: 100%;"
+                                                >
+                                                    <div class="cell-sub" style="width: 100%">
+                                                        ${trackValue ? '▶ Запустить' : 'Нет трека'}
+                                                    </div>
+                                                </button>
+                                            </td>
+                                        `;}).join('')}
+                                </tr>`).join('')}
+                        </tbody>
+                    </table>
+                </div>`;
+        }
+
     render() {
-        const activeCell = this.state.activeCell || null;
-        const playedTracks = this.state.playedTracks || {};
 
         return `
         <div class="logo-corner">${Logo()}</div>
@@ -92,7 +137,6 @@ export class GameView extends Component {
                             }
                         </div>
                     </div>
-
                     ${
                         activeCell
                         ? `<button class="btn btn-primary w-100" id="answer-btn">Ответить</button>`
