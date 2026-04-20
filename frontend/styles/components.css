@@ -40,6 +40,12 @@
     border-color: white;
 }
 
+.start-btn-wrapper {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 16px;
+}
+
 .ui-input {
     width: 100%;
     padding: 15px;

@@ -78,7 +78,9 @@ export class AdminWaitingRoomView extends Component {
                         <ul class="teams-list">
                             ${teamsListLogic}
                         </ul>
-                        ${startButton}
+                        <div class="start-btn-wrapper" id="start-game">
+                            ${startButton}
+                        </div>
                     </div>
                 </main>`
     }
@@ -93,6 +95,10 @@ export class AdminWaitingRoomView extends Component {
     }
 
     attachEvents() {
+        const startGame = document.getElementById("start-game");
+        startGame.onclick((event) => {
+            event.preventDefault();
+        })
     }
 
     _connectSocket() {

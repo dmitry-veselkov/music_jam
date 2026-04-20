@@ -218,6 +218,7 @@ class ApiRouter:
         if room_info:
             self.room_state[code]["teams"] = self.services.parse_room_info(room_info, tracks_info)['teams']
 
+
     async def _broadcast_room(self, code: str):
         payload = {
             "type": "update",
