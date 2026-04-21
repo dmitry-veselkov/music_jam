@@ -22,10 +22,8 @@ export class WaitingRoomView extends Component {
         };
     }
 
-    // TODO ДИМА доделать ограничения на названия команд (уникальность)
 
     async mount() {
-        // TODO делаем еще один запрос... надо фильтровать что уже в лобби нашли инфу всю
         const roomData = await tryGetRoomInfo(this.data.roomCode);
         if (!roomData || roomData.status !== 'waiting') {
             this.container.innerHTML = get404();
@@ -187,6 +185,7 @@ export class WaitingRoomView extends Component {
             }
 
             this._savedName = this.state.myTeamName;
+            localStorage.setItem('team-name', this.state.myTeamName);
             this.updateDOM();
         }
     }
@@ -208,7 +207,6 @@ export class WaitingRoomView extends Component {
             }
 
             if (data.type === "game_started"){
-                console.log("here");
                 window.history.pushState({}, '', `/room/active/${this.data.roomCode}`);
                 window.dispatchEvent(new Event('popstate'));
             }

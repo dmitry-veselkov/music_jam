@@ -231,19 +231,6 @@ class ApiRouter:
                 }
             }
 
-        # @self.router.get("/play")
-        # def play_track(url: str):
-        #     response = requests.get(url, stream=True)
-        #     print(response)
-        #     print('test')
-        #
-        #     if response.status_code != 200:
-        #         return {"error": "failed to load audio"}
-        #
-        #     return StreamingResponse(
-        #         response.iter_content(8192),
-        #         media_type="audio/mp3"
-        #     )
 
         @self.router.get("/play")
         async def play_song(file_name: str):
@@ -271,7 +258,8 @@ class ApiRouter:
                     msg = await websocket.receive_json()
                     code = code.upper().strip()
 
-                    if msg['type'] == 'track_started' or msg['type'] == 'player_buzzed':
+                    if msg['type'] == 'track_started' or msg['type'] == 'player_buzzed' or msg['type'] == 'team_answer' or msg['type'] == 'game_ended':
+                        print(f"Broadcasting: {msg}")
                         await self._broadcast_room_message(code, msg)
 
             except WebSocketDisconnect:

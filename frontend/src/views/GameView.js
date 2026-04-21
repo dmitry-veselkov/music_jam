@@ -189,7 +189,11 @@ export class GameView extends Component {
 
 
     _connectSocket() {
-        if (this.ws) return;
+        if (this.ws) {
+            console.log('WS уже есть, пропускаем');
+            return;
+        }
+        console.log('Создаём новый WS');
 
         const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
 
@@ -214,7 +218,7 @@ export class GameView extends Component {
 
             if (data.type === 'player_buzzed') {
                 this.state.canBuzz = false;
-                const myTeam = localStorage.getItem('team_name') ?? 'Неизвестная команда';
+                const myTeam = localStorage.getItem('team-name') ?? 'Неизвестная команда';
                 if (data.team === myTeam) {
                     this.state.showAnswerInput = true;
                 }
@@ -231,6 +235,11 @@ export class GameView extends Component {
                     this.state.answer = null
                     this.updateDOM();
                 }, 3000);
+            }
+
+            if (data.type === 'game_ended') {
+                window.history.pushState({}, '', '/');
+                window.dispatchEvent(new Event('popstate'));
             }
         };
     }
@@ -281,6 +290,7 @@ export class GameView extends Component {
             submitBtn.onclick = () => {
                 const artist = this.container.querySelector('#answer-artist').value.trim();
                 const title = this.container.querySelector('#answer-title').value.trim();
+
                 this.ws.send(JSON.stringify({
                     type: 'team_answer',
                     team: localStorage.getItem('team-name') ?? 'Неизвестная команда',

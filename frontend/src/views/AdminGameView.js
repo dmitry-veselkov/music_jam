@@ -146,10 +146,10 @@ export class AdminGameView extends Component {
                         ${this.renderCalculator()}
 
                         ${Button({
-            text: 'Завершить игру',
-            id: 'end-btn',
-            extraClass: 'w-100'
-        })}
+                            text: 'Завершить игру',
+                            id: 'end-btn',
+                            extraClass: 'w-100'
+                        })}
                     </div>
                 </div>
             </aside>
@@ -166,7 +166,7 @@ export class AdminGameView extends Component {
         `;
     }
 
-    attachEvents() {
+    async attachEvents() {
         this.container
             .querySelectorAll('.organizer-track-btn')
             .forEach(btn => btn.addEventListener('click', this._startSong.bind(this)));
@@ -188,7 +188,12 @@ export class AdminGameView extends Component {
         const endBtn = this.container.querySelector('#end-btn');
         if (endBtn) {
             endBtn.addEventListener('click', () => {
-                // завершение игры
+                this.ws.send(JSON.stringify({
+                    type: 'game_ended'
+                }));
+                new Promise(r => setTimeout(r, 200));
+                window.history.pushState({}, '', '/account');
+                window.dispatchEvent(new Event('popstate'));
             });
         }
     }
@@ -253,11 +258,16 @@ export class AdminGameView extends Component {
             const data = JSON.parse(event.data);
 
             if (data.type === 'player_buzzed') {
+                console.log(data);
                 this.state.buzzedTeam = data.team;
+                if (this.state.audio) {
+                    this.state.audio.pause();
+                }
                 this.updateDOM();
             }
 
             if (data.type === 'team_answer'){
+                console.log('Получил team_answer:', data);
                 this.state.teamAnswer = {
                     artist: data.artist,
                     title: data.title,
