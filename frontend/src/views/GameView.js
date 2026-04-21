@@ -14,6 +14,8 @@ export class GameView extends Component {
         this.state = {
             activeCell: null,
             canBuzz: false,
+            answer : null,
+            showAnswerInput: false,
             players: {}
         };
     }
@@ -146,8 +148,45 @@ export class GameView extends Component {
                     ${this.renderTable()}
                 </main>
             </div>
+            ${this.renderCorrectAnswer()}
+            ${this.renderAnswerInput()}
         `;
     }
+
+    renderCorrectAnswer(){
+        if (!this.state.answer) return '';
+
+        return `
+            <div class="card answer-card">
+                <h3>Правильный ответ</h3>
+                    <p><strong>${this.state.answer.title}</strong></p>
+                    <p>${this.state.answer.artist}</p>
+            </div>
+                `;
+    }
+
+    renderAnswerInput(){
+        if (!this.state.showAnswerInput) return '';
+
+        return `
+            <div class="modal-overlay">
+                <div class="card modal-card">
+                    <h3 class="card-title">Ваш ответ</h3>
+                        <div class="form-group">
+                            <label>Исполнитель</label>
+                            <input class="ui-input" id="answer-artist" placeholder="Введите исполнителя" />
+                        </div>
+                        <div class="form-group">
+                            <label>Название трека</label>
+                            <input class="ui-input" id="answer-title" placeholder="Введите название" />
+                        </div>
+                        <div class="btn-group-vertical">
+                            ${Button({ text: 'Отправить', id: 'submit-answer-btn', extraClass: 'w-100' })}
+                        </div>
+                </div>
+            </div>`;
+    }
+
 
     _connectSocket() {
         if (this.ws) return;
@@ -175,7 +214,23 @@ export class GameView extends Component {
 
             if (data.type === 'player_buzzed') {
                 this.state.canBuzz = false;
+                const myTeam = localStorage.getItem('team_name') ?? 'Неизвестная команда';
+                if (data.team === myTeam) {
+                    this.state.showAnswerInput = true;
+                }
                 this.updateDOM();
+            }
+
+            if (data.type === 'show_answer') {
+                this.state.answer = {
+                    title : data.title,
+                    author : data.artist,
+                }
+                this.updateDOM();
+                setTimeout(() => {
+                    this.state.answer = null
+                    this.updateDOM();
+                }, 3000);
             }
         };
     }
@@ -192,7 +247,6 @@ export class GameView extends Component {
 
                 if (!cell?.song) return;
 
-                // 🔥 звук только у ведущего
                 this.playSong(cell.song);
 
                 this.state.activeCell = { row, col };
@@ -218,6 +272,22 @@ export class GameView extends Component {
                 }));
 
                 this.state.canBuzz = false;
+                this.updateDOM();
+            };
+        }
+
+        const submitBtn = this.container.querySelector('#submit-answer-btn');
+        if (submitBtn) {
+            submitBtn.onclick = () => {
+                const artist = this.container.querySelector('#answer-artist').value.trim();
+                const title = this.container.querySelector('#answer-title').value.trim();
+                this.ws.send(JSON.stringify({
+                    type: 'team_answer',
+                    team: localStorage.getItem('team-name') ?? 'Неизвестная команда',
+                    artist,
+                    title
+                }));
+                this.state.showAnswerInput = false;
                 this.updateDOM();
             };
         }

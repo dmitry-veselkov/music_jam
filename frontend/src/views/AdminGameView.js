@@ -1,6 +1,6 @@
 import {Component} from "../core/Component.js";
 import {get404} from "../services/RouteServices.js";
-import {tryGetGameSettings, addPoints, updateTeamScores} from "../services/GamesServices.js";
+import {tryGetGameSettings, updateTeamScores} from "../services/GamesServices.js";
 import {loadUserInfoOrRedirect} from "../services/AccountServices.js";
 import {Logo, Button} from "../components/UI.js";
 import {GameSettings} from "../domain/GameSettings.js";
@@ -14,6 +14,7 @@ export class AdminGameView extends Component {
         this.state = {
             activeCell: null,
             buzzedTeam: null,
+            teamAnswer : null,
             audio: null
         };
     }
@@ -50,6 +51,13 @@ export class AdminGameView extends Component {
         return `
         <div class="card calculator-card">
             <h3>Отвечает: <strong>${this.state.buzzedTeam}</strong></h3>
+            ${this.state.teamAnswer ? `
+                <div class="form-group">
+                    <p>🎤 <strong>${this.state.teamAnswer.artist}</strong></p>
+                    <p>🎵 <strong>${this.state.teamAnswer.title}</strong></p>
+                </div>
+                ` : '<p class="muted">Ожидание ответа команды...</p>'}
+            
             <div class="btn-group-vertical">
                 ${Button({text: 'Верно', id: 'award-btn', extraClass: 'w-100'})}
                 ${Button({text: 'Неверно', id: 'wrong-btn', variant: 'outline', extraClass: 'w-100'})}
@@ -163,29 +171,17 @@ export class AdminGameView extends Component {
             .querySelectorAll('.organizer-track-btn')
             .forEach(btn => btn.addEventListener('click', this._startSong.bind(this)));
 
-        this.container
-            .querySelector('#award-btn')
-            .addEventListener('click', async () => {
-
+        const awardBtn = this.container.querySelector('#award-btn');
+        if (awardBtn) {
+            awardBtn.addEventListener('click', async () => {
+                await this._processTeamAnswer(true);
             });
+        }
 
         const wrongBtn = this.container.querySelector('#wrong-btn');
         if (wrongBtn) {
             wrongBtn.addEventListener('click', async () => {
-                const points = Number(
-                    this.container.querySelector('#points-input').value
-                );
-
-                await addPoints(
-                    this.data.roomCode,
-                    points,
-                    this.state.buzzedTeam
-                );
-
-                this.state.buzzedTeam = null;
-                this.state.activeCell = null;
-
-                this.updateDOM();
+                await this._processTeamAnswer(false);
             });
         }
 
@@ -201,17 +197,26 @@ export class AdminGameView extends Component {
         this.state.audio.pause();
 
         const points = this.state.activeCell ? this.gameSettings.costs[this.state.activeCell.col] : 0;
-        await updateTeamScores(this.data.roomCode, points, isCorrect, this.state.buzzedTeam);
+        await updateTeamScores(this.data.roomCode, this.createPayload(points, isCorrect));
         this.state.buzzedTeam = null;
 
         if (isCorrect) {
+            const {row, col} = this.state.activeCell;
+            const song = this.gameSettings.cells?.[row]?.[col]?.song;
+            if (song) {
+                this.ws.send(JSON.stringify({
+                    type : 'show_answer',
+                    title : song.title,
+                    artist : song.artist,
+                }));
+            }
             this.state.activeCell = null;
             this.state.audio = null;
-            // Показать правильный ответ
+
         } else {
             this.state.audio.play();
         }
-
+        this.state.teamAnswer = null;
         this.updateDOM();
     }
 
@@ -251,6 +256,22 @@ export class AdminGameView extends Component {
                 this.state.buzzedTeam = data.team;
                 this.updateDOM();
             }
+
+            if (data.type === 'team_answer'){
+                this.state.teamAnswer = {
+                    artist: data.artist,
+                    title: data.title,
+                };
+                this.updateDOM();
+            }
         };
+    }
+
+    createPayload(points, correct){
+        return {
+            points : points,
+            team : this.state.buzzedTeam,
+            correct : correct
+        }
     }
 }

@@ -28,3 +28,8 @@ class SaveGameSchema(BaseModel):
     categories: list[str]
     costs: list[int]
     tracks: list[list[dict | None]]
+
+class AddPointsSchema(BaseModel):
+    points : int
+    team : str
+    correct : bool

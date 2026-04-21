@@ -171,9 +171,14 @@ class DatabaseHands:
 
             return result.scalars().first()
 
-    async def update_score_team(self, game_id, nickname, add_score):
-        # TODO: пока хз по нику или по айди
+    async def update_score_team(self, join_code, nickname, add_score):
         session = await self.db.get_session()
+        game_id = (await session.execute(
+            text("SELECT id FROM games WHERE join_code = :join_code"),
+            {
+                "join_code": join_code
+            }
+        )).scalar()
         await session.execute(
             text("UPDATE game_participants "
                  "SET score = score + :add_score "

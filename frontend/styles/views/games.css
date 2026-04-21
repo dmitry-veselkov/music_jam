@@ -338,3 +338,18 @@ input[type="range"] {
     pointer-events: none;
     opacity: 0.6;
 }
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-card {
+    width: 100%;
+    max-width: 400px;
+}

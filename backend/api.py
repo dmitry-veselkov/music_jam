@@ -7,7 +7,7 @@ from logging import Logger
 
 from services import Services
 from db.hands_db import DatabaseHands
-from api_schemes import LoginSchema, RegisterSchema, SaveGameSchema, TeamSchema
+from api_schemes import LoginSchema, RegisterSchema, SaveGameSchema, TeamSchema, AddPointsSchema
 from datetime import datetime
 from s3 import S3
 
@@ -173,9 +173,11 @@ class ApiRouter:
             return {"status": "ok", "new": is_new}
 
         @self.router.post('/add_points')
-        async def add_points(points, uuid, game_id):
-            pass
-            # return await self.db_hands.update_score_team(game_id, uuid, points)
+        async def add_points(code, payload : AddPointsSchema):
+            points = payload.points if payload.correct else -payload.points
+            return await self.db_hands.update_score_team(code,
+                                                         payload.team,
+                                                         points)
 
         @self.router.get('/get_team_name')
         async def get_team_name(uuid: str) -> Response:
