@@ -258,7 +258,7 @@ class ApiRouter:
                     msg = await websocket.receive_json()
                     code = code.upper().strip()
 
-                    if msg['type'] == 'track_started' or msg['type'] == 'player_buzzed' or msg['type'] == 'team_answer' or msg['type'] == 'game_ended':
+                    if msg['type'] in ('track_started', 'player_buzzed','team_answer','game_ended', 'show_answer'):
                         print(f"Broadcasting: {msg}")
                         await self._broadcast_room_message(code, msg)
 

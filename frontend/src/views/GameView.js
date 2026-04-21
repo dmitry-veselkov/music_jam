@@ -153,16 +153,17 @@ export class GameView extends Component {
         `;
     }
 
-    renderCorrectAnswer(){
+    renderCorrectAnswer() {
         if (!this.state.answer) return '';
 
         return `
-            <div class="card answer-card">
-                <h3>Правильный ответ</h3>
-                    <p><strong>${this.state.answer.title}</strong></p>
-                    <p>${this.state.answer.artist}</p>
-            </div>
-                `;
+            <div class="modal-overlay">
+                <div class="card modal-card">
+                    <h3>Правильный ответ</h3>
+                        <p><strong>${this.state.answer.title}</strong></p>
+                        <p>${this.state.answer.artist}</p>
+                </div>
+            </div>`;
     }
 
     renderAnswerInput(){
@@ -190,10 +191,8 @@ export class GameView extends Component {
 
     _connectSocket() {
         if (this.ws) {
-            console.log('WS уже есть, пропускаем');
             return;
         }
-        console.log('Создаём новый WS');
 
         const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
 
@@ -228,8 +227,11 @@ export class GameView extends Component {
             if (data.type === 'show_answer') {
                 this.state.answer = {
                     title : data.title,
-                    author : data.artist,
+                    artist : data.artist,
                 }
+                this.state.canBuzz = true;
+                this.state.showAnswerInput = false;
+                this.state.activeCell = null;
                 this.updateDOM();
                 setTimeout(() => {
                     this.state.answer = null
