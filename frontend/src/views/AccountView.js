@@ -16,7 +16,7 @@ export class AccountView extends Component {
         const userInfo = await loadUserInfoOrRedirect();
         if (userInfo) {
             await this._setState(userInfo);
-            this.container.innerHTML = this.render(userInfo);
+            this.container.innerHtml = this.render(userInfo);
             this._addEventListeners();
         }
     }

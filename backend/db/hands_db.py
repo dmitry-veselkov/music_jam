@@ -172,25 +172,24 @@ class DatabaseHands:
             return result.scalars().first()
 
     async def update_score_team(self, join_code, nickname, add_score):
-        session = self.db.get_session()
-        game_id = (await session.execute(
-            text("SELECT id FROM games WHERE join_code = :join_code"),
-            {
-                "join_code": join_code
-            }
-        )).scalar()
-        await session.execute(
-            text("UPDATE game_participants "
-                 "SET score = score + :add_score "
-                 "WHERE game_id = :game_id AND nickname = :nickname"),
-            {
-                "game_id": game_id,
-                "nickname": nickname,
-                "add_score": add_score
-            }
-        )
-        await session.commit()
-        await session.close()
+        async with self.db.get_session() as session:
+            game_id = (await session.execute(
+                text("SELECT id FROM games WHERE join_code = :join_code"),
+                {
+                    "join_code": join_code
+                }
+            )).scalar()
+            await session.execute(
+                text("UPDATE game_participants "
+                     "SET score = score + :add_score "
+                     "WHERE game_id = :game_id AND nickname = :nickname"),
+                {
+                    "game_id": game_id,
+                    "nickname": nickname,
+                    "add_score": add_score
+                }
+            )
+            await session.commit()
 
     async def update_game_any_param(self, join_code, column, value):
         if column not in self._ALLOWED_GAME_COLUMNS:
