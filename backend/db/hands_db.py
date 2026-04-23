@@ -124,24 +124,24 @@ class DatabaseHands:
             )
             await session.commit()
 
-    async def insert_or_update_team(self, game_id, team_id, team_name):
-        async with self.db.get_session() as session:
-            result = await session.execute(
-                text("INSERT INTO game_participants (game_id, team_id, team_name, score) "
-                     "VALUES (:game_id, :team_id, :team_name, 0) "
-                     "ON CONFLICT (game_id, team_id) "
-                     "DO UPDATE SET team_name = EXCLUDED.team_name "
-                     "RETURNING xmax"),
-                {
-                    "game_id": game_id,
-                    "team_id": team_id,
-                    "team_name": team_name,
-                }
-            )
-
-            status = result.scalar_one()
-            await session.commit()
-            return status == 0
+    # async def insert_or_update_team(self, game_id, team_id, team_name):
+    #     async with self.db.get_session() as session:
+    #         result = await session.execute(
+    #             text("INSERT INTO game_participants (game_id, team_id, team_name, score) "
+    #                  "VALUES (:game_id, :team_id, :team_name, 0) "
+    #                  "ON CONFLICT (game_id, team_id) "
+    #                  "DO UPDATE SET team_name = EXCLUDED.team_name "
+    #                  "RETURNING xmax"),
+    #             {
+    #                 "game_id": game_id,
+    #                 "team_id": team_id,
+    #                 "team_name": team_name,
+    #             }
+    #         )
+    #
+    #         status = result.scalar_one()
+    #         await session.commit()
+    #         return status == 0
 
     # async def get_team_name(self, team_id):
     #     async with self.db.get_session() as session:

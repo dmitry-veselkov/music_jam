@@ -13,6 +13,8 @@ export class WaitingRoomView extends Component {
         super(container, data);
         this._savedName = '';
 
+        localStorage.removeItem('teams');
+
         this.state = {
             gameName: 'Загрузка...',
             creator: 'Загрузка...',
@@ -171,11 +173,9 @@ export class WaitingRoomView extends Component {
         } else {
             this.state.isNameSaved = true;
 
-            const uuid = localStorage.getItem('team-uuid');
             const resp = await setTeamName(
                 this.state.gameId,
                 this.state.roomCode,
-                uuid,
                 this._savedName,
                 this.state.myTeamName
             );

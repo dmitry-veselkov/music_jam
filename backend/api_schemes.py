@@ -16,7 +16,6 @@ class RegisterSchema(BaseModel):
 class TeamSchema(BaseModel):
     id: int
     code: str
-    uuid: str
     oldName: str
     name: str
 

@@ -455,6 +455,38 @@ input[type="range"] {
     text-align: center;
 }
 
+.answer-card {
+    text-align: center;
+    padding: 2rem;
+}
+
+.answer-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.answer-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-text-muted);
+    margin-bottom: 0.75rem;
+}
+
+.answer-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    margin: 0 0 0.4rem;
+}
+
+.answer-artist {
+    font-size: 1rem;
+    color: var(--color-text-muted);
+    margin: 0;
+}
+
 .btn-group-horizontal {
     display: flex;
     gap: 0.75rem;

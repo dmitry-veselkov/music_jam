@@ -112,6 +112,7 @@ export class AccountView extends Component {
         if (startButtons) {
             startButtons.forEach(button => {
                 button.addEventListener("click", async (event) => {
+                    localStorage.removeItem('teams');
                     await this._runGame(event)
                 });
             });

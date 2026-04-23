@@ -8,8 +8,8 @@ export async function tryGetRoomInfo(code) {
 //     return await fetchGetTo(`/api/get_team_name?uuid=${uuid}`);
 // }
 
-export async function setTeamName(gameId, code, teamId, oldName, newName) {
-    const payload = {"id": gameId, "code": code, "uuid": teamId, "oldName": oldName, "name": newName};
+export async function setTeamName(gameId, code, oldName, newName) {
+    const payload = {"id": gameId, "code": code, "oldName": oldName, "name": newName};
     console.log(payload);
     return await fetchPostTo(`/api/set_team_name`, payload);
 }

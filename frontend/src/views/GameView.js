@@ -93,7 +93,7 @@ export class GameView extends Component {
             </thead>
 
             <tbody>
-                ${this.gameSettings.categories.map((category, rowIdx) => `
+                ${this.gameSettings.categories.map((category, rIdx) => `
                     <tr>
                         <td class="cat-td">
                             <div class="td-content readonly-td">
@@ -101,34 +101,28 @@ export class GameView extends Component {
                             </div>
                         </td>
 
-                        ${this.gameSettings.costs.map((cost, colIdx) => {
+                        ${this.gameSettings.costs.map((cost, cIdx) => {
 
-            const track =
-                this.gameSettings.tracks?.[category]?.[cost];
+                            const cell = this.gameSettings.cells?.[rIdx]?.[cIdx];
 
-            const isActive =
-                this.state.activeCell &&
-                this.state.activeCell.row === rowIdx &&
-                this.state.activeCell.col === colIdx;
-
-            return `
+                            const isActive = this.state.activeCell?.row === rIdx && this.state.activeCell?.col === cIdx;
+                            
+                            return `
                                 <td>
                                     <button
                                         class="preview-cell track-cell organizer-track-btn
-                                               ${track ? 'cell-filled' : ''}
-                                               ${isActive ? 'cell-active' : ''}
-                                        data-row="${rowIdx}"
-                                        data-col="${colIdx}"
+                                               ${cell.song ? 'cell-filled' : ''}
+                                               ${isActive ? 'cell-active' : ''}"
+                                        data-row="${rIdx}"
+                                        data-col="${cIdx}"
                                         style="width: 100%;"
                                     >
                                         <div class="cell-sub">
-                                            ${track ? `🎵 ${track.title}` : '—'}
+                                            ${isActive ? '🔊 Играет...' : !cell.played ? '-' : 'Нет трека'}
                                         </div>
                                     </button>
-                                </td>
-                            `;}).join('')}
-                    </tr>
-                `).join('')}
+                                </td>`;}).join('')}
+                    </tr>`).join('')}
             </tbody>
         </table>
     </div>
@@ -150,14 +144,14 @@ export class GameView extends Component {
                             <p><strong>Описание:</strong> ${this.gameSettings.description || '—'}</p>
                         </div>
 
-                        <div class="player-status-card">
+                        <div class="player-status-card" style="margin-top: 1rem;">
                             <div class="modal-badge">🎧 Сейчас играет</div>
                             <div class="track-preview-subtitle">
                                 ${
-            this.state.activeCell
-                ? 'Организатор запустил вопрос. Можно отвечать.'
-                : 'Дождитесь, пока организатор выберет категорию.'
-        }
+                                    this.state.activeCell
+                                        ? 'Организатор запустил вопрос. Можно отвечать.'
+                                        : 'Дождитесь, пока организатор выберет категорию.'
+                                }
                             </div>
                         </div>
 
@@ -165,8 +159,8 @@ export class GameView extends Component {
                             this.state.activeCell && this.state.canBuzz
                             ? Button({ text: 'Ответить', id: 'buzz-btn', extraClass: 'w-100' })
                             : `<button class="btn btn-secondary w-100" disabled>
-                                                ${this.state.activeCell ? 'Кто-то уже отвечает' : 'Ожидание вопроса'}
-                                               </button>`
+                               ${this.state.activeCell ? 'Кто-то уже отвечает' : 'Ожидание вопроса'}
+                               </button>`
                         }
                     </div>
                 </aside>
@@ -189,13 +183,14 @@ export class GameView extends Component {
         if (!this.state.answer) return '';
 
         return `
-            <div class="modal-overlay">
-                <div class="card modal-card">
-                    <h3>Правильный ответ</h3>
-                        <p><strong>${this.state.answer.title}</strong></p>
-                        <p>${this.state.answer.artist}</p>
-                </div>
-            </div>`;
+        <div class="modal-overlay">
+            <div class="card modal-card answer-card">
+                <div class="answer-icon">🎵</div>
+                <div class="answer-label">Правильный ответ</div>
+                <p class="answer-title">${this.state.answer.title}</p>
+                <p class="answer-artist">${this.state.answer.artist}</p>
+            </div>
+        </div>`;
     }
 
     renderAnswerInput(){
@@ -236,11 +231,14 @@ export class GameView extends Component {
             const data = JSON.parse(event.data);
 
             if (data.type === 'track_started') {
+                const row = data.row;
+                const col = data.col;
                 this.state.activeCell = {
-                    row: data.row,
-                    col: data.col
+                    row : row,
+                    col: col,
                 };
-
+                const cell = this.gameSettings.cells?.[row]?.[col];
+                cell.played = true;
                 this.state.canBuzz = true;
 
                 // ❗ звук НЕ запускаем здесь
@@ -287,31 +285,6 @@ export class GameView extends Component {
     }
 
     attachEvents() {
-        this.container.querySelectorAll('.organizer-track-btn').forEach(btn => {
-            btn.onclick = () => {
-                if (!this.isHost) return;
-
-                const row = +btn.dataset.row;
-                const col = +btn.dataset.col;
-
-                const cell = this.gameSettings.cells[row][col];
-
-                if (!cell?.song) return;
-
-                this.playSong(cell.song);
-
-                this.state.activeCell = { row, col };
-
-                this.ws.send(JSON.stringify({
-                    type: 'track_started',
-                    row,
-                    col
-                }));
-
-                this.updateDOM();
-            };
-        });
-
         const buzzBtn = this.container.querySelector('#buzz-btn');
         if (buzzBtn) {
             buzzBtn.onclick = () => {

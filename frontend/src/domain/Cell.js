@@ -3,6 +3,7 @@
         this.category = category;
         this.cost = cost;
         this.song = song;
+        this.played = false;
     }
 
     setSong(song) {

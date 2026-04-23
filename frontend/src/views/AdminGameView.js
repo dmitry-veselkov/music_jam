@@ -97,8 +97,8 @@ export class AdminGameView extends Component {
             </div>
             
             <div class="btn-group-horizontal">
-                ${Button({text: '', id: 'award-btn', extraClass: 'w-100'})}
-                ${Button({text: '', id: 'wrong-btn', variant: 'outline', extraClass: 'w-100'})}
+                ${Button({text: '+', id: 'award-btn', extraClass: 'w-100'})}
+                ${Button({text: '-', id: 'wrong-btn', variant: 'outline', extraClass: 'w-100'})}
             </div>
         </div>
         `;
@@ -132,29 +132,26 @@ export class AdminGameView extends Component {
                             </td>
 
                             ${this.gameSettings.costs.map((cost, cIdx) => {
-            const track = this.gameSettings.cells?.[rIdx]?.[cIdx];
-
-            return `
-                                <td>
-                                    <button
-                                        class="preview-cell track-cell organizer-track-btn"
-                                        data-row="${rIdx}"
-                                        data-col="${cIdx}"
-                                        style="width: 100%;"
-                                    >
-                                        <div class="cell-sub">
-                                            ${track ? '▶ Запустить' : 'Нет трека'}
-                                        </div>
-                                    </button>
-                                </td>
-                                `;
-        }).join('')}
-                        </tr>
-                    `).join('')}
-                </tbody>
-            </table>
-        </div>
-        `;
+                                const cell = this.gameSettings.cells?.[rIdx]?.[cIdx];
+                                const isActive = this.state.activeCell?.row === rIdx && this.state.activeCell?.col === cIdx;
+                                return `
+                                        <td>
+                                            <button
+                                                class="preview-cell track-cell organizer-track-btn"
+                                                data-row="${rIdx}"
+                                                data-col="${cIdx}"
+                                                style="width: 100%;"
+                                            >
+                                               <div class="cell-sub">
+                                                    ${isActive ? '🔊 Играет...' : !cell.played ? '▶ Запустить' : 'Нет трека'}
+                                               </div>
+                                            </button>
+                                        </td>`;}).join('')}
+                                        </tr>`).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                            `;
     }
 
     render() {
@@ -182,12 +179,17 @@ export class AdminGameView extends Component {
 
                     <div class="btn-group-vertical">
                         ${this.renderCalculator()}
-
                         ${Button({
-                            text: 'Завершить игру',
-                            id: 'end-btn',
+                            text: 'Завершить вопрос досрочно',
+                            id: 'end-question-btn',
                             extraClass: 'w-100'
                         })}
+                        <div style="margin-top: 0.75rem;">
+                            ${Button({
+                                text: 'Завершить игру', 
+                                id: 'end-btn', 
+                                extraClass: 'w-100'})}
+                        </div>
                     </div>
                 </div>
             </aside>
@@ -225,7 +227,28 @@ export class AdminGameView extends Component {
                 await this._processTeamAnswer(false, -valueEl.value);
             });
         }
-
+        const endQuestionBtn = this.container.querySelector('#end-question-btn');
+        if (endQuestionBtn) {
+            endQuestionBtn.addEventListener('click', async () => {
+                if (this.state.activeCell) {
+                    const {row, col} = this.state.activeCell;
+                    const cell = this.gameSettings.cells?.[row]?.[col];
+                    if (cell) {
+                        this.ws.send(JSON.stringify({
+                            type : 'show_answer',
+                            title : cell.song.title,
+                            artist : cell.song.artist,
+                        }));
+                    this.state.activeCell = null;
+                    this.state.buzzedTeam = null;
+                    this.state.teamAnswer = null;
+                    cell.song.playCorrectAnswer(this.state);
+                    this.state.audio = null;
+                    this.updateDOM();
+                    }
+                }
+            })
+        }
         const endBtn = this.container.querySelector('#end-btn');
         if (endBtn) {
             endBtn.addEventListener('click', () => {
@@ -259,18 +282,18 @@ export class AdminGameView extends Component {
 
         if (isCorrect) {
             const {row, col} = this.state.activeCell;
-            const song = this.gameSettings.cells?.[row]?.[col]?.song;
-            if (song) {
+            const cell = this.gameSettings.cells?.[row]?.[col];
+            if (cell) {
                 this.ws.send(JSON.stringify({
                     type : 'show_answer',
-                    title : song.title,
-                    artist : song.artist,
+                    title : cell.song.title,
+                    artist : cell.song.artist,
                 }));
             }
             this.state.activeCell = null;
             this.state.buzzedTeam = null;
             this.state.teamAnswer = null;
-            this.state.audio.playCorrectAnswer();
+            cell.song.playCorrectAnswer(this.state);
             this.state.audio = null;
         } else {
             this.state.buzzedTeam = null;
@@ -293,7 +316,7 @@ export class AdminGameView extends Component {
         this.state.activeCell = {row, col};
 
         cell.song.play(this.state);
-
+        cell.played = true;
         this.ws.send(JSON.stringify({
             type: 'track_started',
             row,
