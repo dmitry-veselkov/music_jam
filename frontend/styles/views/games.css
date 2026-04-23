@@ -415,3 +415,47 @@ input[type="range"] {
 .rank-first .score-cell {
     color: var(--color-primary);
 }
+
+.points-stepper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 0.75rem;
+    padding: 0.5rem 1rem;
+    margin: 1rem 0;
+    gap: 1rem;
+}
+
+.stepper-btn {
+    background: var(--color-secondary);
+    border: 1px solid var(--color-border);
+    color: var(--color-text);
+    border-radius: 0.5rem;
+    width: 36px;
+    height: 36px;
+    font-size: 1.25rem;
+    cursor: pointer;
+    transition: background 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.stepper-btn:hover {
+    background: var(--color-secondary-hover);
+}
+
+.stepper-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    min-width: 60px;
+    text-align: center;
+}
+
+.btn-group-horizontal {
+    display: flex;
+    gap: 0.75rem;
+}

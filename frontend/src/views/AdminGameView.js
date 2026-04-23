@@ -8,6 +8,7 @@ import {GameSettings} from "../domain/GameSettings.js";
 export class AdminGameView extends Component {
     constructor(container, data) {
         super(container, data);
+        const teams = JSON.parse(localStorage.getItem('teams') || '[]');
 
         this.gameSettings = new GameSettings();
 
@@ -16,16 +17,13 @@ export class AdminGameView extends Component {
             buzzedTeam: null,
             teamAnswer : null,
             audio: null,
-            players: {}
+            players: Object.fromEntries(
+                teams.map(team => [team, 0]))
         };
     }
 
     _applyRoomInfo(roomInfo) {
         this.gameSettings.init(roomInfo);
-        const teams = JSON.parse(localStorage.getItem('teams') || '[]');
-        this.state.players = Object.fromEntries(
-            teams.map(team => [team, 0])
-        );
     }
 
     async mount() {
@@ -80,6 +78,10 @@ export class AdminGameView extends Component {
     renderCalculator() {
         if (!this.state.buzzedTeam) return '';
 
+        const defaultPoints = this.state.activeCell
+            ? this.gameSettings.costs[this.state.activeCell.col]
+            : 0;
+
         return `
         <div class="card calculator-card">
             <h3>Отвечает: <strong>${this.state.buzzedTeam}</strong></h3>
@@ -90,9 +92,13 @@ export class AdminGameView extends Component {
                 </div>
                 ` : '<p class="muted">Ожидание ответа команды...</p>'}
             
-            <div class="btn-group-vertical">
-                ${Button({text: 'Верно', id: 'award-btn', extraClass: 'w-100'})}
-                ${Button({text: 'Неверно', id: 'wrong-btn', variant: 'outline', extraClass: 'w-100'})}
+            <div class="points-stepper">
+                 <input class="stepper-value" id="points-value" type="number" value="${defaultPoints}">
+            </div>
+            
+            <div class="btn-group-horizontal">
+                ${Button({text: '', id: 'award-btn', extraClass: 'w-100'})}
+                ${Button({text: '', id: 'wrong-btn', variant: 'outline', extraClass: 'w-100'})}
             </div>
         </div>
         `;
@@ -200,6 +206,8 @@ export class AdminGameView extends Component {
     }
 
     async attachEvents() {
+        const valueEl = this.container.querySelector('#points-value');
+
         this.container
             .querySelectorAll('.organizer-track-btn')
             .forEach(btn => btn.addEventListener('click', this._startSong.bind(this)));
@@ -207,14 +215,14 @@ export class AdminGameView extends Component {
         const awardBtn = this.container.querySelector('#award-btn');
         if (awardBtn) {
             awardBtn.addEventListener('click', async () => {
-                await this._processTeamAnswer(true);
+                await this._processTeamAnswer(true, +valueEl.value);
             });
         }
 
         const wrongBtn = this.container.querySelector('#wrong-btn');
         if (wrongBtn) {
             wrongBtn.addEventListener('click', async () => {
-                await this._processTeamAnswer(false);
+                await this._processTeamAnswer(false, -valueEl.value);
             });
         }
 
@@ -229,14 +237,24 @@ export class AdminGameView extends Component {
                 window.dispatchEvent(new Event('popstate'));
             });
         }
+        if (valueEl)
+        {
+            valueEl.addEventListener('input', () => {
+                const v = +valueEl.value || 0;
+                awardBtn.textContent = `+${v}`;
+                wrongBtn.textContent = `−${v}`;
+            });
+        }
     }
 
-    async _processTeamAnswer(isCorrect) {
+    async _processTeamAnswer(isCorrect, points) {
         this.state.audio.pause();
 
-        const points = this.state.activeCell ? this.gameSettings.costs[this.state.activeCell.col] : 0;
-        await updateTeamScores(this.data.roomCode, this.createPayload(points, isCorrect));
-        this.state.buzzedTeam = null;
+        this.ws.send(JSON.stringify({
+            type: 'add_points',
+            team: this.state.buzzedTeam,
+            points: points,
+        }));
 
         if (isCorrect) {
             const {row, col} = this.state.activeCell;
@@ -249,14 +267,20 @@ export class AdminGameView extends Component {
                 }));
             }
             this.state.activeCell = null;
+            this.state.buzzedTeam = null;
+            this.state.teamAnswer = null;
+            this.state.audio.playCorrectAnswer();
             this.state.audio = null;
-
         } else {
+            this.state.buzzedTeam = null;
+            this.state.teamAnswer = null;
             this.state.audio.play();
         }
-        this.state.teamAnswer = null;
+
         this.updateDOM();
     }
+
+
 
     _startSong(e) {
         const row = +e.currentTarget.dataset.row;
@@ -307,14 +331,14 @@ export class AdminGameView extends Component {
                 };
                 this.updateDOM();
             }
-        };
-    }
 
-    createPayload(points, correct){
-        return {
-            points : points,
-            team : this.state.buzzedTeam,
-            correct : correct
-        }
+            if (data.type === 'add_points'){
+                console.log(data);
+                const team = data.team;
+                const points = data.points;
+                this.state.players[team]+=points;
+                this.updateDOM();
+            }
+        };
     }
 }

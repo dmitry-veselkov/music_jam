@@ -11,21 +11,22 @@ export class GameView extends Component {
         this.gameSettings = new GameSettings();
         this.audio = null;
 
+        const teams = JSON.parse(localStorage.getItem('teams') || '[]');
+
         this.state = {
             activeCell: null,
             canBuzz: false,
             answer : null,
             showAnswerInput: false,
-            players: {}
+            players: Object.fromEntries(
+                teams.map(team => [team, 0])
+            )
         };
     }
 
     _applyRoomInfo(roomInfo) {
         this.gameSettings.init(roomInfo);
-        const teams = JSON.parse(localStorage.getItem('teams') || '[]');
-        this.state.players = Object.fromEntries(
-            teams.map(team => [team, 0])
-        );
+
     }
 
     async mount() {
@@ -273,6 +274,13 @@ export class GameView extends Component {
             if (data.type === 'game_ended') {
                 window.history.pushState({}, '', '/');
                 window.dispatchEvent(new Event('popstate'));
+            }
+
+            if (data.type === 'add_points'){
+                const team = data.team;
+                const points = data.points;
+                this.state.players[team]+=points;
+                this.updateDOM();
             }
         };
     }
