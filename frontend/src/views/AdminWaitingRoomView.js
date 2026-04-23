@@ -99,6 +99,7 @@ export class AdminWaitingRoomView extends Component {
         startGameBtn.addEventListener("click", async (event) => {
             const gameId = this.data.roomCode;
             await startGame(gameId);
+            localStorage.setItem('teams', JSON.stringify(this.state.teams));
             window.history.pushState({}, '', `/room/admin_active/${gameId}`);
             window.dispatchEvent(new Event('popstate'));
         });

@@ -313,6 +313,7 @@ class ApiRouter:
         code = code.upper().strip()
         payload = {
             "type": "game_started",
+            "teams": self.room_state[code]["teams"]
         }
         dead = []
         for ws in self.rooms[code]:

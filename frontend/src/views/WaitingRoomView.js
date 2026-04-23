@@ -207,6 +207,7 @@ export class WaitingRoomView extends Component {
             }
 
             if (data.type === "game_started"){
+                localStorage.setItem('teams', JSON.stringify(data.teams));
                 window.history.pushState({}, '', `/room/active/${this.data.roomCode}`);
                 window.dispatchEvent(new Event('popstate'));
             }

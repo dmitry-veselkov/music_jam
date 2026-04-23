@@ -22,6 +22,10 @@ export class GameView extends Component {
 
     _applyRoomInfo(roomInfo) {
         this.gameSettings.init(roomInfo);
+        const teams = JSON.parse(localStorage.getItem('teams') || '[]');
+        this.state.players = Object.fromEntries(
+            teams.map(team => [team, 0])
+        );
     }
 
     async mount() {
@@ -41,6 +45,33 @@ export class GameView extends Component {
         this.container.innerHTML = this.render();
         this.attachEvents();
     }
+
+    renderPlayerTable(){
+        const players = this.state.players;
+        const entries = Object.entries(players);
+        const sorted = [...entries].sort((a, b) => b[1] - a[1]);
+        return `
+            <div class="player-table-wrapper">
+                <table class="player-score-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Команда</th>
+                            <th>Очки</th>
+                         </tr>
+                    </thead>
+                    <tbody>
+                        ${sorted.map(([team, score], idx) => `
+                            <tr class="${idx === 0 ? 'rank-first' : ''}">
+                                <td class="rank-cell">${idx + 1}</td>
+                                <td class="team-cell">${team}</td>
+                                <td class="score-cell">${score}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>`;
+        }
 
     renderTable() {
         return `
@@ -94,8 +125,7 @@ export class GameView extends Component {
                                         </div>
                                     </button>
                                 </td>
-                            `;
-        }).join('')}
+                            `;}).join('')}
                     </tr>
                 `).join('')}
             </tbody>
@@ -131,12 +161,12 @@ export class GameView extends Component {
                         </div>
 
                         ${
-            this.state.activeCell && this.state.canBuzz
-                ? Button({ text: 'Ответить', id: 'buzz-btn', extraClass: 'w-100' })
-                : `<button class="btn btn-secondary w-100" disabled>
-                                    ${this.state.activeCell ? 'Кто-то уже отвечает' : 'Ожидание вопроса'}
-                                   </button>`
-        }
+                            this.state.activeCell && this.state.canBuzz
+                            ? Button({ text: 'Ответить', id: 'buzz-btn', extraClass: 'w-100' })
+                            : `<button class="btn btn-secondary w-100" disabled>
+                                                ${this.state.activeCell ? 'Кто-то уже отвечает' : 'Ожидание вопроса'}
+                                               </button>`
+                        }
                     </div>
                 </aside>
 
@@ -146,6 +176,7 @@ export class GameView extends Component {
                     </div>
 
                     ${this.renderTable()}
+                    ${this.renderPlayerTable()}
                 </main>
             </div>
             ${this.renderCorrectAnswer()}

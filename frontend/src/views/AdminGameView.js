@@ -15,12 +15,17 @@ export class AdminGameView extends Component {
             activeCell: null,
             buzzedTeam: null,
             teamAnswer : null,
-            audio: null
+            audio: null,
+            players: {}
         };
     }
 
     _applyRoomInfo(roomInfo) {
         this.gameSettings.init(roomInfo);
+        const teams = JSON.parse(localStorage.getItem('teams') || '[]');
+        this.state.players = Object.fromEntries(
+            teams.map(team => [team, 0])
+        );
     }
 
     async mount() {
@@ -43,6 +48,33 @@ export class AdminGameView extends Component {
     updateDOM() {
         this.container.innerHTML = this.render();
         this.attachEvents();
+    }
+
+    renderPlayerTable(){
+        const players = this.state.players;
+        const entries = Object.entries(players);
+        const sorted = [...entries].sort((a, b) => b[1] - a[1]);
+        return `
+            <div class="player-table-wrapper">
+                <table class="player-score-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Команда</th>
+                            <th>Очки</th>
+                         </tr>
+                    </thead>
+                    <tbody>
+                        ${sorted.map(([team, score], idx) => `
+                            <tr class="${idx === 0 ? 'rank-first' : ''}">
+                                <td class="rank-cell">${idx + 1}</td>
+                                <td class="team-cell">${team}</td>
+                                <td class="score-cell">${score}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>`;
     }
 
     renderCalculator() {
@@ -161,6 +193,7 @@ export class AdminGameView extends Component {
                 </div>
 
                 ${this.renderTable()}
+                ${this.renderPlayerTable()}
             </main>
         </div>
         `;
