@@ -232,6 +232,7 @@ export class AdminGameView extends Component {
                 this.ws.send(JSON.stringify({
                     type: 'game_ended'
                 }));
+                localStorage.removeItem('teams');
                 new Promise(r => setTimeout(r, 200));
                 window.history.pushState({}, '', '/account');
                 window.dispatchEvent(new Event('popstate'));

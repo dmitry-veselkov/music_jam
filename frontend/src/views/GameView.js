@@ -272,6 +272,7 @@ export class GameView extends Component {
             }
 
             if (data.type === 'game_ended') {
+                localStorage.removeItem('teams');
                 window.history.pushState({}, '', '/');
                 window.dispatchEvent(new Event('popstate'));
             }
