@@ -4,7 +4,6 @@
      */
     window.history.pushState(data, '', path);
     window.dispatchEvent(new Event('popstate'));
-    console.log('redirect to', path);
 }
 
 export function get404() {

@@ -2,16 +2,28 @@
 import {Logo, Input, Button} from "../components/UI.js";
 import {checkUserExists} from "../services/AccountServices.js";
 import {redirectTo} from "../services/RouteServices.js";
+import {WrongText} from "../components/Error.js";
+import {ButtonLoader} from "../components/ButtonLoader.js";
 
 export class LoginView extends Component {
     mount() {
-        if (window.currentUser)
-        {
-            redirectTo('/account');
-            return;
-        }
+        /**
+         * Страница авторизации. Пользователь указывает почту и пароль.
+         * В рамках сервиса почта должна быть уникальна.
+         */
 
+        // TODO в будущем можно настроить редирект уже залогиненного пользователя в ЛК
         this.container.innerHTML = this.render();
+
+        this.loginButton = document.querySelector("#login-btn");
+        this.emailInput = document.querySelector("#login-email");
+        this.passwordInput = document.querySelector("#login-password");
+
+        this.emailInput.focus();
+
+        this.wrongText = new WrongText(this.container);
+        this.wrongText.hideWrongText();
+
         this._addEventListeners();
     }
 
@@ -33,6 +45,7 @@ export class LoginView extends Component {
                         <div class="btn-wrapper mt-3">
                             ${Button(this._loginButtonSettings)}
                         </div>
+                        ${WrongText.html}
                         <p class="text-center text-muted mt-3">
                             Нет аккаунта? 
                             <a href="/register" class="text-accent" data-link>Зарегистрироваться</a>
@@ -44,25 +57,33 @@ export class LoginView extends Component {
     }
 
     _addEventListeners() {
-        const loginButton = document.querySelector("#login-btn");
-        const emailInput = document.querySelector("#login-email");
-        const passwordInput = document.querySelector("#login-password");
-
-
-        if (loginButton) {
-            loginButton.addEventListener("click", async () =>
-                await this._login(emailInput.value, passwordInput.value));
-        }
+        /**
+         * Клик на кнопку - и запускает аутентификация и авторизация пользователя
+         */
+        this.loginButton.addEventListener("click", async () => {
+            this.wrongText.hideWrongText();
+            await ButtonLoader.wrap(this.loginButton, async () => {
+                await this._login(this.emailInput.value, this.passwordInput.value);
+            });
+        });
     }
 
     async _login(email, password) {
-        try {
-            await checkUserExists(email, password)
-            redirectTo('/account')
-        } catch (e) {
-            // TODO Заменить алерт на что-то красивое
-            alert('Неверный логин или пароль!')
+        /**
+         * Собственно, сам процесс авторизации
+         */
+        if (!email || !password) {
+            this.wrongText.showWrongText('Заполните все поля формы!');
+            return;
         }
+
+        const user = await checkUserExists(email, password);
+        if (user) {
+            redirectTo('/account');
+            return;
+        }
+
+        this.wrongText.showWrongText('Неверный логин или пароль!');
     }
 
     _emailInputSettings = {

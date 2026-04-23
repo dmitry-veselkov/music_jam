@@ -4,9 +4,48 @@
     border-radius: 25px;
     font-size: 1rem;
     font-weight: 600;
+    min-width: 40px;
     cursor: pointer;
     transition: var(--transition-fast);
+
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
+
+/* спиннер */
+.btn__spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255,255,255,0.5);
+    border-top: 2px solid white;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    display: none;
+}
+
+.btn.loading .btn__spinner {
+    display: inline-block;
+}
+
+.btn.loading .btn__text {
+    display: none;
+}
+
+.btn.loading {
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
 
 .btn:active {
     transform: scale(0.96);
@@ -39,6 +78,7 @@
 .btn-outline:hover {
     border-color: white;
 }
+
 
 .start-btn-wrapper {
     display: flex;
@@ -86,4 +126,16 @@ body {
 
 .start-page {
     height: 100vh;
+}
+
+/**
+Текст для сообщения об ошибке. Например, при вводе
+невалидного кода, или при указании не всех обязательных полей
+ */
+.wrong-text {
+    color: var(--color-wrong-text);
+    width: 100%;
+    text-align: center;
+    font-weight: bold;
+    display: none;
 }

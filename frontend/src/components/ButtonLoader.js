@@ -1,47 +1,31 @@
-﻿export class LoadingButton {
+﻿export class ButtonLoader {
     /**
-     * Класс для управления кнопкой с лоудером
+     * Специальный класс, реализующий логику отображения спинера загрузки внутри кнопки,
+     * которая вызвала долгий метод, например, обращающийся к БД. Принимает метод как колбэк
      */
+    static start(button) {
+        if (!button || button.classList.contains('loading')) return;
 
-    static html = `
-        <button class="loading-btn">
-            <span class="btn-text"></span>
-            <span class="btn-spinner"></span>
-        </button>
-    `;
-
-    constructor(container) {
-        this.container = container;
-        this.button = this.container.querySelector('.loading-btn');
-        this.textEl = this.container.querySelector('.btn-text');
-        this.spinner = this.container.querySelector('.btn-spinner');
-
-        this.isLoading = false;
+        button.classList.add('loading');
+        button.disabled = true;
     }
 
-    setText(text) {
-        this.textEl.textContent = text;
+    static stop(button) {
+        if (!button) return;
+
+        button.classList.remove('loading');
+        button.disabled = false;
     }
 
-    startLoading() {
-        /**
-         * Включаем состояние загрузки
-         */
-        if (this.isLoading) return;
+    static async wrap(button, callback) {
+        if (!button || button.classList.contains('loading')) return;
 
-        this.isLoading = true;
+        this.start(button);
 
-        this.button.classList.add('loading');
-        this.button.disabled = true;
-    }
-
-    stopLoading() {
-        /**
-         * Выключаем состояние загрузки
-         */
-        this.isLoading = false;
-
-        this.button.classList.remove('loading');
-        this.button.disabled = false;
+        try {
+            await callback();
+        } finally {
+            this.stop(button);
+        }
     }
 }
