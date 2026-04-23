@@ -3,7 +3,7 @@ import asyncio
 
 
 class DatabaseHands:
-    _ALLOWED_GAME_COLUMNS = {"admin_user_id", "title", "join_code", "scheduled_at", "status", "description"}
+    _ALLOWED_GAME_COLUMNS = {"admin_user_id", "title", "join_code", "scheduled_at", "status", "description", "mode"}
 
     def __init__(self, database) -> None:
         self.db = database;
@@ -58,7 +58,7 @@ class DatabaseHands:
         print(code)
         async with self.db.get_session() as session:
             result = await session.execute(
-                text("SELECT g.id, g.title, u.name, g.join_code, g.status, gp.team_name, gp.score "
+                text("SELECT g.id, g.title, u.name, g.join_code, g.status, g.mode, gp.team_name, gp.score "
                      "FROM games as g "
                      "LEFT JOIN game_participants AS gp ON g.id = gp.game_id "
                      "JOIN users AS u ON g.admin_user_id = u.id "

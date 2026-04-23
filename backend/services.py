@@ -49,6 +49,7 @@ class Services:
             'status': first['status'],
             'title': first['title'],
             'author': first['name'],
+            'mode' : first['mode'],
             'teams': teams,
             'costs': tracks_info['costs'],
             'categories': tracks_info['categories'],

@@ -128,9 +128,10 @@ class ApiRouter:
 
             if not code:
                 raise HTTPException(status_code=400, detail="roomCode required")
-
+            print(data.mode, type(data.mode))
             await self.db_hands.update_game_any_param(code, "title", data.title)
             await self.db_hands.update_game_any_param(code, "description", data.description)
+            await self.db_hands.update_game_any_param(code, "mode", data.mode)
 
             print(data.tracks)
             await self.db_hands.save_game_grid(
@@ -218,8 +219,6 @@ class ApiRouter:
 
             self.s3.upload(question.file, question_name, question.content_type)
             self.s3.upload(answer.file, answer_name, answer.content_type)
-
-            cost = int(cost)
 
             return {
                 "status": "ok",

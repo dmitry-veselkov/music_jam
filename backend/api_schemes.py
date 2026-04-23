@@ -25,6 +25,7 @@ class SaveGameSchema(BaseModel):
     roomCode: str
     title: str
     description: str
+    mode : bool
     categories: list[str]
     costs: list[int]
     tracks: list[list[dict | None]]

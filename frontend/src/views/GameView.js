@@ -219,7 +219,7 @@ export class GameView extends Component {
                 this.state.canBuzz = false;
                 const myTeam = localStorage.getItem('team-name') ?? 'Неизвестная команда';
                 if (data.team === myTeam) {
-                    this.state.showAnswerInput = true;
+                    this.state.showAnswerInput = this.gameSettings.mode === false;
                 }
                 this.updateDOM();
             }
@@ -286,22 +286,24 @@ export class GameView extends Component {
                 this.updateDOM();
             };
         }
+        if (this.gameSettings.mode === false)
+        {
+            const submitBtn = this.container.querySelector('#submit-answer-btn');
+            if (submitBtn) {
+                submitBtn.onclick = () => {
+                    const artist = this.container.querySelector('#answer-artist').value.trim();
+                    const title = this.container.querySelector('#answer-title').value.trim();
 
-        const submitBtn = this.container.querySelector('#submit-answer-btn');
-        if (submitBtn) {
-            submitBtn.onclick = () => {
-                const artist = this.container.querySelector('#answer-artist').value.trim();
-                const title = this.container.querySelector('#answer-title').value.trim();
-
-                this.ws.send(JSON.stringify({
-                    type: 'team_answer',
-                    team: localStorage.getItem('team-name') ?? 'Неизвестная команда',
-                    artist,
-                    title
-                }));
-                this.state.showAnswerInput = false;
-                this.updateDOM();
-            };
+                    this.ws.send(JSON.stringify({
+                        type: 'team_answer',
+                        team: localStorage.getItem('team-name') ?? 'Неизвестная команда',
+                        artist,
+                        title
+                    }));
+                    this.state.showAnswerInput = false;
+                    this.updateDOM();
+                };
+            }
         }
     }
 }

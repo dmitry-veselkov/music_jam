@@ -6,7 +6,7 @@ export class GameSettings {
         this.author = '';
         this.title = '';
         this.description = '';
-
+        this.mode = false;
         this.categories = [];
         this.costs = [];
 
@@ -17,7 +17,7 @@ export class GameSettings {
         this.author = roomInfo.author;
         this.title = roomInfo.title;
         this.description = roomInfo.description;
-
+        this.mode = roomInfo.mode;
         this.categories = roomInfo.categories ?? [];
         this.costs = roomInfo.costs ?? [];
 

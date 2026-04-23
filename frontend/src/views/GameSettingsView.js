@@ -5,6 +5,7 @@ import {get404} from "../services/RouteServices.js";
 import {loadUserInfoOrRedirect} from "../services/AccountServices.js";
 import {GameSettings} from "../domain/GameSettings.js";
 import {Song} from "../domain/Song.js";
+import {ButtonLoader} from "../components/ButtonLoader.js";
 
 export class GameSettingsView extends Component {
     constructor(container, data) {
@@ -58,12 +59,28 @@ export class GameSettingsView extends Component {
                                   rows="3"
                                   placeholder="О чем эта игра?">${this.gameSettings.description}</textarea>
                     </div>
+                    
+                    <div class="form-group">
+                        <label>Режим игры</label>
+                            <div class="mode-toggle">
+                                <label class="mode-option">
+                                    <input type="radio"
+                                        name="game-mode"
+                                        value="text"
+                                        ${!this.gameSettings.mode ? 'checked' : ''}>
+                                    <span>📝 Текстовый</span>
+                                </label>
+                                <label class="mode-option">
+                                    <input type="radio"
+                                       name="game-mode"
+                                       value="voice"
+                                       ${this.gameSettings.mode ? 'checked' : ''}>
+                                    <span>🔊 Озвучка</span>
+                                </label>
+                            </div>
+                    </div>
 
                     <div class="d-flex flex-column">
-                        <button class="btn btn-primary w-100" id="start-game-btn">
-                            Создать игру
-                        </button>
-
                         <button class="btn btn-primary w-100" id="save-changes" style="margin-top: 8px;">
                             Сохранить изменения
                         </button>
@@ -280,28 +297,29 @@ export class GameSettingsView extends Component {
         const saveTrackBtn = this.container.querySelector('#save-track');
         if (saveTrackBtn) {
             saveTrackBtn.onclick = async () => {
-                await this.uploadSong();
-                this.closeModal();
-                this.updateDOM();
+                await ButtonLoader.wrap(saveTrackBtn, async () => {
+                    await this.uploadSong();
+                    this.closeModal();
+                    this.updateDOM();
+                });
             };
         }
 
         const saveChangesBtn = this.container.querySelector('#save-changes');
         if (saveChangesBtn) {
             saveChangesBtn.onclick = async () => {
-                await saveGameSettings(this.getPayload());
-                this.updateDOM();
+                await ButtonLoader.wrap(saveChangesBtn, async () => {
+                    await saveGameSettings(this.getPayload());
+                    this.updateDOM();
+                });
             };
         }
 
-        const startGameBtn = this.container.querySelector('#start-game-btn');
-        if (startGameBtn) {
-            startGameBtn.onclick = async () => {
-                await saveGameSettings(this.getPayload());
-                window.history.pushState({}, '', `/room/admin_waiting/${this.data.roomCode}`);
-                window.dispatchEvent(new Event('popstate'));
+        this.container.querySelectorAll('input[name="game-mode"]').forEach(radio => {
+            radio.onchange = (e) => {
+                this.gameSettings.mode = e.target.value === 'voice';
             };
-        }
+        });
     }
 
     openModal() {
@@ -318,6 +336,7 @@ export class GameSettingsView extends Component {
         return {
             roomCode: this.data.roomCode,
             title: this.gameSettings.title,
+            mode: this.gameSettings.mode,
             description: this.gameSettings.description,
             categories: this.gameSettings.categories,
             costs: this.gameSettings.costs,
