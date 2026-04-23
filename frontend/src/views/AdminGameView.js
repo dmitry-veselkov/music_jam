@@ -18,7 +18,7 @@ export class AdminGameView extends Component {
             teamAnswer : null,
             audio: null,
             players: Object.fromEntries(
-                teams.map(team => [team, 0]))
+                teams.map(team => [team, 0])),
         };
     }
 
@@ -93,7 +93,7 @@ export class AdminGameView extends Component {
                 ` : '<p class="muted">Ожидание ответа команды...</p>'}
             
             <div class="points-stepper">
-                 <input class="stepper-value" id="points-value" type="number" value="${defaultPoints}">
+                 <input class="stepper-value" id="points-value" type="number" value="${defaultPoints}" min="${0}" placeholder="${defaultPoints}">
             </div>
             
             <div class="btn-group-horizontal">

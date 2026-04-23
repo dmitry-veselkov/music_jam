@@ -58,9 +58,8 @@ class DatabaseHands:
         print(code)
         async with self.db.get_session() as session:
             result = await session.execute(
-                text("SELECT g.id, g.title, u.name, g.join_code, g.status, g.mode, gp.team_name, gp.score "
+                text("SELECT g.id, g.title, u.name, g.join_code, g.status, g.mode "
                      "FROM games as g "
-                     "LEFT JOIN game_participants AS gp ON g.id = gp.game_id "
                      "JOIN users AS u ON g.admin_user_id = u.id "
                      "WHERE join_code = :join_code"),
                 {
@@ -144,53 +143,39 @@ class DatabaseHands:
             await session.commit()
             return status == 0
 
-    async def remove_team(self, game_id, team_id):
-        async with self.db.get_session() as session:
-            await session.execute(
-                text("DELETE FROM game_participants "
-                     "WHERE game_id = :game_id AND team_id = :team_id "
-                     "RETURNING team_id"
-                     ),
-                {
-                    "game_id": game_id,
-                    "team_id": team_id,
-                }
-            )
-            await session.commit()
+    # async def get_team_name(self, team_id):
+    #     async with self.db.get_session() as session:
+    #         result = await session.execute(
+    #             text("SELECT team_name "
+    #                  "FROM game_participants "
+    #                  "WHERE team_id = :team_id "),
+    #             {
+    #                 "team_id": team_id,
+    #             }
+    #         )
+    #
+    #         return result.scalars().first()
 
-    async def get_team_name(self, team_id):
-        async with self.db.get_session() as session:
-            result = await session.execute(
-                text("SELECT team_name "
-                     "FROM game_participants "
-                     "WHERE team_id = :team_id "),
-                {
-                    "team_id": team_id,
-                }
-            )
-
-            return result.scalars().first()
-
-    async def update_score_team(self, join_code, nickname, add_score):
-        session = self.db.get_session()
-        game_id = (await session.execute(
-            text("SELECT id FROM games WHERE join_code = :join_code"),
-            {
-                "join_code": join_code
-            }
-        )).scalar()
-        await session.execute(
-            text("UPDATE game_participants "
-                 "SET score = score + :add_score "
-                 "WHERE game_id = :game_id AND nickname = :nickname"),
-            {
-                "game_id": game_id,
-                "nickname": nickname,
-                "add_score": add_score
-            }
-        )
-        await session.commit()
-        await session.close()
+    # async def update_score_team(self, join_code, nickname, add_score):
+    #     session = self.db.get_session()
+    #     game_id = (await session.execute(
+    #         text("SELECT id FROM games WHERE join_code = :join_code"),
+    #         {
+    #             "join_code": join_code
+    #         }
+    #     )).scalar()
+    #     await session.execute(
+    #         text("UPDATE game_participants "
+    #              "SET score = score + :add_score "
+    #              "WHERE game_id = :game_id AND nickname = :nickname"),
+    #         {
+    #             "game_id": game_id,
+    #             "nickname": nickname,
+    #             "add_score": add_score
+    #         }
+    #     )
+    #     await session.commit()
+    #     await session.close()
 
     async def update_game_any_param(self, join_code, column, value):
         if column not in self._ALLOWED_GAME_COLUMNS:

@@ -155,34 +155,30 @@ class ApiRouter:
 
         @self.router.post('/set_team_name')
         async def set_team_name(data: TeamSchema):
-            is_new = await self.db_hands.insert_or_update_team(data.id, data.uuid, data.name)
             code = data.code
-            await self._ensure_room_loaded(code)
-
+            # await self._ensure_room_loaded(code)
             teams = self.room_state[code]["teams"]
 
-            if is_new:
-                if data.name not in teams:
-                    teams.append(data.name)
+            if data.name not in teams:
+                teams.append(data.name)
             else:
                 for i, t in enumerate(teams):
                     if t == data.oldName:
                         teams[i] = data.name
                         break
-
             await self._broadcast_room(code)
-            return {"status": "ok", "new": is_new}
+            return {"status": "ok"}
 
-        @self.router.post('/add_points')
-        async def add_points(code, payload : AddPointsSchema):
-            points = payload.points if payload.correct else -payload.points
-            return await self.db_hands.update_score_team(code,
-                                                         payload.team,
-                                                         points)
+        # @self.router.post('/add_points')
+        # async def add_points(code, payload : AddPointsSchema):
+        #     points = payload.points if payload.correct else -payload.points
+        #     return await self.db_hands.update_score_team(code,
+        #                                                  payload.team,
+        #                                                  points)
 
-        @self.router.get('/get_team_name')
-        async def get_team_name(uuid: str) -> Response:
-            return await self.db_hands.get_team_name(uuid)
+        # @self.router.get('/get_team_name')
+        # async def get_team_name(uuid: str) -> Response:
+        #     return await self.db_hands.get_team_name(uuid)
 
         @self.router.get('/run_game')
         async def run_game(code: str = ''):
@@ -245,7 +241,7 @@ class ApiRouter:
             await websocket.accept()
             self.rooms[code].add(websocket)
 
-            await self._ensure_room_loaded(code)
+            # await self._ensure_room_loaded(code)
 
             await websocket.send_json({
                 "type": "init",
@@ -273,13 +269,13 @@ class ApiRouter:
 
         return payload
 
-    async def _ensure_room_loaded(self, code: str):
-        if self.room_state[code]["teams"]:
-            return
-        room_info = await self.db_hands.get_room_info(code)
-        tracks_info = await self.db_hands.get_room_tracks(code)
-        if room_info:
-            self.room_state[code]["teams"] = self.services.parse_room_info(room_info, tracks_info)['teams']
+    # async def _ensure_room_loaded(self, code: str):
+    #     if self.room_state[code]["teams"]:
+    #         return
+    #     room_info = await self.db_hands.get_room_info(code)
+    #     tracks_info = await self.db_hands.get_room_tracks(code)
+    #     if room_info:
+    #         self.room_state[code]["teams"] = self.services.parse_room_info(room_info, tracks_info)['teams']
 
     async def _broadcast_room(self, code: str):
         payload = {

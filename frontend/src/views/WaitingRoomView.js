@@ -1,5 +1,5 @@
 ﻿import {Component} from "../core/Component.js";
-import {tryGetRoomInfo, setTeamName, getTeamNameByUUID} from "../services/RoomService.js";
+import {tryGetRoomInfo, setTeamName} from "../services/RoomService.js";
 import {get404} from "../services/RouteServices.js";
 import {Logo, Input, Button} from "../components/UI.js";
 
@@ -32,8 +32,8 @@ export class WaitingRoomView extends Component {
 
         this._connectSocket();
 
-        const uuid = this._setUUID();
-        await this._loadTeamInfoByUUID(uuid);
+        // const uuid = this._setUUID();
+        // await this._loadTeamInfoByUUID(uuid);
 
         this._setState({
             gameId: roomData.id,
@@ -44,21 +44,21 @@ export class WaitingRoomView extends Component {
         })
     }
 
-    _setUUID() {
-        const currentUUID = localStorage.getItem('team-uuid');
-        if (!currentUUID) {
-            localStorage.setItem('team-uuid', crypto.randomUUID());
-        }
-        return localStorage.getItem('team-uuid');
-    }
-
-    async _loadTeamInfoByUUID(uuid) {
-        const teamName = await getTeamNameByUUID(uuid);
-        if (teamName) {
-            this.state.myTeamName = teamName;
-            this.state.isNameSaved = true;
-        }
-    }
+    // _setUUID() {
+    //     const currentUUID = localStorage.getItem('team-uuid');
+    //     if (!currentUUID) {
+    //         localStorage.setItem('team-uuid', crypto.randomUUID());
+    //     }
+    //     return localStorage.getItem('team-uuid');
+    // }
+    //
+    // async _loadTeamInfoByUUID(uuid) {
+    //     const teamName = await getTeamNameByUUID(uuid);
+    //     if (teamName) {
+    //         this.state.myTeamName = teamName;
+    //         this.state.isNameSaved = true;
+    //     }
+    //}
 
     _setState(newState) {
         this.state = {...this.state, ...newState};
