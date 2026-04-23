@@ -144,7 +144,7 @@ export class GameView extends Component {
                             <p><strong>Описание:</strong> ${this.gameSettings.description || '—'}</p>
                         </div>
 
-                        <div class="player-status-card" style="margin-top: 1rem;">
+                        <div class="player-status-card" style="margin-top: 1rem; margin-bottom: 1rem;"">
                             <div class="modal-badge">🎧 Сейчас играет</div>
                             <div class="track-preview-subtitle">
                                 ${
