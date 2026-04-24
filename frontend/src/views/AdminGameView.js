@@ -4,6 +4,8 @@ import {tryGetGameSettings, updateTeamScores} from "../services/GamesServices.js
 import {loadUserInfoOrRedirect} from "../services/AccountServices.js";
 import {Logo, Button} from "../components/UI.js";
 import {GameSettings} from "../domain/GameSettings.js";
+import {OnGameRating} from "../components/OnGameRating.js";
+import {OnGameTable} from "../components/OnGameTable.js";
 
 export class AdminGameView extends Component {
     constructor(container, data) {
@@ -15,7 +17,9 @@ export class AdminGameView extends Component {
         this.state = {
             activeCell: null,
             buzzedTeam: null,
-            teamAnswer : null,
+            disabledTeams: [],
+            teamAnswer: null,
+            showCalculatorModal: false,
             audio: null,
             players: Object.fromEntries(
                 teams.map(team => [team, 0])),
@@ -48,110 +52,82 @@ export class AdminGameView extends Component {
         this.attachEvents();
     }
 
-    renderPlayerTable(){
-        const players = this.state.players;
-        const entries = Object.entries(players);
-        const sorted = [...entries].sort((a, b) => b[1] - a[1]);
-        return `
-            <div class="player-table-wrapper">
-                <table class="player-score-table">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Команда</th>
-                            <th>Очки</th>
-                         </tr>
-                    </thead>
-                    <tbody>
-                        ${sorted.map(([team, score], idx) => `
-                            <tr class="${idx === 0 ? 'rank-first' : ''}">
-                                <td class="rank-cell">${idx + 1}</td>
-                                <td class="team-cell">${team}</td>
-                                <td class="score-cell">${score}</td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            </div>`;
-    }
+    // renderCalculatorModal() {
+    //     if (!this.state.buzzedTeam) return '';
+    //
+    //     const defaultPoints = this.state.activeCell
+    //         ? this.gameSettings.costs[this.state.activeCell.col]
+    //         : 0;
+    //
+    //     return `
+    //     <div class="card calculator-card">
+    //         <h3>Отвечает: <strong>${this.state.buzzedTeam}</strong></h3>
+    //         ${this.state.teamAnswer ? `
+    //             <div class="form-group">
+    //                 <p>🎤 <strong>${this.state.teamAnswer.artist}</strong></p>
+    //                 <p>🎵 <strong>${this.state.teamAnswer.title}</strong></p>
+    //             </div>
+    //             ` : '<p class="muted">Ожидание ответа команды...</p>'}
+    //
+    //         <div class="points-stepper">
+    //              <input class="stepper-value" id="points-value" type="number" value="${defaultPoints}" min="${0}" placeholder="${defaultPoints}">
+    //         </div>
+    //
+    //         <div class="btn-group-horizontal">
+    //             ${Button({text: '+', id: 'award-btn', extraClass: 'w-100'})}
+    //             ${Button({text: '-', id: 'wrong-btn', variant: 'outline', extraClass: 'w-100'})}
+    //         </div>
+    //     </div>
+    //     `;
+    // }
 
-    renderCalculator() {
+    renderCalculatorModal() {
         if (!this.state.buzzedTeam) return '';
 
         const defaultPoints = this.state.activeCell
             ? this.gameSettings.costs[this.state.activeCell.col]
             : 0;
 
+        console.log(this.state.buzzedTeam);
+
         return `
-        <div class="card calculator-card">
-            <h3>Отвечает: <strong>${this.state.buzzedTeam}</strong></h3>
-            ${this.state.teamAnswer ? `
-                <div class="form-group">
-                    <p>🎤 <strong>${this.state.teamAnswer.artist}</strong></p>
-                    <p>🎵 <strong>${this.state.teamAnswer.title}</strong></p>
+        <div id="calculator-modal" class="modal">
+            <div class="modal-backdrop"></div>
+
+            <div class="modal-dialog">
+                <button class="modal-close" id="close-calculator-modal" aria-label="Закрыть">×</button>
+
+                <div class="modal-header">
+                    <div class="modal-badge">🧮 Калькулятор</div>
+                    <h3 class="modal-title">Отвечает: <strong>${this.state.buzzedTeam}</strong></h3>
                 </div>
-                ` : '<p class="muted">Ожидание ответа команды...</p>'}
-            
-            <div class="points-stepper">
-                 <input class="stepper-value" id="points-value" type="number" value="${defaultPoints}" min="${0}" placeholder="${defaultPoints}">
-            </div>
-            
-            <div class="btn-group-horizontal">
-                ${Button({text: '+', id: 'award-btn', extraClass: 'w-100'})}
-                ${Button({text: '-', id: 'wrong-btn', variant: 'outline', extraClass: 'w-100'})}
+
+                <div class="modal-body">
+                    ${this.state.teamAnswer ? `
+                        <div class="form-group">
+                            <p>🎤 <strong>${this.state.teamAnswer.artist}</strong></p>
+                            <p>🎵 <strong>${this.state.teamAnswer.title}</strong></p>
+                        </div>
+                    ` : '<p class="muted">Ожидание ответа команды...</p>'}
+
+                    <div class="points-stepper">
+                        <input
+                            class="stepper-value"
+                            id="points-value"
+                            type="number"
+                            value="${defaultPoints}"
+                            min="0"
+                            placeholder="${defaultPoints}">
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    ${Button({text: '+', id: 'award-btn', extraClass: 'w-100'})}
+                    ${Button({text: '-', id: 'wrong-btn', variant: 'outline', extraClass: 'w-100'})}
+                </div>
             </div>
         </div>
-        `;
-    }
-
-    renderTable() {
-        return `
-        <div class="scroll-container">
-            <table class="edit-table game-table">
-                <thead>
-                    <tr>
-                        <th class="corner-cell">Категория / Цена</th>
-
-                        ${this.gameSettings.costs.map(cost => `
-                            <th class="cost-th">
-                                <div class="th-content readonly-th">
-                                    <span>${cost}</span>
-                                </div>
-                            </th>
-                        `).join('')}
-                    </tr>
-                </thead>
-
-                <tbody>
-                    ${this.gameSettings.categories.map((category, rIdx) => `
-                        <tr>
-                            <td class="cat-td">
-                                <div class="td-content readonly-td">
-                                    <span>${category}</span>
-                                </div>
-                            </td>
-
-                            ${this.gameSettings.costs.map((cost, cIdx) => {
-                                const cell = this.gameSettings.cells?.[rIdx]?.[cIdx];
-                                const isActive = this.state.activeCell?.row === rIdx && this.state.activeCell?.col === cIdx;
-                                return `
-                                        <td>
-                                            <button
-                                                class="preview-cell track-cell organizer-track-btn"
-                                                data-row="${rIdx}"
-                                                data-col="${cIdx}"
-                                                style="width: 100%;"
-                                            >
-                                               <div class="cell-sub">
-                                                    ${isActive ? '🔊 Играет...' : !cell.played ? '▶ Запустить' : 'Нет трека'}
-                                               </div>
-                                            </button>
-                                        </td>`;}).join('')}
-                                        </tr>`).join('')}
-                                    </tbody>
-                                </table>
-                            </div>
-                            `;
+    `;
     }
 
     render() {
@@ -178,17 +154,17 @@ export class AdminGameView extends Component {
                     </div>
 
                     <div class="btn-group-vertical">
-                        ${this.renderCalculator()}
                         ${Button({
-                            text: 'Завершить вопрос досрочно',
-                            id: 'end-question-btn',
-                            extraClass: 'w-100'
-                        })}
+            text: 'Завершить вопрос',
+            id: 'end-question-btn',
+            extraClass: 'w-100'
+        })}
                         <div style="margin-top: 0.75rem;">
                             ${Button({
-                                text: 'Завершить игру', 
-                                id: 'end-btn', 
-                                extraClass: 'w-100'})}
+            text: 'Завершить игру',
+            id: 'end-btn',
+            extraClass: 'w-100'
+        })}
                         </div>
                     </div>
                 </div>
@@ -200,10 +176,12 @@ export class AdminGameView extends Component {
                     <div class="badge">Режим организатора</div>
                 </div>
 
-                ${this.renderTable()}
-                ${this.renderPlayerTable()}
+                ${OnGameTable(this.gameSettings, this.state, this._tableOptions)}
+                ${OnGameRating(this.state.players)}
             </main>
         </div>
+        
+        ${this.renderCalculatorModal()}
         `;
     }
 
@@ -235,16 +213,16 @@ export class AdminGameView extends Component {
                     const cell = this.gameSettings.cells?.[row]?.[col];
                     if (cell) {
                         this.ws.send(JSON.stringify({
-                            type : 'show_answer',
-                            title : cell.song.title,
-                            artist : cell.song.artist,
+                            type: 'show_answer',
+                            title: cell.song.title,
+                            artist: cell.song.artist,
                         }));
-                    this.state.activeCell = null;
-                    this.state.buzzedTeam = null;
-                    this.state.teamAnswer = null;
-                    cell.song.playCorrectAnswer(this.state);
-                    this.state.audio = null;
-                    this.updateDOM();
+                        this.state.activeCell = null;
+                        this.state.buzzedTeam = null;
+                        this.state.teamAnswer = null;
+                        cell.song.playCorrectAnswer(this.state);
+                        this.state.audio = null;
+                        this.updateDOM();
                     }
                 }
             })
@@ -261,8 +239,7 @@ export class AdminGameView extends Component {
                 window.dispatchEvent(new Event('popstate'));
             });
         }
-        if (valueEl)
-        {
+        if (valueEl) {
             valueEl.addEventListener('input', () => {
                 const v = +valueEl.value || 0;
                 awardBtn.textContent = `+${v}`;
@@ -285,25 +262,31 @@ export class AdminGameView extends Component {
             const cell = this.gameSettings.cells?.[row]?.[col];
             if (cell) {
                 this.ws.send(JSON.stringify({
-                    type : 'show_answer',
-                    title : cell.song.title,
-                    artist : cell.song.artist,
+                    type: 'show_answer',
+                    title: cell.song.title,
+                    artist: cell.song.artist,
                 }));
             }
+            this.state.disabledTeams = [];
             this.state.activeCell = null;
             this.state.buzzedTeam = null;
             this.state.teamAnswer = null;
             cell.song.playCorrectAnswer(this.state);
             this.state.audio = null;
         } else {
+            this.state.disabledTeams.push(this.state.buzzedTeam);
             this.state.buzzedTeam = null;
             this.state.teamAnswer = null;
             this.state.audio.play();
         }
 
+        this.ws.send(JSON.stringify({
+            type: 'reset_answer_btn',
+            disabledTeams: this.state.disabledTeams,
+        }));
+
         this.updateDOM();
     }
-
 
 
     _startSong(e) {
@@ -339,7 +322,6 @@ export class AdminGameView extends Component {
             const data = JSON.parse(event.data);
 
             if (data.type === 'player_buzzed') {
-                console.log(data);
                 this.state.buzzedTeam = data.team;
                 if (this.state.audio) {
                     this.state.audio.pause();
@@ -347,8 +329,7 @@ export class AdminGameView extends Component {
                 this.updateDOM();
             }
 
-            if (data.type === 'team_answer'){
-                console.log('Получил team_answer:', data);
+            if (data.type === 'team_answer') {
                 this.state.teamAnswer = {
                     artist: data.artist,
                     title: data.title,
@@ -356,13 +337,18 @@ export class AdminGameView extends Component {
                 this.updateDOM();
             }
 
-            if (data.type === 'add_points'){
-                console.log(data);
+            if (data.type === 'add_points') {
                 const team = data.team;
                 const points = data.points;
-                this.state.players[team]+=points;
+                this.state.players[team] += points;
                 this.updateDOM();
             }
         };
+    }
+
+    _tableOptions = {
+        showFilledState: false,
+        showActiveState: false,
+        useLaunchText: true
     }
 }

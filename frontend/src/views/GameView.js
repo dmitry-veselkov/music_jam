@@ -3,6 +3,8 @@ import {Button, Logo} from "../components/UI.js";
 import {get404} from "../services/RouteServices.js";
 import {tryGetGameSettings} from "../services/GamesServices.js";
 import {GameSettings} from "../domain/GameSettings.js";
+import {OnGameRating} from "../components/OnGameRating.js";
+import {OnGameTable} from "../components/OnGameTable.js";
 
 export class GameView extends Component {
     constructor(container, data) {
@@ -15,8 +17,9 @@ export class GameView extends Component {
 
         this.state = {
             activeCell: null,
+            hadWrongAnswer: false,
             canBuzz: false,
-            answer : null,
+            answer: null,
             showAnswerInput: false,
             players: Object.fromEntries(
                 teams.map(team => [team, 0])
@@ -47,88 +50,6 @@ export class GameView extends Component {
         this.attachEvents();
     }
 
-    renderPlayerTable(){
-        const players = this.state.players;
-        const entries = Object.entries(players);
-        const sorted = [...entries].sort((a, b) => b[1] - a[1]);
-        return `
-            <div class="player-table-wrapper">
-                <table class="player-score-table">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Команда</th>
-                            <th>Очки</th>
-                         </tr>
-                    </thead>
-                    <tbody>
-                        ${sorted.map(([team, score], idx) => `
-                            <tr class="${idx === 0 ? 'rank-first' : ''}">
-                                <td class="rank-cell">${idx + 1}</td>
-                                <td class="team-cell">${team}</td>
-                                <td class="score-cell">${score}</td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            </div>`;
-        }
-
-    renderTable() {
-        return `
-    <div class="scroll-container">
-        <table class="edit-table game-table">
-            <thead>
-                <tr>
-                    <th class="corner-cell">Категория / Цена</th>
-
-                    ${this.gameSettings.costs.map(cost => `
-                        <th class="cost-th">
-                            <div class="th-content readonly-th">
-                                <span>${cost}</span>
-                            </div>
-                        </th>
-                    `).join('')}
-                </tr>
-            </thead>
-
-            <tbody>
-                ${this.gameSettings.categories.map((category, rIdx) => `
-                    <tr>
-                        <td class="cat-td">
-                            <div class="td-content readonly-td">
-                                <span>${category}</span>
-                            </div>
-                        </td>
-
-                        ${this.gameSettings.costs.map((cost, cIdx) => {
-
-                            const cell = this.gameSettings.cells?.[rIdx]?.[cIdx];
-
-                            const isActive = this.state.activeCell?.row === rIdx && this.state.activeCell?.col === cIdx;
-                            
-                            return `
-                                <td>
-                                    <button
-                                        class="preview-cell track-cell organizer-track-btn
-                                               ${cell.song ? 'cell-filled' : ''}
-                                               ${isActive ? 'cell-active' : ''}"
-                                        data-row="${rIdx}"
-                                        data-col="${cIdx}"
-                                        style="width: 100%;"
-                                    >
-                                        <div class="cell-sub">
-                                            ${isActive ? '🔊 Играет...' : !cell.played ? '-' : 'Нет трека'}
-                                        </div>
-                                    </button>
-                                </td>`;}).join('')}
-                    </tr>`).join('')}
-            </tbody>
-        </table>
-    </div>
-    `;
-    }
-
     render() {
         return `
             <div class="logo-corner">${Logo()}</div>
@@ -148,20 +69,26 @@ export class GameView extends Component {
                             <div class="modal-badge">🎧 Сейчас играет</div>
                             <div class="track-preview-subtitle">
                                 ${
-                                    this.state.activeCell
-                                        ? 'Организатор запустил вопрос. Можно отвечать.'
-                                        : 'Дождитесь, пока организатор выберет категорию.'
-                                }
+            this.state.activeCell
+                ? 'Организатор запустил вопрос. Можно отвечать.'
+                : 'Дождитесь, пока организатор выберет категорию.'
+        }
                             </div>
                         </div>
 
                         ${
-                            this.state.activeCell && this.state.canBuzz
-                            ? Button({ text: 'Ответить', id: 'buzz-btn', extraClass: 'w-100' })
-                            : `<button class="btn btn-secondary w-100" disabled>
-                               ${this.state.activeCell ? 'Кто-то уже отвечает' : 'Ожидание вопроса'}
+            this.state.activeCell && this.state.canBuzz && !this.state.hadWrongAnswer
+                ? Button({text: 'Ответить', id: 'buzz-btn', extraClass: 'w-100'})
+                : `<button class="btn btn-secondary w-100" disabled>
+                               ${
+                    this.state.hadWrongAnswer
+                        ? 'Вы ответили неправильно'
+                        : this.state.activeCell
+                            ? 'Кто-то уже отвечает'
+                            : 'Ожидание вопроса'
+                }
                                </button>`
-                        }
+        }
                     </div>
                 </aside>
 
@@ -170,8 +97,8 @@ export class GameView extends Component {
                         <div class="badge">Код комнаты: ${this.data.roomCode}</div>
                     </div>
 
-                    ${this.renderTable()}
-                    ${this.renderPlayerTable()}
+                    ${OnGameTable(this.gameSettings, this.state, this._tableOptions)}
+                    ${OnGameRating(this.state.players)}
                 </main>
             </div>
             ${this.renderCorrectAnswer()}
@@ -193,7 +120,7 @@ export class GameView extends Component {
         </div>`;
     }
 
-    renderAnswerInput(){
+    renderAnswerInput() {
         if (!this.state.showAnswerInput) return '';
 
         return `
@@ -209,7 +136,7 @@ export class GameView extends Component {
                             <input class="ui-input" id="answer-title" placeholder="Введите название" />
                         </div>
                         <div class="btn-group-vertical">
-                            ${Button({ text: 'Отправить', id: 'submit-answer-btn', extraClass: 'w-100' })}
+                            ${Button({text: 'Отправить', id: 'submit-answer-btn', extraClass: 'w-100'})}
                         </div>
                 </div>
             </div>`;
@@ -229,19 +156,28 @@ export class GameView extends Component {
 
         this.ws.onmessage = (event) => {
             const data = JSON.parse(event.data);
+            console.log(data);
 
             if (data.type === 'track_started') {
                 const row = data.row;
                 const col = data.col;
                 this.state.activeCell = {
-                    row : row,
+                    row: row,
                     col: col,
                 };
                 const cell = this.gameSettings.cells?.[row]?.[col];
                 cell.played = true;
                 this.state.canBuzz = true;
 
-                // ❗ звук НЕ запускаем здесь
+                this.updateDOM();
+            }
+
+            if (data.type === 'reset_answer_btn') {
+                const myTeam = localStorage.getItem('team-name') ?? 'Неизвестная команда';
+                this.state.hadWrongAnswer = data.disabledTeams.includes(myTeam);
+                this.state.canBuzz = true;
+                console.log(myTeam);
+                console.log(this.state.hadWrongAnswer, this.state.canBuzz);
                 this.updateDOM();
             }
 
@@ -256,8 +192,8 @@ export class GameView extends Component {
 
             if (data.type === 'show_answer') {
                 this.state.answer = {
-                    title : data.title,
-                    artist : data.artist,
+                    title: data.title,
+                    artist: data.artist,
                 }
                 this.state.canBuzz = true;
                 this.state.showAnswerInput = false;
@@ -266,7 +202,7 @@ export class GameView extends Component {
                 setTimeout(() => {
                     this.state.answer = null
                     this.updateDOM();
-                }, 3000);
+                }, 5000);
             }
 
             if (data.type === 'game_ended') {
@@ -275,10 +211,11 @@ export class GameView extends Component {
                 window.dispatchEvent(new Event('popstate'));
             }
 
-            if (data.type === 'add_points'){
+            if (data.type === 'add_points') {
+                console.log('add_points');
                 const team = data.team;
                 const points = data.points;
-                this.state.players[team]+=points;
+                this.state.players[team] += points;
                 this.updateDOM();
             }
         };
@@ -299,8 +236,7 @@ export class GameView extends Component {
                 this.updateDOM();
             };
         }
-        if (this.gameSettings.mode === false)
-        {
+        if (this.gameSettings.mode === false) {
             const submitBtn = this.container.querySelector('#submit-answer-btn');
             if (submitBtn) {
                 submitBtn.onclick = () => {
@@ -318,5 +254,12 @@ export class GameView extends Component {
                 };
             }
         }
+    }
+
+    _tableOptions = {
+        showFilledState: true,
+        showActiveState: true,
+        emptyText: '-',
+        useLaunchText: false
     }
 }
