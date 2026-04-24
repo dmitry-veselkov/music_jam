@@ -21,10 +21,12 @@ export class AdminGameView extends Component {
             teamAnswer: null,
             showCalculatorModal: false,
             audio: null,
+            correctAudio: null,
             players: Object.fromEntries(
                 teams.map(team => [team, 0])),
             playedCells: [],
             currentAnswer: null,
+            isShowingAnswer: false,
         };
     }
 
@@ -161,6 +163,14 @@ export class AdminGameView extends Component {
                 ${OnGameTable(this.gameSettings, this.state, this._tableOptions)}
                 ${OnGameRating(this.state.players)}
             </main>
+            ${Button({
+            text: '❚❚',
+            id: 'music-btn',
+        })}
+            ${this.state.isShowingAnswer ? Button({ 
+            text: '✕ Завершить ответ', 
+            id: 'clear-audio-btn', 
+            variant: 'outline' }) : ''} 
         </div>
         
         ${this.renderCalculatorModal()}
@@ -223,6 +233,34 @@ export class AdminGameView extends Component {
                 wrongBtn.textContent = `−${v}`;
             });
         }
+
+        const musicBtn = this.container.querySelector('#music-btn');
+        if (musicBtn) {
+            musicBtn.addEventListener('click', () => {
+                if (!this.state.audio) return;
+                if (this.state.audio.paused) {
+                    this.state.audio.play();
+                    musicBtn.textContent = '❚❚';
+                }
+                else{
+                    this.state.audio.pause();
+                    musicBtn.textContent = '▶';
+                }
+
+            })
+        }
+
+        const clearAudioBtn = this.container.querySelector('#clear-audio-btn');
+        if (clearAudioBtn) {
+            clearAudioBtn.addEventListener('click', () => {
+                if (this.state.audio.paused) {
+                    this.state.audio.pause();
+                    this.state.audio = null;
+                }
+                this.state.isShowingAnswer = false;
+                this.updateDOM();
+            })
+        }
     }
 
     async _processTeamAnswer(isCorrect, points) {
@@ -264,8 +302,8 @@ export class AdminGameView extends Component {
         this.state.activeCell = null;
         this.state.buzzedTeam = null;
         this.state.teamAnswer = null;
+        this.state.isShowingAnswer = true;
         cell.song.playCorrectAnswer(this.state);
-        this.state.audio = null;
         this.state.currentAnswer = null;
         this.updateDOM();
     }
@@ -336,4 +374,6 @@ export class AdminGameView extends Component {
         showActiveState: false,
         useLaunchText: true
     }
+
+
 }
