@@ -45,30 +45,26 @@ export const MainEditor = (gameSettings, roomCode) => {
                                     </td>
 
                                     ${row.map((cell, cIdx) => {
-        const song = cell?.song;
-        const hasSong = !!song;
-        return `
+                                        const song = cell?.song;
+                                        const hasSong = !!song;
+                                        return `
                                             <td>
                                                 <div class="preview-cell ${hasSong ? 'cell-filled' : ''}"
                                                      data-row="${rIdx}"
                                                      data-col="${cIdx}">
                                     
                                                     ${
-            hasSong
-                ? `<div class="cell-title">🎵 ${song.title}</div>`
-                : `<div class="cell-empty">+</div>`
-        }
-                                    
+                                                        hasSong
+                                                            ? `<div class="cell-title">🎵 ${song.title}</div>`
+                                                            : `<div class="cell-empty">+</div>`
+                                                    }
                                                 </div>
                                             </td>
-                                        `;
-    }).join('')}
-                                </tr>
-                            `).join('')}
+                                        `;}).join('')}
+                                </tr>`).join('')}
                         </tbody>
                     </table>
                 </div>
-                
             </main>
     `;
 }

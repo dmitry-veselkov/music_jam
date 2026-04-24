@@ -201,20 +201,34 @@ class ApiRouter:
                                artist: str = Form(...),
                                category: str = Form(...),
                                cost: str = Form(...),
-                               question: UploadFile = File(...),
-                               answer: UploadFile = File(...)):
+                               question: UploadFile = File(None),
+                               answer: UploadFile = File(None),
+                               question_url: str = Form(None),
+                               answer_url: str = Form(None)):
 
             if not title.strip() or not artist.strip():
                 return {"error": "Не все поля заполнены"}
 
-            if not question.content_type.startswith("audio/") or not answer.content_type.startswith("audio/"):
-                return {"error": "Один из файл не аудио!"}
+            print(question_url, answer_url)
+            if question:
+                if not question.content_type.startswith("audio/"):
+                    return {"error": "Файл вопроса не аудио!"}
+                question_name = self.services.get_unique_s3_uuid(question.filename)
+                self.s3.upload(question.file, question_name, question.content_type)
+            elif question_url:
+                question_name = question_url
+            else:
+                return {"error": "Нет файла или ссылки для вопроса"}
 
-            question_name = self.services.get_unique_s3_uuid(question.filename)
-            answer_name = self.services.get_unique_s3_uuid(answer.filename)
-
-            self.s3.upload(question.file, question_name, question.content_type)
-            self.s3.upload(answer.file, answer_name, answer.content_type)
+            if answer:
+                if not answer.content_type.startswith("audio/"):
+                    return {"error": "Файл вопроса не аудио!"}
+                answer_name = self.services.get_unique_s3_uuid(answer.filename)
+                self.s3.upload(answer.file, answer_name, answer.content_type)
+            elif answer_url:
+                answer_name = answer_url
+            else:
+                return {"error": "Нет файла или ссылки для ответа"}
 
             return {
                 "status": "ok",

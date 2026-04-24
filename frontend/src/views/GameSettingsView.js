@@ -42,7 +42,7 @@ export class GameSettingsView extends Component {
                     ${AsideSettings(this.gameSettings)}
                     ${MainEditor(this.gameSettings, this.data.roomCode)}
                 </div>
-                ${AddMusicModal()}
+                ${AddMusicModal(this.currentCell)}
         `;
     }
 
@@ -102,8 +102,10 @@ export class GameSettingsView extends Component {
             cell.onclick = (e) => {
                 this.currentCell = {
                     row: +e.currentTarget.dataset.row,
-                    col: +e.currentTarget.dataset.col
+                    col: +e.currentTarget.dataset.col,
+                    song: this.gameSettings.cells[e.currentTarget.dataset.row][e.currentTarget.dataset.col].song,
                 };
+                this.updateDOM();
                 this.openModal();
             };
         });
@@ -124,8 +126,6 @@ export class GameSettingsView extends Component {
                 await ButtonLoader.wrap(saveTrackBtn, async () => {
                     await this.uploadSong();
                 });
-                this.closeModal();
-                this.updateDOM();
             };
         }
 
@@ -189,8 +189,11 @@ export class GameSettingsView extends Component {
         formData.append("category", this.gameSettings.categories[row]);
         formData.append("cost", cell.cost);
 
-        formData.append("question", question);
-        formData.append("answer", answer);
+        if (question) formData.append("question", question);
+        if (answer) formData.append("answer", answer);
+        console.log(cell.song?.answerUrl);
+        formData.append("question_url", cell.song?.questionUrl ?? '');
+        formData.append("answer_url", cell.song?.answerUrl ?? '');
 
         const res = await fetch("/api/upload_music", {
             method: "POST",

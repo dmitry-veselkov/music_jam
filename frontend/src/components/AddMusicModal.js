@@ -1,4 +1,11 @@
-﻿export const AddMusicModal = () => {
+﻿export const AddMusicModal = (cell) => {
+    const song = cell?.song ?? {title : '', artist : ''};
+    const questionLabel = song.questionUrl
+        ? `<span class="file-exists">✓ Файл загружен</span>`
+        : '';
+    const answerLabel = song.answerUrl
+        ? `<span class="file-exists">✓ Файл загружен</span>`
+        : '';
     return `
             <div id="track-modal" class="modal hidden">
                 <div class="modal-backdrop"></div>
@@ -17,6 +24,7 @@
                             type="text"
                             id="track-title-input"
                             class="modal-input"
+                            value="${song.title}"
                             placeholder="Введите название трека">
     
                             <label for="track-artist-input" class="modal-label">Исполнитель</label>
@@ -24,15 +32,16 @@
                                 type="text"
                                 id="track-artist-input"
                                 class="modal-input"
+                                value="${song.artist}"
                                 placeholder="Введите исполнителя">
     
-                                <label for="question-track-input" class="modal-label">Аудио для вопроса</label>
+                                <label for="question-track-input" class="modal-label">Аудио для вопроса ${questionLabel}</label>
                                 <input
                                     type="file"
                                     id="question-track-input"
                                     class="modal-input">
     
-                                    <label for="answer-track-input" class="modal-label">Ответ</label>
+                                    <label for="answer-track-input" class="modal-label">Ответ ${answerLabel}</label>
                                     <input
                                         type="file"
                                         id="answer-track-input"
