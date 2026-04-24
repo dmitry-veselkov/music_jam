@@ -138,11 +138,12 @@ export class AdminGameView extends Component {
                     </div>
 
                     <div class="btn-group-vertical">
-                        ${Button({
+                        ${this.state.activeCell ? Button({
                             text: 'Завершить вопрос',
                             id: 'end-question-btn',
                             extraClass: 'w-100'
-                        })}
+                        }) : ''}
+            
                         <div style="margin-top: 0.75rem;">
                             ${Button({
                                 text: 'Завершить игру',
