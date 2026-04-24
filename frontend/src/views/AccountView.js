@@ -20,6 +20,7 @@ export class AccountView extends Component {
         const userInfo = await loadUserInfoOrRedirect();
         console.log('Че-то нашел у пользователя');
         if (userInfo) {
+            console.log('Нашел пользователя');
             await this._setState(userInfo);
             this.container.innerHTML = this.render(userInfo);
             this._addEventListeners();

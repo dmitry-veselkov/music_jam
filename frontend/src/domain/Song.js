@@ -17,12 +17,16 @@
         const url = `/api/play?file_name=${encodeURIComponent(this.questionUrl)}`;
         gameState.audio = new Audio(url);
 
+        gameState.audio.addEventListener('ended', () => {
+            gameState.audio = null;
+        });
+
         gameState.audio.play().catch(err => {
             console.error("Ошибка воспроизведения:", err);
         });
     }
 
-    playCorrectAnswer(gameState) {
+    playCorrectAnswer(gameState, onEnded = null) {
         if (!this.answerUrl) return;
 
         if (gameState.audio) {
@@ -32,6 +36,12 @@
 
         const url = `/api/play?file_name=${encodeURIComponent(this.answerUrl)}`;
         gameState.audio = new Audio(url);
+
+        gameState.audio.addEventListener('ended', () => {
+            gameState.audio = null;
+            if (onEnded) onEnded();
+        });
+
 
         gameState.audio.play().catch(err => {
             console.error("Ошибка воспроизведения:", err);
