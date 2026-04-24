@@ -16,10 +16,12 @@ export class AccountView extends Component {
     }
 
     async mount() {
+        console.log('Ищу пользователя');
         const userInfo = await loadUserInfoOrRedirect();
+        console.log('Че-то нашел у пользователя');
         if (userInfo) {
             await this._setState(userInfo);
-            this.container.innerHtml = this.render(userInfo);
+            this.container.innerHTML = this.render(userInfo);
             this._addEventListeners();
         }
     }
