@@ -16,7 +16,6 @@ const GameCard = (game) => {
     return `
             <div class="card game-card">
                 <h3>${game.title}</h3>
-                <p class="text-muted">Запланировано на: ${game.scheduled_at}</p>
                 <p class="room-code">Код лобби: <strong>${game.join_code}</strong></p>
                 <div class="game-actions mt-3">
                     <button

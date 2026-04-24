@@ -8,7 +8,6 @@ from logging import Logger
 from services import Services
 from db.hands_db import DatabaseHands
 from api_schemes import LoginSchema, RegisterSchema, SaveGameSchema, TeamSchema, AddPointsSchema
-from datetime import datetime
 from s3 import S3
 
 
@@ -101,7 +100,6 @@ class ApiRouter:
                         "Новая игра",
                         '',
                         code,
-                        datetime.now()
                     )
                     return code
             raise HTTPException(
