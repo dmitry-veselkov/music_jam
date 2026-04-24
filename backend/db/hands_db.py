@@ -36,7 +36,7 @@ class DatabaseHands:
         async with self.db.get_session() as session:
             result = await session.execute(
                 text("""
-                     SELECT id, title, join_code, scheduled_at
+                     SELECT id, title, join_code
                      FROM games
                      WHERE admin_user_id = :admin_id
                      """),
@@ -109,17 +109,16 @@ class DatabaseHands:
             "tracks": tracks
         }
 
-    async def create_game(self, admin_id, title, description, join_code, scheduled_at):
+    async def create_game(self, admin_id, title, description, join_code):
         async with self.db.get_session() as session:
             await session.execute(
-                text("INSERT INTO games (admin_user_id, title, description, join_code, scheduled_at) "
-                     "VALUES(:admin_id, :title, :description, :join_code, :scheduled_at)"),
+                text("INSERT INTO games (admin_user_id, title, description, join_code) "
+                     "VALUES(:admin_id, :title, :description, :join_code)"),
                 {
                     "admin_id": admin_id,
                     "title": title,
                     "description": description,
                     "join_code": join_code,
-                    "scheduled_at": scheduled_at
                 }
             )
             await session.commit()
