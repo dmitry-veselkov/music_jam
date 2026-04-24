@@ -36,7 +36,7 @@ class DatabaseHands:
         async with self.db.get_session() as session:
             result = await session.execute(
                 text("""
-                     SELECT id, title, join_code, scheduled_at
+                     SELECT id, title, join_code
                      FROM games
                      WHERE admin_user_id = :admin_id
                      """),

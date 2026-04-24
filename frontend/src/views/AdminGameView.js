@@ -1,6 +1,6 @@
 import {Component} from "../core/Component.js";
 import {get404} from "../services/RouteServices.js";
-import {tryGetGameSettings, updateTeamScores} from "../services/GamesServices.js";
+import {endGame, tryGetGameSettings} from "../services/GamesServices.js";
 import {loadUserInfoOrRedirect} from "../services/AccountServices.js";
 import {Logo, Button} from "../components/UI.js";
 import {GameSettings} from "../domain/GameSettings.js";
@@ -221,10 +221,8 @@ export class AdminGameView extends Component {
         }
         const endBtn = this.container.querySelector('#end-btn');
         if (endBtn) {
-            endBtn.addEventListener('click', () => {
-                this.ws.send(JSON.stringify({
-                    type: 'game_ended'
-                }));
+            endBtn.addEventListener('click', async () => {
+                await endGame(this.data.roomCode);
                 sessionStorage.removeItem('teams');
                 new Promise(r => setTimeout(r, 200));
                 window.history.pushState({}, '', '/account');

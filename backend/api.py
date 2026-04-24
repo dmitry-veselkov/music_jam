@@ -70,8 +70,6 @@ class ApiRouter:
                 )
             _id = int(payload['sub'])
             user_games = await self.db_hands.get_all_user_games(_id)
-            for game in user_games:
-                game['scheduled_at'] = game['scheduled_at'].strftime("%Y-%m-%d %H:%M:%S")
 
             return user_games
 
@@ -190,6 +188,15 @@ class ApiRouter:
         async def start_game(code: str = ''):
             code = code.upper().strip()
             await self._broadcast_start(code)
+            return {
+                "success": True
+            }
+
+        @self.router.post('/end_game')
+        async def end_game(code: str = ''):
+            code = code.upper().strip()
+            await self.db_hands.update_game_any_param(code, "status", "ended")
+            await self._broadcast_room_message(code, {"type": "game_ended"})
             return {
                 "success": True
             }

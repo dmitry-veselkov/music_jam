@@ -74,7 +74,13 @@ export class AdminWaitingRoomView extends Component {
                             </h2>
                             <div class="pulse-indicator">Ожидание...</div>
                         </div>
-                        
+                        <div class="room-code-panel">
+                            <span>Код комнаты</span>
+                                <div class="room-code-row">
+                                    <span>${this.state.roomCode}</span>
+                                    <button class="copy-btn" id="copy-code-btn" title="Скопировать">📋</button>
+                                </div>
+                        </div>
                         <ul class="teams-list">
                             ${teamsListLogic}
                         </ul>
@@ -103,6 +109,15 @@ export class AdminWaitingRoomView extends Component {
             window.history.pushState({}, '', `/room/admin_active/${gameId}`);
             window.dispatchEvent(new Event('popstate'));
         });
+
+        const copyBtn = document.getElementById("copy-code-btn");
+        if (copyBtn) {
+            copyBtn.addEventListener("click", () => {
+                navigator.clipboard.writeText(this.state.roomCode);
+                copyBtn.textContent = '✅';
+                setTimeout(() => copyBtn.textContent = '📋', 2000);
+            });
+        }
     }
 
     _connectSocket() {

@@ -26,6 +26,10 @@ export async function startGame(code){
     return await fetchPostTo(`/api/start_game?code=${code}`);
 }
 
+export async function endGame(code){
+    return await fetchPostTo(`/api/end_game?code=${code}`);
+}
+
 export async function updateTeamScores(code, payload){
     return await fetchPostTo(`/api/add_points?code=${code}`, payload);
 }
