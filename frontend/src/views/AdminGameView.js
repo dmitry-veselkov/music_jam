@@ -152,7 +152,20 @@ export class AdminGameView extends Component {
                         </div>
                     </div>
                 </div>
+                
+                <div class="audio-panel" style="margin-top: 1.5rem;">
+                    <span class="audio-panel__label">🎵 Управление</span>
+                        <div class="audio-panel__controls">
+                            ${Button({ text: '❚❚', id: 'music-btn' })}
+                            ${this.state.isShowingAnswer ? Button({
+                                text: '✕ Завершить ответ',
+                                id: 'clear-audio-btn',
+                                variant: 'outline'
+                            }) : ''}
+                        </div>
+                </div>
             </aside>
+           
 
             <main class="editor-main">
                 <div class="table-header-actions">
@@ -163,15 +176,7 @@ export class AdminGameView extends Component {
                 ${OnGameTable(this.gameSettings, this.state, this._tableOptions)}
                 ${OnGameRating(this.state.players)}
             </main>
-            ${Button({
-            text: '❚❚',
-            id: 'music-btn',
-        })}
-            ${this.state.isShowingAnswer ? Button({ 
-            text: '✕ Завершить ответ', 
-            id: 'clear-audio-btn', 
-            variant: 'outline' }) : ''} 
-        </div>
+           
         
         ${this.renderCalculatorModal()}
         `;
@@ -253,7 +258,7 @@ export class AdminGameView extends Component {
         const clearAudioBtn = this.container.querySelector('#clear-audio-btn');
         if (clearAudioBtn) {
             clearAudioBtn.addEventListener('click', () => {
-                if (this.state.audio.paused) {
+                if (this.state.audio) {
                     this.state.audio.pause();
                     this.state.audio = null;
                 }
@@ -303,7 +308,10 @@ export class AdminGameView extends Component {
         this.state.buzzedTeam = null;
         this.state.teamAnswer = null;
         this.state.isShowingAnswer = true;
-        cell.song.playCorrectAnswer(this.state);
+        cell.song.playCorrectAnswer(this.state, () => {
+            this.state.isShowingAnswer = false;
+            this.updateDOM();
+        });
         this.state.currentAnswer = null;
         this.updateDOM();
     }
