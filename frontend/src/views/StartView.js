@@ -1,6 +1,7 @@
 ﻿import {Component} from "../core/Component.js";
 import {Button, Header, Footer} from "../components/UI.js";
 import {tryGetUserInfo} from "../services/AccountServices.js";
+import {redirectTo} from "../services/RouteServices.js";
 
 export class StartView extends Component {
     async mount() {
@@ -37,6 +38,11 @@ export class StartView extends Component {
     }
 
     _addEventListeners() {
+        /**
+         * Все кнопки на странице служат для того, чтобы перекинуть
+         * пользователя на соответствующюю следующую страницу. Поэтому
+         * здесь прописаны только редиректы
+         */
         const buttonRoutes = {
             '/lobby': this.container.querySelector('#join-game-btn'),
             '/login': this.container.querySelector('#login-btn'),
@@ -45,10 +51,7 @@ export class StartView extends Component {
 
         for (const [route, obj] of Object.entries(buttonRoutes)) {
             if (obj) {
-                obj.addEventListener('click', () => {
-                    window.history.pushState({}, '', route);
-                    window.dispatchEvent(new Event('popstate'));
-                });
+                obj.addEventListener('click', () => redirectTo(route));
             }
         }
     }

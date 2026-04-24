@@ -1,8 +1,7 @@
-﻿// import {EventBus} from "./core/EventBus.js";
-import {Router} from "./core/Router.js";
+﻿import {Router} from "./core/Router.js";
 
 import {StartView} from "./views/StartView.js";
-import {LobbyView} from "./views/LobbyView.js";
+import {EnterInviteCodeView} from "./views/EnterInviteCodeView.js";
 import {GameSettingsView} from "./views/GameSettingsView.js";
 import {WaitingRoomView} from "./views/WaitingRoomView.js";
 import {LoginView} from "./views/LoginView.js";
@@ -16,13 +15,13 @@ import {AdminGameView} from "./views/AdminGameView.js";
 const appContainer = document.getElementById('app');
 const routes = {
     '/': StartView,
-    '/lobby': LobbyView,
+    '/lobby': EnterInviteCodeView,
     '/room/game_settings': GameSettingsView,
     '/room/waiting': WaitingRoomView,
     '/login': LoginView,
     '/register': RegisterView,
     '/account': AccountView,
-    '/room/active' : GameView,
+    '/room/active': GameView,
     '/room/admin_waiting': AdminWaitingRoomView,
     '/room/admin_active': AdminGameView,
 };

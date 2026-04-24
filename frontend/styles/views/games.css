@@ -353,3 +353,151 @@ input[type="range"] {
     width: 100%;
     max-width: 400px;
 }
+
+.player-table-wrapper {
+    margin-top: 12px;
+}
+
+.player-score-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.player-score-table thead tr {
+    border-bottom: 1px solid var(--color-border);
+}
+
+.player-score-table th {
+    text-align: left;
+    padding: 6px 8px;
+    font-weight: 500;
+    font-size: 12px;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.player-score-table th:last-child,
+.player-score-table td:last-child {
+    text-align: right;
+}
+
+.player-score-table tbody tr {
+    border-bottom: 1px solid var(--color-border);
+    transition: background 0.15s;
+}
+
+.player-score-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.player-score-table td {
+    padding: 8px 8px;
+    color: var(--color-text);
+}
+
+.rank-cell {
+    color: var(--color-text-muted) !important;
+    font-size: 12px;
+    width: 24px;
+}
+
+.score-cell {
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+}
+
+.rank-first .team-cell {
+    font-weight: 500;
+}
+
+.rank-first .score-cell {
+    color: var(--color-primary);
+}
+
+.points-stepper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 0.75rem;
+    padding: 0.5rem 1rem;
+    margin: 1rem 0;
+    gap: 1rem;
+}
+
+.stepper-btn {
+    background: var(--color-secondary);
+    border: 1px solid var(--color-border);
+    color: var(--color-text);
+    border-radius: 0.5rem;
+    width: 36px;
+    height: 36px;
+    font-size: 1.25rem;
+    cursor: pointer;
+    transition: background 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.stepper-btn:hover {
+    background: var(--color-secondary-hover);
+}
+
+.stepper-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    min-width: 60px;
+    text-align: center;
+}
+
+.answer-card {
+    text-align: center;
+    padding: 2rem;
+}
+
+.answer-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.answer-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-text-muted);
+    margin-bottom: 0.75rem;
+}
+
+.answer-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    margin: 0 0 0.4rem;
+}
+
+.answer-artist {
+    font-size: 1rem;
+    color: var(--color-text-muted);
+    margin: 0;
+}
+
+.answer-fade {
+    animation: fadeOut 3s forwards;
+}
+
+@keyframes fadeOut {
+    0%   { opacity: 1; }
+    70%  { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+.btn-group-horizontal {
+    display: flex;
+    gap: 0.75rem;
+}

@@ -4,18 +4,25 @@ import {tryGetGameSettings, updateTeamScores} from "../services/GamesServices.js
 import {loadUserInfoOrRedirect} from "../services/AccountServices.js";
 import {Logo, Button} from "../components/UI.js";
 import {GameSettings} from "../domain/GameSettings.js";
+import {OnGameRating} from "../components/OnGameRating.js";
+import {OnGameTable} from "../components/OnGameTable.js";
 
 export class AdminGameView extends Component {
     constructor(container, data) {
         super(container, data);
+        const teams = JSON.parse(sessionStorage.getItem('teams') || '[]');
 
         this.gameSettings = new GameSettings();
 
         this.state = {
             activeCell: null,
             buzzedTeam: null,
-            teamAnswer : null,
-            audio: null
+            disabledTeams: [],
+            teamAnswer: null,
+            showCalculatorModal: false,
+            audio: null,
+            players: Object.fromEntries(
+                teams.map(team => [team, 0])),
         };
     }
 
@@ -45,78 +52,82 @@ export class AdminGameView extends Component {
         this.attachEvents();
     }
 
-    renderCalculator() {
+    // renderCalculatorModal() {
+    //     if (!this.state.buzzedTeam) return '';
+    //
+    //     const defaultPoints = this.state.activeCell
+    //         ? this.gameSettings.costs[this.state.activeCell.col]
+    //         : 0;
+    //
+    //     return `
+    //     <div class="card calculator-card">
+    //         <h3>Отвечает: <strong>${this.state.buzzedTeam}</strong></h3>
+    //         ${this.state.teamAnswer ? `
+    //             <div class="form-group">
+    //                 <p>🎤 <strong>${this.state.teamAnswer.artist}</strong></p>
+    //                 <p>🎵 <strong>${this.state.teamAnswer.title}</strong></p>
+    //             </div>
+    //             ` : '<p class="muted">Ожидание ответа команды...</p>'}
+    //
+    //         <div class="points-stepper">
+    //              <input class="stepper-value" id="points-value" type="number" value="${defaultPoints}" min="${0}" placeholder="${defaultPoints}">
+    //         </div>
+    //
+    //         <div class="btn-group-horizontal">
+    //             ${Button({text: '+', id: 'award-btn', extraClass: 'w-100'})}
+    //             ${Button({text: '-', id: 'wrong-btn', variant: 'outline', extraClass: 'w-100'})}
+    //         </div>
+    //     </div>
+    //     `;
+    // }
+
+    renderCalculatorModal() {
         if (!this.state.buzzedTeam) return '';
 
+        const defaultPoints = this.state.activeCell
+            ? this.gameSettings.costs[this.state.activeCell.col]
+            : 0;
+
+        console.log(this.state.buzzedTeam);
+
         return `
-        <div class="card calculator-card">
-            <h3>Отвечает: <strong>${this.state.buzzedTeam}</strong></h3>
-            ${this.state.teamAnswer ? `
-                <div class="form-group">
-                    <p>🎤 <strong>${this.state.teamAnswer.artist}</strong></p>
-                    <p>🎵 <strong>${this.state.teamAnswer.title}</strong></p>
+        <div id="calculator-modal" class="modal">
+            <div class="modal-backdrop"></div>
+
+            <div class="modal-dialog">
+                <button class="modal-close" id="close-calculator-modal" aria-label="Закрыть">×</button>
+
+                <div class="modal-header">
+                    <div class="modal-badge">🧮 Калькулятор</div>
+                    <h3 class="modal-title">Отвечает: <strong>${this.state.buzzedTeam}</strong></h3>
                 </div>
-                ` : '<p class="muted">Ожидание ответа команды...</p>'}
-            
-            <div class="btn-group-vertical">
-                ${Button({text: 'Верно', id: 'award-btn', extraClass: 'w-100'})}
-                ${Button({text: 'Неверно', id: 'wrong-btn', variant: 'outline', extraClass: 'w-100'})}
+
+                <div class="modal-body">
+                    ${this.state.teamAnswer ? `
+                        <div class="form-group">
+                            <p>🎤 <strong>${this.state.teamAnswer.artist}</strong></p>
+                            <p>🎵 <strong>${this.state.teamAnswer.title}</strong></p>
+                        </div>
+                    ` : '<p class="muted">Ожидание ответа команды...</p>'}
+
+                    <div class="points-stepper">
+                        <input
+                            class="stepper-value"
+                            id="points-value"
+                            type="number"
+                            value="${defaultPoints}"
+                            min="0"
+                            placeholder="${defaultPoints}">
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    ${Button({text: '+', id: 'award-btn', extraClass: 'w-100'})}
+                    ${Button({text: '-', id: 'wrong-btn', variant: 'outline', extraClass: 'w-100'})}
+                </div>
             </div>
         </div>
-        `;
-    }
-
-    renderTable() {
-        return `
-        <div class="scroll-container">
-            <table class="edit-table game-table">
-                <thead>
-                    <tr>
-                        <th class="corner-cell">Категория / Цена</th>
-
-                        ${this.gameSettings.costs.map(cost => `
-                            <th class="cost-th">
-                                <div class="th-content readonly-th">
-                                    <span>${cost}</span>
-                                </div>
-                            </th>
-                        `).join('')}
-                    </tr>
-                </thead>
-
-                <tbody>
-                    ${this.gameSettings.categories.map((category, rIdx) => `
-                        <tr>
-                            <td class="cat-td">
-                                <div class="td-content readonly-td">
-                                    <span>${category}</span>
-                                </div>
-                            </td>
-
-                            ${this.gameSettings.costs.map((cost, cIdx) => {
-            const track = this.gameSettings.cells?.[rIdx]?.[cIdx];
-
-            return `
-                                <td>
-                                    <button
-                                        class="preview-cell track-cell organizer-track-btn"
-                                        data-row="${rIdx}"
-                                        data-col="${cIdx}"
-                                        style="width: 100%;"
-                                    >
-                                        <div class="cell-sub">
-                                            ${track ? '▶ Запустить' : 'Нет трека'}
-                                        </div>
-                                    </button>
-                                </td>
-                                `;
-        }).join('')}
-                        </tr>
-                    `).join('')}
-                </tbody>
-            </table>
-        </div>
-        `;
+    `;
     }
 
     render() {
@@ -143,13 +154,18 @@ export class AdminGameView extends Component {
                     </div>
 
                     <div class="btn-group-vertical">
-                        ${this.renderCalculator()}
-
                         ${Button({
-                            text: 'Завершить игру',
-                            id: 'end-btn',
-                            extraClass: 'w-100'
-                        })}
+            text: 'Завершить вопрос',
+            id: 'end-question-btn',
+            extraClass: 'w-100'
+        })}
+                        <div style="margin-top: 0.75rem;">
+                            ${Button({
+            text: 'Завершить игру',
+            id: 'end-btn',
+            extraClass: 'w-100'
+        })}
+                        </div>
                     </div>
                 </div>
             </aside>
@@ -160,13 +176,18 @@ export class AdminGameView extends Component {
                     <div class="badge">Режим организатора</div>
                 </div>
 
-                ${this.renderTable()}
+                ${OnGameTable(this.gameSettings, this.state, this._tableOptions)}
+                ${OnGameRating(this.state.players)}
             </main>
         </div>
+        
+        ${this.renderCalculatorModal()}
         `;
     }
 
     async attachEvents() {
+        const valueEl = this.container.querySelector('#points-value');
+
         this.container
             .querySelectorAll('.organizer-track-btn')
             .forEach(btn => btn.addEventListener('click', this._startSong.bind(this)));
@@ -174,56 +195,99 @@ export class AdminGameView extends Component {
         const awardBtn = this.container.querySelector('#award-btn');
         if (awardBtn) {
             awardBtn.addEventListener('click', async () => {
-                await this._processTeamAnswer(true);
+                await this._processTeamAnswer(true, +valueEl.value);
             });
         }
 
         const wrongBtn = this.container.querySelector('#wrong-btn');
         if (wrongBtn) {
             wrongBtn.addEventListener('click', async () => {
-                await this._processTeamAnswer(false);
+                await this._processTeamAnswer(false, -valueEl.value);
             });
         }
-
+        const endQuestionBtn = this.container.querySelector('#end-question-btn');
+        if (endQuestionBtn) {
+            endQuestionBtn.addEventListener('click', async () => {
+                if (this.state.activeCell) {
+                    const {row, col} = this.state.activeCell;
+                    const cell = this.gameSettings.cells?.[row]?.[col];
+                    if (cell) {
+                        this.ws.send(JSON.stringify({
+                            type: 'show_answer',
+                            title: cell.song.title,
+                            artist: cell.song.artist,
+                        }));
+                        this.state.activeCell = null;
+                        this.state.buzzedTeam = null;
+                        this.state.teamAnswer = null;
+                        cell.song.playCorrectAnswer(this.state);
+                        this.state.audio = null;
+                        this.updateDOM();
+                    }
+                }
+            })
+        }
         const endBtn = this.container.querySelector('#end-btn');
         if (endBtn) {
             endBtn.addEventListener('click', () => {
                 this.ws.send(JSON.stringify({
                     type: 'game_ended'
                 }));
+                sessionStorage.removeItem('teams');
                 new Promise(r => setTimeout(r, 200));
                 window.history.pushState({}, '', '/account');
                 window.dispatchEvent(new Event('popstate'));
             });
         }
+        if (valueEl) {
+            valueEl.addEventListener('input', () => {
+                const v = +valueEl.value || 0;
+                awardBtn.textContent = `+${v}`;
+                wrongBtn.textContent = `−${v}`;
+            });
+        }
     }
 
-    async _processTeamAnswer(isCorrect) {
+    async _processTeamAnswer(isCorrect, points) {
         this.state.audio.pause();
 
-        const points = this.state.activeCell ? this.gameSettings.costs[this.state.activeCell.col] : 0;
-        await updateTeamScores(this.data.roomCode, this.createPayload(points, isCorrect));
-        this.state.buzzedTeam = null;
+        this.ws.send(JSON.stringify({
+            type: 'add_points',
+            team: this.state.buzzedTeam,
+            points: points,
+        }));
 
         if (isCorrect) {
             const {row, col} = this.state.activeCell;
-            const song = this.gameSettings.cells?.[row]?.[col]?.song;
-            if (song) {
+            const cell = this.gameSettings.cells?.[row]?.[col];
+            if (cell) {
                 this.ws.send(JSON.stringify({
-                    type : 'show_answer',
-                    title : song.title,
-                    artist : song.artist,
+                    type: 'show_answer',
+                    title: cell.song.title,
+                    artist: cell.song.artist,
                 }));
             }
+            this.state.disabledTeams = [];
             this.state.activeCell = null;
+            this.state.buzzedTeam = null;
+            this.state.teamAnswer = null;
+            cell.song.playCorrectAnswer(this.state);
             this.state.audio = null;
-
         } else {
+            this.state.disabledTeams.push(this.state.buzzedTeam);
+            this.state.buzzedTeam = null;
+            this.state.teamAnswer = null;
             this.state.audio.play();
         }
-        this.state.teamAnswer = null;
+
+        this.ws.send(JSON.stringify({
+            type: 'reset_answer_btn',
+            disabledTeams: this.state.disabledTeams,
+        }));
+
         this.updateDOM();
     }
+
 
     _startSong(e) {
         const row = +e.currentTarget.dataset.row;
@@ -235,7 +299,7 @@ export class AdminGameView extends Component {
         this.state.activeCell = {row, col};
 
         cell.song.play(this.state);
-
+        cell.played = true;
         this.ws.send(JSON.stringify({
             type: 'track_started',
             row,
@@ -258,7 +322,6 @@ export class AdminGameView extends Component {
             const data = JSON.parse(event.data);
 
             if (data.type === 'player_buzzed') {
-                console.log(data);
                 this.state.buzzedTeam = data.team;
                 if (this.state.audio) {
                     this.state.audio.pause();
@@ -266,22 +329,26 @@ export class AdminGameView extends Component {
                 this.updateDOM();
             }
 
-            if (data.type === 'team_answer'){
-                console.log('Получил team_answer:', data);
+            if (data.type === 'team_answer') {
                 this.state.teamAnswer = {
                     artist: data.artist,
                     title: data.title,
                 };
                 this.updateDOM();
             }
+
+            if (data.type === 'add_points') {
+                const team = data.team;
+                const points = data.points;
+                this.state.players[team] += points;
+                this.updateDOM();
+            }
         };
     }
 
-    createPayload(points, correct){
-        return {
-            points : points,
-            team : this.state.buzzedTeam,
-            correct : correct
-        }
+    _tableOptions = {
+        showFilledState: false,
+        showActiveState: false,
+        useLaunchText: true
     }
 }

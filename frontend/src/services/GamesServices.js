@@ -18,6 +18,7 @@ export async function tryGetGameSettings(code) {
 }
 
 export async function saveGameSettings(payload) {
+    console.log('payload', payload);
     return await fetchPostTo(`/api/gameSettings`, payload);
 }
 

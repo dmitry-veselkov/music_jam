@@ -2,15 +2,29 @@ import {Component} from "../core/Component.js";
 import {Logo, Input, Button} from "../components/UI.js";
 import {redirectTo} from "../services/RouteServices.js";
 import {registerNewUser} from "../services/AccountServices.js";
+import {WrongText} from "../components/Error.js";
+import {ButtonLoader} from "../components/ButtonLoader.js";
 
 export class RegisterView extends Component {
     mount() {
-        if (window.currentUser) {
-            redirectTo('/account');
-            return;
-        }
+        /**
+         * Страница регистрации. Пользователь указывает ФИ, почту и пароль.
+         * В рамках сервиса почта должна быть уникальна. Все поля должны быть заполнены
+         */
 
+        // TODO в будущем можно настроить редирект уже залогиненного пользователя в ЛК
         this.container.innerHTML = this.render();
+
+        this.nameInput = document.querySelector("#reg-name");
+        this.emailInput = document.querySelector("#reg-email");
+        this.passwordInput = document.querySelector("#reg-password");
+        this.registerButton = document.querySelector("#reg-btn");
+
+        this.nameInput.focus();
+
+        this.wrongText = new WrongText(this.container);
+        this.wrongText.hideWrongText();
+
         this._addEventListeners();
     }
 
@@ -41,6 +55,8 @@ export class RegisterView extends Component {
                             ${Button(this._registerButtonSettings)}
                         </div>
                         
+                        ${WrongText.html}
+                        
                         <p class="text-center text-muted mt-3">
                             Уже есть аккаунт? 
                             <a href="/login" class="text-accent" data-link>Войти</a>
@@ -52,24 +68,35 @@ export class RegisterView extends Component {
     }
 
     _addEventListeners() {
-        const nameInput = document.querySelector("#reg-name");
-        const emailInput = document.querySelector("#reg-email");
-        const passwordInput = document.querySelector("#reg-password");
-        const registerButton = document.querySelector("#reg-btn");
-
-        if (registerButton) {
-            registerButton.addEventListener("click", async () =>
-                await this._register(nameInput.value, emailInput.value, passwordInput.value));
-        }
+        /**
+         * Навешиваем обработчик на кнопку регистрации
+         */
+        this.registerButton.addEventListener("click", async () => {
+            this.wrongText.hideWrongText();
+            await ButtonLoader.wrap(this.registerButton, async () => {
+                await this._register(this.nameInput.value, this.emailInput.value, this.passwordInput.value);
+            })
+        });
     }
 
     async _register(name, email, password) {
-        try {
-            window.currentUser = await registerNewUser(name, email, password);
-            redirectTo('/account');
-        } catch (e) {
-            alert(e.message);
+        /**
+         * Логика регистрации. Пока без особой валидации, просто смотрим, что данные не пустые.
+         * Делаем запрос на сервер, в зависимости от его ответа выдаем сообщение об ошибке,
+         * либо перекидываем в ЛК
+         */
+        if (!name || !email || !password) {
+            this.wrongText.showWrongText('Заполните все поля формы!');
+            return;
         }
+
+        const user = await registerNewUser(name, email, password);
+        if (user) {
+            redirectTo('/account');
+            return;
+        }
+
+        this.wrongText.showWrongText('Email уже зарегистрирован!');
     }
 
     _nameInputSettings = {

@@ -1,7 +1,8 @@
 ﻿export const Button = ({text, id = '', variant = 'primary', extraClass = ''}) => {
     return `
         <button id="${id}" class="btn btn-${variant} ${extraClass}">
-            ${text}
+            <span class="btn__text">${text}</span>
+            <span class="btn__spinner"></span>
         </button>
     `;
 };
@@ -61,7 +62,8 @@ export const Header = (isAuth = false) => {
                 ${Logo()}
                 ${isAuth ? account : enterButtons}
             </header>
-`};
+`
+};
 
 export const Footer = () => `
     <footer class="start-footer">

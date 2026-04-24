@@ -21,4 +21,20 @@
             console.error("Ошибка воспроизведения:", err);
         });
     }
+
+    playCorrectAnswer(gameState) {
+        if (!this.answerUrl) return;
+
+        if (gameState.audio) {
+            gameState.audio.pause();
+            gameState.audio = null;
+        }
+
+        const url = `/api/play?file_name=${encodeURIComponent(this.answerUrl)}`;
+        gameState.audio = new Audio(url);
+
+        gameState.audio.play().catch(err => {
+            console.error("Ошибка воспроизведения:", err);
+        });
+    }
 }

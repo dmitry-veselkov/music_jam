@@ -128,9 +128,10 @@ class ApiRouter:
 
             if not code:
                 raise HTTPException(status_code=400, detail="roomCode required")
-
+            print(data.mode, type(data.mode))
             await self.db_hands.update_game_any_param(code, "title", data.title)
             await self.db_hands.update_game_any_param(code, "description", data.description)
+            await self.db_hands.update_game_any_param(code, "mode", data.mode)
 
             print(data.tracks)
             await self.db_hands.save_game_grid(
@@ -154,34 +155,30 @@ class ApiRouter:
 
         @self.router.post('/set_team_name')
         async def set_team_name(data: TeamSchema):
-            is_new = await self.db_hands.insert_or_update_team(data.id, data.uuid, data.name)
             code = data.code
-            await self._ensure_room_loaded(code)
-
+            # await self._ensure_room_loaded(code)
             teams = self.room_state[code]["teams"]
 
-            if is_new:
-                if data.name not in teams:
-                    teams.append(data.name)
+            if data.name not in teams:
+                teams.append(data.name)
             else:
                 for i, t in enumerate(teams):
                     if t == data.oldName:
                         teams[i] = data.name
                         break
-
             await self._broadcast_room(code)
-            return {"status": "ok", "new": is_new}
+            return {"status": "ok"}
 
-        @self.router.post('/add_points')
-        async def add_points(code, payload : AddPointsSchema):
-            points = payload.points if payload.correct else -payload.points
-            return await self.db_hands.update_score_team(code,
-                                                         payload.team,
-                                                         points)
+        # @self.router.post('/add_points')
+        # async def add_points(code, payload : AddPointsSchema):
+        #     points = payload.points if payload.correct else -payload.points
+        #     return await self.db_hands.update_score_team(code,
+        #                                                  payload.team,
+        #                                                  points)
 
-        @self.router.get('/get_team_name')
-        async def get_team_name(uuid: str) -> Response:
-            return await self.db_hands.get_team_name(uuid)
+        # @self.router.get('/get_team_name')
+        # async def get_team_name(uuid: str) -> Response:
+        #     return await self.db_hands.get_team_name(uuid)
 
         @self.router.get('/run_game')
         async def run_game(code: str = ''):
@@ -204,22 +201,34 @@ class ApiRouter:
                                artist: str = Form(...),
                                category: str = Form(...),
                                cost: str = Form(...),
-                               question: UploadFile = File(...),
-                               answer: UploadFile = File(...)):
+                               question: UploadFile = File(None),
+                               answer: UploadFile = File(None),
+                               question_url: str = Form(None),
+                               answer_url: str = Form(None)):
 
             if not title.strip() or not artist.strip():
                 return {"error": "Не все поля заполнены"}
 
-            if not question.content_type.startswith("audio/") or not answer.content_type.startswith("audio/"):
-                return {"error": "Один из файл не аудио!"}
+            print(question_url, answer_url)
+            if question:
+                if not question.content_type.startswith("audio/"):
+                    return {"error": "Файл вопроса не аудио!"}
+                question_name = self.services.get_unique_s3_uuid(question.filename)
+                self.s3.upload(question.file, question_name, question.content_type)
+            elif question_url:
+                question_name = question_url
+            else:
+                return {"error": "Нет файла или ссылки для вопроса"}
 
-            question_name = self.services.get_unique_s3_uuid(question.filename)
-            answer_name = self.services.get_unique_s3_uuid(answer.filename)
-
-            self.s3.upload(question.file, question_name, question.content_type)
-            self.s3.upload(answer.file, answer_name, answer.content_type)
-
-            cost = int(cost)
+            if answer:
+                if not answer.content_type.startswith("audio/"):
+                    return {"error": "Файл вопроса не аудио!"}
+                answer_name = self.services.get_unique_s3_uuid(answer.filename)
+                self.s3.upload(answer.file, answer_name, answer.content_type)
+            elif answer_url:
+                answer_name = answer_url
+            else:
+                return {"error": "Нет файла или ссылки для ответа"}
 
             return {
                 "status": "ok",
@@ -246,7 +255,7 @@ class ApiRouter:
             await websocket.accept()
             self.rooms[code].add(websocket)
 
-            await self._ensure_room_loaded(code)
+            # await self._ensure_room_loaded(code)
 
             await websocket.send_json({
                 "type": "init",
@@ -258,8 +267,7 @@ class ApiRouter:
                     msg = await websocket.receive_json()
                     code = code.upper().strip()
 
-                    if msg['type'] in ('track_started', 'player_buzzed','team_answer','game_ended', 'show_answer'):
-                        print(f"Broadcasting: {msg}")
+                    if msg['type'] in ('track_started', 'player_buzzed','team_answer','game_ended', 'show_answer', 'add_points', 'reset_answer_btn'):
                         await self._broadcast_room_message(code, msg)
 
             except WebSocketDisconnect:
@@ -275,13 +283,13 @@ class ApiRouter:
 
         return payload
 
-    async def _ensure_room_loaded(self, code: str):
-        if self.room_state[code]["teams"]:
-            return
-        room_info = await self.db_hands.get_room_info(code)
-        tracks_info = await self.db_hands.get_room_tracks(code)
-        if room_info:
-            self.room_state[code]["teams"] = self.services.parse_room_info(room_info, tracks_info)['teams']
+    # async def _ensure_room_loaded(self, code: str):
+    #     if self.room_state[code]["teams"]:
+    #         return
+    #     room_info = await self.db_hands.get_room_info(code)
+    #     tracks_info = await self.db_hands.get_room_tracks(code)
+    #     if room_info:
+    #         self.room_state[code]["teams"] = self.services.parse_room_info(room_info, tracks_info)['teams']
 
     async def _broadcast_room(self, code: str):
         payload = {
@@ -314,6 +322,7 @@ class ApiRouter:
         code = code.upper().strip()
         payload = {
             "type": "game_started",
+            "teams": self.room_state[code]["teams"]
         }
         dead = []
         for ws in self.rooms[code]:

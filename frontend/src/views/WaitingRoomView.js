@@ -1,5 +1,5 @@
 ﻿import {Component} from "../core/Component.js";
-import {tryGetRoomInfo, setTeamName, getTeamNameByUUID} from "../services/RoomService.js";
+import {tryGetRoomInfo, setTeamName} from "../services/RoomService.js";
 import {get404} from "../services/RouteServices.js";
 import {Logo, Input, Button} from "../components/UI.js";
 
@@ -12,6 +12,8 @@ export class WaitingRoomView extends Component {
     constructor(container, data) {
         super(container, data);
         this._savedName = '';
+
+        sessionStorage.removeItem('teams');
 
         this.state = {
             gameName: 'Загрузка...',
@@ -32,8 +34,8 @@ export class WaitingRoomView extends Component {
 
         this._connectSocket();
 
-        const uuid = this._setUUID();
-        await this._loadTeamInfoByUUID(uuid);
+        // const uuid = this._setUUID();
+        // await this._loadTeamInfoByUUID(uuid);
 
         this._setState({
             gameId: roomData.id,
@@ -44,21 +46,21 @@ export class WaitingRoomView extends Component {
         })
     }
 
-    _setUUID() {
-        const currentUUID = localStorage.getItem('team-uuid');
-        if (!currentUUID) {
-            localStorage.setItem('team-uuid', crypto.randomUUID());
-        }
-        return localStorage.getItem('team-uuid');
-    }
-
-    async _loadTeamInfoByUUID(uuid) {
-        const teamName = await getTeamNameByUUID(uuid);
-        if (teamName) {
-            this.state.myTeamName = teamName;
-            this.state.isNameSaved = true;
-        }
-    }
+    // _setUUID() {
+    //     const currentUUID = localStorage.getItem('team-uuid');
+    //     if (!currentUUID) {
+    //         localStorage.setItem('team-uuid', crypto.randomUUID());
+    //     }
+    //     return localStorage.getItem('team-uuid');
+    // }
+    //
+    // async _loadTeamInfoByUUID(uuid) {
+    //     const teamName = await getTeamNameByUUID(uuid);
+    //     if (teamName) {
+    //         this.state.myTeamName = teamName;
+    //         this.state.isNameSaved = true;
+    //     }
+    //}
 
     _setState(newState) {
         this.state = {...this.state, ...newState};
@@ -171,11 +173,9 @@ export class WaitingRoomView extends Component {
         } else {
             this.state.isNameSaved = true;
 
-            const uuid = localStorage.getItem('team-uuid');
             const resp = await setTeamName(
                 this.state.gameId,
                 this.state.roomCode,
-                uuid,
                 this._savedName,
                 this.state.myTeamName
             );
@@ -185,7 +185,7 @@ export class WaitingRoomView extends Component {
             }
 
             this._savedName = this.state.myTeamName;
-            localStorage.setItem('team-name', this.state.myTeamName);
+            sessionStorage.setItem('team-name', this.state.myTeamName);
             this.updateDOM();
         }
     }
@@ -207,6 +207,7 @@ export class WaitingRoomView extends Component {
             }
 
             if (data.type === "game_started"){
+                sessionStorage.setItem('teams', JSON.stringify(data.teams));
                 window.history.pushState({}, '', `/room/active/${this.data.roomCode}`);
                 window.dispatchEvent(new Event('popstate'));
             }
