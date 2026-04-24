@@ -13,7 +13,7 @@ export class WaitingRoomView extends Component {
         super(container, data);
         this._savedName = '';
 
-        localStorage.removeItem('teams');
+        sessionStorage.removeItem('teams');
 
         this.state = {
             gameName: 'Загрузка...',
@@ -185,7 +185,7 @@ export class WaitingRoomView extends Component {
             }
 
             this._savedName = this.state.myTeamName;
-            localStorage.setItem('team-name', this.state.myTeamName);
+            sessionStorage.setItem('team-name', this.state.myTeamName);
             this.updateDOM();
         }
     }
@@ -207,7 +207,7 @@ export class WaitingRoomView extends Component {
             }
 
             if (data.type === "game_started"){
-                localStorage.setItem('teams', JSON.stringify(data.teams));
+                sessionStorage.setItem('teams', JSON.stringify(data.teams));
                 window.history.pushState({}, '', `/room/active/${this.data.roomCode}`);
                 window.dispatchEvent(new Event('popstate'));
             }

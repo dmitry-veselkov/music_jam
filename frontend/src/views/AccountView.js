@@ -27,7 +27,7 @@ export class AccountView extends Component {
     async _setState(userInfo) {
         this.state.userName = userInfo.name;
         this.state.games = await getAllUserGames();
-        localStorage.setItem("loadedUserGames", JSON.stringify(this.state.games));
+        sessionStorage.setItem("loadedUserGames", JSON.stringify(this.state.games));
     }
 
     render(userInfo) {
@@ -72,7 +72,7 @@ export class AccountView extends Component {
         if (startButtons) {
             startButtons.forEach(button => {
                 button.addEventListener("click", async (event) => {
-                    localStorage.removeItem('teams');
+                    sessionStorage.removeItem('teams');
                     const gameId = event.currentTarget.dataset.gameCode;
                     redirectTo(`/room/admin_waiting/${gameId}`);
                 });

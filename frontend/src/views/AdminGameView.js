@@ -10,7 +10,7 @@ import {OnGameTable} from "../components/OnGameTable.js";
 export class AdminGameView extends Component {
     constructor(container, data) {
         super(container, data);
-        const teams = JSON.parse(localStorage.getItem('teams') || '[]');
+        const teams = JSON.parse(sessionStorage.getItem('teams') || '[]');
 
         this.gameSettings = new GameSettings();
 
@@ -233,7 +233,7 @@ export class AdminGameView extends Component {
                 this.ws.send(JSON.stringify({
                     type: 'game_ended'
                 }));
-                localStorage.removeItem('teams');
+                sessionStorage.removeItem('teams');
                 new Promise(r => setTimeout(r, 200));
                 window.history.pushState({}, '', '/account');
                 window.dispatchEvent(new Event('popstate'));

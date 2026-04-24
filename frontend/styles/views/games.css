@@ -487,6 +487,16 @@ input[type="range"] {
     margin: 0;
 }
 
+.answer-fade {
+    animation: fadeOut 3s forwards;
+}
+
+@keyframes fadeOut {
+    0%   { opacity: 1; }
+    70%  { opacity: 1; }
+    100% { opacity: 0; }
+}
+
 .btn-group-horizontal {
     display: flex;
     gap: 0.75rem;

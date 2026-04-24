@@ -13,7 +13,7 @@ export class GameView extends Component {
         this.gameSettings = new GameSettings();
         this.audio = null;
 
-        const teams = JSON.parse(localStorage.getItem('teams') || '[]');
+        const teams = JSON.parse(sessionStorage.getItem('teams') || '[]');
 
         this.state = {
             activeCell: null,
@@ -69,26 +69,26 @@ export class GameView extends Component {
                             <div class="modal-badge">🎧 Сейчас играет</div>
                             <div class="track-preview-subtitle">
                                 ${
-            this.state.activeCell
-                ? 'Организатор запустил вопрос. Можно отвечать.'
-                : 'Дождитесь, пока организатор выберет категорию.'
-        }
+                                    this.state.activeCell
+                                        ? 'Организатор запустил вопрос. Можно отвечать.'
+                                        : 'Дождитесь, пока организатор выберет категорию.'
+                                }
                             </div>
                         </div>
 
                         ${
-            this.state.activeCell && this.state.canBuzz && !this.state.hadWrongAnswer
-                ? Button({text: 'Ответить', id: 'buzz-btn', extraClass: 'w-100'})
-                : `<button class="btn btn-secondary w-100" disabled>
-                               ${
-                    this.state.hadWrongAnswer
-                        ? 'Вы ответили неправильно'
-                        : this.state.activeCell
-                            ? 'Кто-то уже отвечает'
-                            : 'Ожидание вопроса'
-                }
-                               </button>`
-        }
+                        this.state.activeCell && this.state.canBuzz && !this.state.hadWrongAnswer
+                            ? Button({text: 'Ответить', id: 'buzz-btn', extraClass: 'w-100'})
+                            : `<button class="btn btn-secondary w-100" disabled>
+                                           ${
+                                            this.state.hadWrongAnswer
+                                                ? 'Вы ответили неправильно'
+                                                : this.state.activeCell
+                                                    ? 'Кто-то уже отвечает'
+                                                    : 'Ожидание вопроса'
+                                            }
+                                           </button>`
+                        }
                     </div>
                 </aside>
 
@@ -103,6 +103,7 @@ export class GameView extends Component {
             </div>
             ${this.renderCorrectAnswer()}
             ${this.renderAnswerInput()}
+            ${this.renderIncorrectAnswer()}
         `;
     }
 
@@ -116,6 +117,17 @@ export class GameView extends Component {
                 <div class="answer-label">Правильный ответ</div>
                 <p class="answer-title">${this.state.answer.title}</p>
                 <p class="answer-artist">${this.state.answer.artist}</p>
+            </div>
+        </div>`;
+    }
+
+    renderIncorrectAnswer() {
+        if (!this.state.hadWrongAnswer) return '';
+        return `
+        <div class="modal-overlay answer-fade">
+            <div class="card modal-card answer-card">
+                <div class="answer-icon">🎵</div>
+                <div class="answer-label">Вы дали неправильный ответ!</div>
             </div>
         </div>`;
     }
@@ -173,17 +185,22 @@ export class GameView extends Component {
             }
 
             if (data.type === 'reset_answer_btn') {
-                const myTeam = localStorage.getItem('team-name') ?? 'Неизвестная команда';
+                const myTeam = sessionStorage.getItem('team-name') ?? 'Неизвестная команда';
                 this.state.hadWrongAnswer = data.disabledTeams.includes(myTeam);
-                this.state.canBuzz = true;
-                console.log(myTeam);
-                console.log(this.state.hadWrongAnswer, this.state.canBuzz);
+                this.state.canBuzz = !this.state.hadWrongAnswer;
                 this.updateDOM();
+
+                if (this.state.hadWrongAnswer){
+                    setTimeout(() => {
+                        this.state.hadWrongAnswer = false;
+                        this.updateDOM();
+                    }, 3000);
+                }
             }
 
             if (data.type === 'player_buzzed') {
                 this.state.canBuzz = false;
-                const myTeam = localStorage.getItem('team-name') ?? 'Неизвестная команда';
+                const myTeam = sessionStorage.getItem('team-name') ?? 'Неизвестная команда';
                 if (data.team === myTeam) {
                     this.state.showAnswerInput = this.gameSettings.mode === false;
                 }
@@ -206,7 +223,7 @@ export class GameView extends Component {
             }
 
             if (data.type === 'game_ended') {
-                localStorage.removeItem('teams');
+                sessionStorage.removeItem('teams');
                 window.history.pushState({}, '', '/');
                 window.dispatchEvent(new Event('popstate'));
             }
@@ -225,7 +242,7 @@ export class GameView extends Component {
         const buzzBtn = this.container.querySelector('#buzz-btn');
         if (buzzBtn) {
             buzzBtn.onclick = () => {
-                const team = localStorage.getItem('team-name') ?? 'Неизвестная команда';
+                const team = sessionStorage.getItem('team-name') ?? 'Неизвестная команда';
 
                 this.ws.send(JSON.stringify({
                     type: 'player_buzzed',
@@ -245,7 +262,7 @@ export class GameView extends Component {
 
                     this.ws.send(JSON.stringify({
                         type: 'team_answer',
-                        team: localStorage.getItem('team-name') ?? 'Неизвестная команда',
+                        team: sessionStorage.getItem('team-name') ?? 'Неизвестная команда',
                         artist,
                         title
                     }));
