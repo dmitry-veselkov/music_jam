@@ -187,6 +187,7 @@ class ApiRouter:
         @self.router.post('/start_game')
         async def start_game(code: str = ''):
             code = code.upper().strip()
+            await self.db_hands.update_game_any_param(code, "status", "playing")
             await self._broadcast_start(code)
             return {
                 "success": True
