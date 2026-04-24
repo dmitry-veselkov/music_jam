@@ -18,6 +18,7 @@ export class AccountView extends Component {
     async mount() {
         const userInfo = await loadUserInfoOrRedirect();
         if (userInfo) {
+            console.log('Нашел пользователя');
             await this._setState(userInfo);
             this.container.innerHTML = this.render(userInfo);
             this._addEventListeners();

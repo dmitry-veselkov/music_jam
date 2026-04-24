@@ -23,6 +23,7 @@ export class AdminGameView extends Component {
             audio: null,
             players: Object.fromEntries(
                 teams.map(team => [team, 0])),
+            playedCells: []
         };
     }
 
@@ -51,35 +52,6 @@ export class AdminGameView extends Component {
         this.container.innerHTML = this.render();
         this.attachEvents();
     }
-
-    // renderCalculatorModal() {
-    //     if (!this.state.buzzedTeam) return '';
-    //
-    //     const defaultPoints = this.state.activeCell
-    //         ? this.gameSettings.costs[this.state.activeCell.col]
-    //         : 0;
-    //
-    //     return `
-    //     <div class="card calculator-card">
-    //         <h3>Отвечает: <strong>${this.state.buzzedTeam}</strong></h3>
-    //         ${this.state.teamAnswer ? `
-    //             <div class="form-group">
-    //                 <p>🎤 <strong>${this.state.teamAnswer.artist}</strong></p>
-    //                 <p>🎵 <strong>${this.state.teamAnswer.title}</strong></p>
-    //             </div>
-    //             ` : '<p class="muted">Ожидание ответа команды...</p>'}
-    //
-    //         <div class="points-stepper">
-    //              <input class="stepper-value" id="points-value" type="number" value="${defaultPoints}" min="${0}" placeholder="${defaultPoints}">
-    //         </div>
-    //
-    //         <div class="btn-group-horizontal">
-    //             ${Button({text: '+', id: 'award-btn', extraClass: 'w-100'})}
-    //             ${Button({text: '-', id: 'wrong-btn', variant: 'outline', extraClass: 'w-100'})}
-    //         </div>
-    //     </div>
-    //     `;
-    // }
 
     renderCalculatorModal() {
         if (!this.state.buzzedTeam) return '';
@@ -155,16 +127,16 @@ export class AdminGameView extends Component {
 
                     <div class="btn-group-vertical">
                         ${Button({
-            text: 'Завершить вопрос',
-            id: 'end-question-btn',
-            extraClass: 'w-100'
-        })}
+                            text: 'Завершить вопрос',
+                            id: 'end-question-btn',
+                            extraClass: 'w-100'
+                        })}
                         <div style="margin-top: 0.75rem;">
                             ${Button({
-            text: 'Завершить игру',
-            id: 'end-btn',
-            extraClass: 'w-100'
-        })}
+                                text: 'Завершить игру',
+                                id: 'end-btn',
+                                extraClass: 'w-100'
+                            })}
                         </div>
                     </div>
                 </div>
@@ -292,7 +264,7 @@ export class AdminGameView extends Component {
     _startSong(e) {
         const row = +e.currentTarget.dataset.row;
         const col = +e.currentTarget.dataset.col;
-
+        if (this.state.playedCells.some(c => c.row === row && c.col === col)) return;
         const cell = this.gameSettings.cells?.[row]?.[col];
         if (!cell) return;
 
@@ -305,7 +277,7 @@ export class AdminGameView extends Component {
             row,
             col
         }));
-
+        this.state.playedCells.push(this.state.activeCell);
         this.updateDOM();
     }
 
