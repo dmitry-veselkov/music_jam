@@ -98,7 +98,7 @@ export class GameView extends Component {
                     </div>
 
                     ${OnGameTable(this.gameSettings, this.state, this._tableOptions)}
-                    ${OnGameRating(this.state.players)}
+                    ${OnGameRating(this.state.players, sessionStorage.getItem('team-name'))}
                 </main>
             </div>
             ${this.renderCorrectAnswer()}

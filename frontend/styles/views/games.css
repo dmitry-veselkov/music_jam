@@ -539,3 +539,8 @@ input[type="range"] {
     flex-direction: column;
     gap: 0.5rem;
 }
+
+.my-team {
+    color: var(--color-accent, #22c55e) !important;
+    font-weight: 700 !important;
+}
