@@ -23,7 +23,8 @@ export class AdminGameView extends Component {
             audio: null,
             players: Object.fromEntries(
                 teams.map(team => [team, 0])),
-            playedCells: []
+            playedCells: [],
+            currentAnswer: null,
         };
     }
 
@@ -53,6 +54,16 @@ export class AdminGameView extends Component {
         this.attachEvents();
     }
 
+    renderCorrectAnswer(){
+        if (!this.state.currentAnswer) return '';
+        return `
+        <div class="organizer-hint">
+            <div>🎵 ${this.state.currentAnswer.title}</div>
+            <div>🎤 ${this.state.currentAnswer.artist}</div>
+        </div>
+    `;
+    }
+
     renderCalculatorModal() {
         if (!this.state.buzzedTeam) return '';
 
@@ -60,7 +71,6 @@ export class AdminGameView extends Component {
             ? this.gameSettings.costs[this.state.activeCell.col]
             : 0;
 
-        console.log(this.state.buzzedTeam);
 
         return `
         <div id="calculator-modal" class="modal">
@@ -147,7 +157,7 @@ export class AdminGameView extends Component {
                     <div class="badge">Код комнаты: ${this.data.roomCode}</div>
                     <div class="badge">Режим организатора</div>
                 </div>
-
+                ${this.renderCorrectAnswer()}
                 ${OnGameTable(this.gameSettings, this.state, this._tableOptions)}
                 ${OnGameRating(this.state.players)}
             </main>
@@ -189,12 +199,7 @@ export class AdminGameView extends Component {
                             title: cell.song.title,
                             artist: cell.song.artist,
                         }));
-                        this.state.activeCell = null;
-                        this.state.buzzedTeam = null;
-                        this.state.teamAnswer = null;
-                        cell.song.playCorrectAnswer(this.state);
-                        this.state.audio = null;
-                        this.updateDOM();
+                        this._semiCorrectAnswer(cell);
                     }
                 }
             })
@@ -239,12 +244,7 @@ export class AdminGameView extends Component {
                     artist: cell.song.artist,
                 }));
             }
-            this.state.disabledTeams = [];
-            this.state.activeCell = null;
-            this.state.buzzedTeam = null;
-            this.state.teamAnswer = null;
-            cell.song.playCorrectAnswer(this.state);
-            this.state.audio = null;
+            this._semiCorrectAnswer(cell);
         } else {
             this.state.disabledTeams.push(this.state.buzzedTeam);
             this.state.buzzedTeam = null;
@@ -260,6 +260,15 @@ export class AdminGameView extends Component {
         this.updateDOM();
     }
 
+    _semiCorrectAnswer(cell){
+        this.state.activeCell = null;
+        this.state.buzzedTeam = null;
+        this.state.teamAnswer = null;
+        cell.song.playCorrectAnswer(this.state);
+        this.state.audio = null;
+        this.state.currentAnswer = null;
+        this.updateDOM();
+    }
 
     _startSong(e) {
         const row = +e.currentTarget.dataset.row;
@@ -269,6 +278,10 @@ export class AdminGameView extends Component {
         if (!cell) return;
 
         this.state.activeCell = {row, col};
+        this.state.currentAnswer = {
+            title : cell.song.title,
+            artist : cell.song.artist,
+        };
 
         cell.song.play(this.state);
         cell.played = true;

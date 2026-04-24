@@ -501,3 +501,15 @@ input[type="range"] {
     display: flex;
     gap: 0.75rem;
 }
+
+.organizer-hint {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    background: var(--color-surface, #1e1e2e);
+    border: 1px solid var(--color-accent, #7c3aed);
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+}
