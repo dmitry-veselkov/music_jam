@@ -1,7 +1,6 @@
 from fastapi import APIRouter, HTTPException, Response, status, Cookie, WebSocket, WebSocketDisconnect, UploadFile, \
     File, Form
 from fastapi.responses import StreamingResponse
-import requests
 from collections import defaultdict
 from logging import Logger
 
