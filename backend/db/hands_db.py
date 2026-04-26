@@ -1,14 +1,16 @@
+from typing import Any
 from sqlalchemy import text
 import asyncio
+from db.database import Database
 
 
 class DatabaseHands:
     _ALLOWED_GAME_COLUMNS = {"admin_user_id", "title", "join_code", "scheduled_at", "status", "description", "mode"}
 
-    def __init__(self, database) -> None:
-        self.db = database;
+    def __init__(self, database: Database) -> None:
+        self.db = database
 
-    async def get_user(self, email):
+    async def get_user(self, email: str) -> Any:
         async with self.db.get_session() as session:
             result = await session.execute(
                 text("SELECT * FROM users WHERE email = :email"),
@@ -16,23 +18,25 @@ class DatabaseHands:
             )
             return result.fetchone()
 
-    async def insert_user(self, name, hash_password, email):
+    async def insert_user(self, name: str, hash_password: str, email: str) -> Any:
         async with self.db.get_session() as session:
             result = await session.execute(
-                text("INSERT INTO users (name, password_hash, email) "
-                     "VALUES(:name, :hash_password, :email) "
-                     "RETURNING id"),
+                text(
+                    "INSERT INTO users (name, password_hash, email) "
+                    "VALUES(:name, :hash_password, :email) "
+                    "RETURNING id"
+                ),
                 {
                     "name": name,
                     "hash_password": hash_password,
                     "email": email,
-                }
+                },
             )
 
             await session.commit()
             return result.scalar()
 
-    async def get_all_user_games(self, _id):
+    async def get_all_user_games(self, _id: str | int) -> list[dict[Any, Any]]:
         async with self.db.get_session() as session:
             result = await session.execute(
                 text("""
@@ -40,10 +44,11 @@ class DatabaseHands:
                      FROM games
                      WHERE admin_user_id = :admin_id
                      """),
-                {"admin_id": _id})
+                {"admin_id": _id},
+            )
             return [dict(r) for r in result.mappings().all()]
 
-    async def get_game_info(self, code):
+    async def get_game_info(self, code: str) -> Any:
         async with self.db.get_session() as session:
             result = await session.execute(
                 text("SELECT * FROM games WHERE join_code = :join_code"),
@@ -54,7 +59,7 @@ class DatabaseHands:
             row = result.mappings().first()
         return dict(row) if row else None
 
-    async def get_room_info(self, code):
+    async def get_room_info(self, code: str) -> list[dict[Any, Any]]:
         print(code)
         async with self.db.get_session() as session:
             result = await session.execute(
@@ -176,7 +181,7 @@ class DatabaseHands:
     #     await session.commit()
     #     await session.close()
 
-    async def update_game_any_param(self, join_code, column, value):
+    async def update_game_any_param(self, join_code: str, column: str, value: str) -> None:
         if column not in self._ALLOWED_GAME_COLUMNS:
             return
         async with self.db.get_session() as session:
