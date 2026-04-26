@@ -5,7 +5,7 @@
     padding: 100px 2rem 2rem;
     max-width: 1200px;
     margin: 0 auto;
-    height: 100vh;
+    min-height: 100vh;
     align-items: center;
 }
 
@@ -26,11 +26,13 @@
     font-family: monospace;
     font-size: 1.1rem;
     color: var(--color-primary, #ffcc00);
+    word-break: break-all;
 }
 
 .game-title {
-    font-size: 2.5rem;
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
     margin-bottom: 0.5rem;
+    word-break: break-word;
 }
 
 .game-author {
@@ -63,6 +65,8 @@
     margin-bottom: 1.5rem;
     padding-bottom: 1rem;
     border-bottom: 1px solid var(--color-border, #333);
+    gap: 0.75rem;
+    flex-wrap: wrap;
 }
 
 .team-count {
@@ -104,6 +108,7 @@
     border-radius: 0.5rem;
     font-size: 1.1rem;
     transition: background 0.2s;
+    gap: 0.5rem;
 }
 
 .team-item:hover {
@@ -118,10 +123,13 @@
 .team-icon {
     margin-right: 1rem;
     font-size: 1.2rem;
+    flex-shrink: 0;
 }
 
 .team-name {
     flex-grow: 1;
+    min-width: 0;
+    word-break: break-word;
 }
 
 .badge-you {
@@ -131,6 +139,7 @@
     padding: 0.2rem 0.5rem;
     border-radius: 0.3rem;
     font-weight: bold;
+    flex-shrink: 0;
 }
 
 .empty-state {
@@ -162,12 +171,14 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 0.5rem;
 }
 
 .room-code-value {
     font-size: 1.5rem;
     font-weight: 700;
     letter-spacing: 0.15em;
+    word-break: break-all;
 }
 
 .copy-btn {
@@ -178,8 +189,122 @@
     padding: 0.25rem;
     border-radius: 6px;
     transition: transform 0.1s;
+    flex-shrink: 0;
 }
 
 .copy-btn:hover {
     transform: scale(1.2);
+}
+
+/* ===== Адаптив ===== */
+
+@media (max-width: 1200px) {
+    .waiting-layout {
+        padding: 90px 1.5rem 1.5rem;
+    }
+}
+
+@media (max-width: 992px) {
+    .waiting-layout {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        padding: 90px 1.5rem 1.5rem;
+        align-items: stretch;
+        min-height: auto;
+    }
+
+    .card {
+        padding: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .waiting-layout {
+        padding: 80px 1rem 1.5rem;
+        gap: 1.25rem;
+    }
+
+    .card {
+        padding: 1.25rem;
+    }
+
+    .game-author {
+        font-size: 1rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .team-form-container {
+        padding: 1.25rem;
+    }
+
+    .team-item {
+        padding: 0.85rem;
+        font-size: 1rem;
+    }
+
+    .teams-list {
+        max-height: 320px;
+    }
+
+    .room-code-value {
+        font-size: 1.3rem;
+        letter-spacing: 0.1em;
+    }
+}
+
+@media (max-width: 480px) {
+    .waiting-layout {
+        padding: 70px 0.75rem 1rem;
+        gap: 1rem;
+    }
+
+    .card {
+        padding: 1rem;
+        border-radius: 0.85rem;
+    }
+
+    .room-badge {
+        font-size: 0.95rem;
+        padding: 0.35rem 0.85rem;
+    }
+
+    .game-author {
+        font-size: 0.95rem;
+        margin-bottom: 1rem;
+    }
+
+    .team-form-container {
+        padding: 1rem;
+        border-radius: 0.7rem;
+    }
+
+    .teams-header {
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+    }
+
+    .team-item {
+        padding: 0.7rem 0.85rem;
+        font-size: 0.95rem;
+        margin-bottom: 0.4rem;
+    }
+
+    .team-icon {
+        margin-right: 0.5rem;
+        font-size: 1.05rem;
+    }
+
+    .badge-you {
+        font-size: 0.7rem;
+        padding: 0.15rem 0.4rem;
+    }
+
+    .room-code-panel {
+        padding: 0.65rem 0.85rem;
+    }
+
+    .room-code-value {
+        font-size: 1.15rem;
+        letter-spacing: 0.08em;
+    }
 }

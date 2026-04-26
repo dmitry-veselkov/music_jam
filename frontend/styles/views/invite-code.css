@@ -3,6 +3,7 @@
     justify-content: center;
     align-items: center;
     min-height: 100vh;
+    padding: var(--spacing-md);
 }
 
 .logo-corner {
@@ -26,4 +27,39 @@
     flex-direction: column;
     gap: var(--spacing-md);
     margin: var(--spacing-lg) 0;
+}
+
+/* ===== Адаптив ===== */
+
+@media (max-width: 768px) {
+    .logo-corner {
+        top: 16px;
+        left: 20px;
+    }
+
+    .lobby-container {
+        padding: var(--spacing-lg);
+    }
+}
+
+@media (max-width: 480px) {
+    .lobby-page {
+        padding: 70px var(--spacing-md) var(--spacing-md);
+        align-items: flex-start;
+    }
+
+    .logo-corner {
+        top: 12px;
+        left: 16px;
+    }
+
+    .lobby-container {
+        padding: var(--spacing-md);
+        border-radius: 12px;
+    }
+
+    .join-form {
+        margin: var(--spacing-md) 0;
+        gap: var(--spacing-xs);
+    }
 }

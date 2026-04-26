@@ -17,15 +17,17 @@
     justify-content: center;
     align-items: center;
     text-align: center;
-    padding: 0 var(--spacing-md);
+    padding: var(--spacing-lg) var(--spacing-md);
 }
 
 .hero-title {
-    font-size: 3.5rem;
+    font-size: clamp(2rem, 8vw, 3.5rem);
     margin-bottom: var(--spacing-md);
     background: linear-gradient(90deg, var(--color-primary), #ffffff);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    line-height: 1.1;
+    word-break: break-word;
 }
 
 .start-footer {
@@ -38,11 +40,14 @@
     display: flex;
     align-items: center;
     gap: var(--spacing-md, 20px);
+    flex-wrap: wrap;
+    justify-content: flex-end;
 }
 
 .auth-buttons {
     display: flex;
     gap: 12px;
+    flex-wrap: wrap;
 }
 
 .user-profile-link {
@@ -52,6 +57,7 @@
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid transparent;
     transition: all 0.2s ease;
+    max-width: 100%;
 }
 
 .user-profile-link:hover {
@@ -63,12 +69,17 @@
     display: flex;
     align-items: center;
     gap: 12px;
+    min-width: 0;
 }
 
 .user-name {
     font-weight: 500;
     color: #fff;
     font-size: 0.95rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 160px;
 }
 
 .user-avatar {
@@ -89,4 +100,79 @@
     justify-content: space-between;
     align-items: center;
     padding: 0 10px;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+}
+
+/* ===== Адаптив ===== */
+
+@media (max-width: 768px) {
+    .start-header {
+        padding: 0 4px;
+        gap: 12px;
+    }
+
+    .header-right {
+        gap: 10px;
+    }
+
+    .auth-buttons {
+        gap: 8px;
+    }
+
+    .user-name {
+        max-width: 120px;
+        font-size: 0.9rem;
+    }
+
+    .user-avatar {
+        width: 32px;
+        height: 32px;
+        font-size: 0.9rem;
+    }
+
+    .hero-section {
+        padding: var(--spacing-md);
+    }
+}
+
+@media (max-width: 480px) {
+    .start-header {
+        align-items: flex-start;
+        padding: 0;
+    }
+
+    .header-right {
+        gap: 8px;
+        width: auto;
+    }
+
+    .auth-buttons {
+        gap: 6px;
+        flex-wrap: nowrap;
+    }
+
+    .user-name {
+        max-width: 90px;
+        font-size: 0.85rem;
+    }
+
+    .user-profile-link {
+        padding: 5px 10px;
+    }
+
+    .user-avatar {
+        width: 30px;
+        height: 30px;
+        font-size: 0.85rem;
+    }
+
+    .hero-title {
+        margin-bottom: var(--spacing-xs);
+    }
+
+    .start-footer {
+        padding: var(--spacing-md);
+        font-size: 0.85rem;
+    }
 }

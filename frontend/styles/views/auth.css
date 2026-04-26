@@ -63,3 +63,47 @@
     opacity: 0.8;
     text-decoration: underline;
 }
+
+/* ===== Адаптив ===== */
+
+@media (max-width: 768px) {
+    .auth-container {
+        padding: 1.5rem 1rem;
+        min-height: calc(100vh - 80px);
+    }
+
+    .auth-card {
+        padding: 2rem 1.5rem;
+    }
+
+    .auth-card h1 {
+        font-size: 1.7rem;
+        margin-bottom: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .auth-container {
+        padding: 1rem 0.75rem;
+        align-items: flex-start;
+        padding-top: 1.5rem;
+    }
+
+    .auth-card {
+        padding: 1.5rem 1rem;
+        border-radius: 0.75rem;
+    }
+
+    .auth-card h1 {
+        font-size: 1.45rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.1rem;
+    }
+
+    .form-group label {
+        font-size: 0.9rem;
+    }
+}

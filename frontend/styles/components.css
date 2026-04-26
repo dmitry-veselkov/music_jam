@@ -120,12 +120,8 @@
     margin: 0;
 }
 
-body {
-    overflow: hidden;
-}
-
 .start-page {
-    height: 100vh;
+    min-height: 100vh;
 }
 
 /**
@@ -138,4 +134,44 @@ body {
     text-align: center;
     font-weight: bold;
     display: none;
+}
+
+/* ===== Адаптив ===== */
+
+@media (max-width: 768px) {
+    .btn {
+        padding: 10px 18px;
+        font-size: 0.95rem;
+    }
+
+    .ui-input {
+        padding: 13px;
+        font-size: 1.05rem;
+    }
+
+    .logo-text {
+        font-size: 1.25rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .btn {
+        padding: 9px 14px;
+        font-size: 0.9rem;
+    }
+
+    .ui-input {
+        padding: 12px;
+        font-size: 1rem;
+        border-width: 1px;
+    }
+
+    .logo-text {
+        font-size: 1.1rem;
+        letter-spacing: 0.5px;
+    }
+
+    .start-btn-wrapper {
+        justify-content: center;
+    }
 }
