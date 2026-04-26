@@ -1,9 +1,8 @@
 ﻿import {Component} from "../core/Component.js";
-import {tryGetRoomInfo} from "../services/RoomService.js";
 import {get404} from "../services/RouteServices.js";
 
-import {Logo, Input, Button} from "../components/UI.js";
-import {loadUserInfoOrRedirect} from "../services/AccountServices.js";
+import {Logo, Button} from "../components/UI.js";
+import {authenticationToGame} from "../services/AccountServices.js";
 import {startGame, tryRunGame} from "../services/GamesServices.js";
 
 export class AdminWaitingRoomView extends Component {
@@ -19,13 +18,15 @@ export class AdminWaitingRoomView extends Component {
     }
 
     async mount() {
-        const userInfo = await loadUserInfoOrRedirect();
-        if (!userInfo) {
+        // TODO: тут теперь дублируются запросы на получение информации об игре. Нужно исправить
+        const authData = await authenticationToGame(this.container, this.data.roomCode);
+        if (!authData) {
             return;
         }
 
         const roomInfo = await tryRunGame(this.data.roomCode);
         if (!roomInfo) {
+            // TODO Хз надо ли тут делать эту проверку. По идее, если бы было 404, то упали бы раньше...
             this.container.innerHTML = get404();
             return;
         }
@@ -63,7 +64,7 @@ export class AdminWaitingRoomView extends Component {
                     </li>`)
                 .join('')
 
-        const startButton = Button({ text: 'Начать игру', id: 'start-game', variant: 'primary'});
+        const startButton = Button({text: 'Начать игру', id: 'start-game', variant: 'primary'});
         return `<main class="waiting-teams-panel">
                     <div class="card teams-card">
                         <div class="teams-header">

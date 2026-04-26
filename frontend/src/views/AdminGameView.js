@@ -1,7 +1,6 @@
 import {Component} from "../core/Component.js";
-import {get404} from "../services/RouteServices.js";
-import {endGame, tryGetGameSettings} from "../services/GamesServices.js";
-import {loadUserInfoOrRedirect} from "../services/AccountServices.js";
+import {endGame} from "../services/GamesServices.js";
+import {authenticationToGame} from "../services/AccountServices.js";
 import {Logo, Button} from "../components/UI.js";
 import {GameSettings} from "../domain/GameSettings.js";
 import {OnGameRating} from "../components/OnGameRating.js";
@@ -35,19 +34,14 @@ export class AdminGameView extends Component {
     }
 
     async mount() {
-        const userInfo = await loadUserInfoOrRedirect();
-        if (!userInfo) return;
-
-        const roomInfo = await tryGetGameSettings(this.data.roomCode);
-
-        if (!roomInfo?.exists) {
-            this.container.innerHTML = get404();
+        const authData = await authenticationToGame(this.container, this.data.roomCode);
+        if (!authData) {
             return;
         }
 
+        const [_, roomInfo] = authData;
         this._connectSocket();
         this._applyRoomInfo(roomInfo);
-
         this.updateDOM();
     }
 
@@ -56,7 +50,7 @@ export class AdminGameView extends Component {
         this.attachEvents();
     }
 
-    renderCorrectAnswer(){
+    renderCorrectAnswer() {
         if (!this.state.currentAnswer) return '';
         return `
         <div class="organizer-hint">
@@ -139,17 +133,17 @@ export class AdminGameView extends Component {
 
                     <div class="btn-group-vertical">
                         ${this.state.activeCell ? Button({
-                            text: 'Завершить вопрос',
-                            id: 'end-question-btn',
-                            extraClass: 'w-100'
-                        }) : ''}
+            text: 'Завершить вопрос',
+            id: 'end-question-btn',
+            extraClass: 'w-100'
+        }) : ''}
             
                         <div style="margin-top: 0.75rem;">
                             ${Button({
-                                text: 'Завершить игру',
-                                id: 'end-btn',
-                                extraClass: 'w-100'
-                            })}
+            text: 'Завершить игру',
+            id: 'end-btn',
+            extraClass: 'w-100'
+        })}
                         </div>
                     </div>
                 </div>
@@ -157,12 +151,12 @@ export class AdminGameView extends Component {
                 <div class="audio-panel" style="margin-top: 1.5rem;">
                     <span class="audio-panel__label">🎵 Управление</span>
                         <div class="audio-panel__controls">
-                            ${Button({ text: '❚❚', id: 'music-btn' })}
+                            ${Button({text: '❚❚', id: 'music-btn'})}
                             ${this.state.isShowingAnswer ? Button({
-                                text: '✕ Завершить ответ',
-                                id: 'clear-audio-btn',
-                                variant: 'outline'
-                            }) : ''}
+            text: '✕ Завершить ответ',
+            id: 'clear-audio-btn',
+            variant: 'outline'
+        }) : ''}
                         </div>
                 </div>
             </aside>
@@ -245,8 +239,7 @@ export class AdminGameView extends Component {
                 if (this.state.audio.paused) {
                     this.state.audio.play();
                     musicBtn.textContent = '❚❚';
-                }
-                else{
+                } else {
                     this.state.audio.pause();
                     musicBtn.textContent = '▶';
                 }
@@ -302,7 +295,7 @@ export class AdminGameView extends Component {
         this.updateDOM();
     }
 
-    _semiCorrectAnswer(cell){
+    _semiCorrectAnswer(cell) {
         this.state.activeCell = null;
         this.state.buzzedTeam = null;
         this.state.teamAnswer = null;
@@ -324,8 +317,8 @@ export class AdminGameView extends Component {
 
         this.state.activeCell = {row, col};
         this.state.currentAnswer = {
-            title : cell.song.title,
-            artist : cell.song.artist,
+            title: cell.song.title,
+            artist: cell.song.artist,
         };
 
         cell.song.play(this.state);

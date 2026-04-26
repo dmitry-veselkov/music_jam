@@ -1,8 +1,7 @@
 ﻿import {Component} from "../core/Component.js";
 import {Logo} from "../components/UI.js";
-import {tryGetGameSettings, saveGameSettings} from "../services/GamesServices.js";
-import {get404} from "../services/RouteServices.js";
-import {loadUserInfoOrRedirect} from "../services/AccountServices.js";
+import {saveGameSettings} from "../services/GamesServices.js";
+import {authenticationToGame} from "../services/AccountServices.js";
 import {GameSettings} from "../domain/GameSettings.js";
 import {Song} from "../domain/Song.js";
 import {ButtonLoader} from "../components/ButtonLoader.js";
@@ -17,18 +16,28 @@ export class GameSettingsView extends Component {
     }
 
     async mount() {
-        const userInfo = await loadUserInfoOrRedirect();
-        if (!userInfo) return;
-
-        const roomInfo = await tryGetGameSettings(this.data.roomCode);
-        if (!roomInfo || !roomInfo.exists) {
-            this.container.innerHTML = get404();
+        const authData = await authenticationToGame(this.container, this.data.roomCode);
+        if (!authData) {
             return;
         }
 
+        const [userInfo, roomInfo] = authData;
         this.gameSettings.init(roomInfo, userInfo);
         this.updateDOM();
     }
+
+    // async _authentication() {
+    //     const userInfo = await checkAuthorizedOrRedirect();
+    //     if (!userInfo) return;
+    //
+    //     const roomInfo = await tryGetGameSettings(this.data.roomCode);
+    //     if (!roomInfo || !roomInfo.exists || userInfo.id != roomInfo.admin_user_id) {
+    //         this.container.innerHTML = get404();
+    //         return;
+    //     }
+    //
+    //     return userInfo, roomInfo;
+    // }
 
     updateDOM() {
         this.container.innerHTML = this.render();

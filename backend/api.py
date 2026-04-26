@@ -68,12 +68,11 @@ class ApiRouter:
 
         @self.router.get('/get_user_info')
         async def get_user_info(token: str | None = Cookie(None)) -> dict[str, Any]:
-            self.logger.info("Что-то ищем")
             payload = self._get_token_payload(token)
             if not payload:
                 raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
 
-            return {"email": payload["email"], "name": payload['name']}
+            return {"email": payload["email"], "name": payload['name'], 'id': payload['sub']}
 
         @self.router.post('/create_new_game')
         async def create_new_game(token: str = Cookie(None)):
@@ -102,7 +101,6 @@ class ApiRouter:
             if not game:
                 return {"exists": False}
             songs = await self.db_hands.get_room_tracks(code)
-            print(game, songs)
             return {"exists": True, "roomCode": code, **game, **songs}
 
         @self.router.post('/gameSettings')

@@ -1,6 +1,6 @@
 ﻿import {Component} from "../core/Component.js";
 import {Logo, Button} from "../components/UI.js";
-import {loadUserInfoOrRedirect} from "../services/AccountServices.js";
+import {checkAuthorizedOrRedirect} from "../services/AccountServices.js";
 import {generateEmptyGame, getAllUserGames} from "../services/GamesServices.js";
 import {ButtonLoader} from "../components/ButtonLoader.js";
 import {GamesList} from "../components/GamesList.js";
@@ -17,7 +17,7 @@ export class AccountView extends Component {
 
     async mount() {
         console.log('Ищу пользователя');
-        const userInfo = await loadUserInfoOrRedirect();
+        const userInfo = await checkAuthorizedOrRedirect();
         console.log('Че-то нашел у пользователя');
         if (userInfo) {
             console.log('Нашел пользователя');

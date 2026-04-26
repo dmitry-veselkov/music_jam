@@ -25,7 +25,7 @@ class Services:
             "sub": str(_id),
             "email": email,
             "name": name,
-            "exp": datetime.datetime.now() + datetime.timedelta(minutes=15),
+            "exp": datetime.datetime.now() + datetime.timedelta(days=1),
         }
 
         return jwt.encode(payload, self.secret_jwt, algorithm="HS256")
