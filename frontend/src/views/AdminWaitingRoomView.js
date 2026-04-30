@@ -1,9 +1,10 @@
 ﻿import {Component} from "../core/Component.js";
-import {get404} from "../services/RouteServices.js";
+import {get404, redirectTo} from "../services/RouteServices.js";
 
 import {Logo, Button} from "../components/UI.js";
 import {authenticationToGame} from "../services/AccountServices.js";
 import {startGame, tryRunGame} from "../services/GamesServices.js";
+import {removeTeam} from "../services/RoomService.js";
 
 export class AdminWaitingRoomView extends Component {
     constructor(container, data) {
@@ -61,6 +62,7 @@ export class AdminWaitingRoomView extends Component {
                     <li class="team-item">
                         <span class="team-icon">👥</span>
                         <span class="team-name">${team}</span>
+                        <button class="remove-team" data-name="${team}" aria-label="Выгнать">×</button>
                     </li>`)
                 .join('')
 
@@ -107,8 +109,7 @@ export class AdminWaitingRoomView extends Component {
             const gameId = this.data.roomCode;
             await startGame(gameId);
             sessionStorage.setItem('teams', JSON.stringify(this.state.teams));
-            window.history.pushState({}, '', `/room/admin_active/${gameId}`);
-            window.dispatchEvent(new Event('popstate'));
+            redirectTo(`/room/admin_active/${gameId}`);
         });
 
         const copyBtn = document.getElementById("copy-code-btn");
@@ -119,6 +120,16 @@ export class AdminWaitingRoomView extends Component {
                 setTimeout(() => copyBtn.textContent = '📋', 2000);
             });
         }
+
+        document
+            .querySelector('.teams-list')
+            .addEventListener('click', async (e) => {
+                if (e.target.classList.contains('remove-team')) {
+                    const teamName = event.target.dataset.name;
+                    console.log("Удаляем команду:", teamName);
+                    await removeTeam(teamName, this.state.roomCode);
+                }
+            });
     }
 
     _connectSocket() {

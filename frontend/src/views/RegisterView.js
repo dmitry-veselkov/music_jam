@@ -69,14 +69,36 @@ export class RegisterView extends Component {
 
     _addEventListeners() {
         /**
-         * Навешиваем обработчик на кнопку регистрации
+         * Навешиваем обработчик на кнопку регистрации и добавляем переходы по enter
          */
         this.registerButton.addEventListener("click", async () => {
-            this.wrongText.hideWrongText();
-            await ButtonLoader.wrap(this.registerButton, async () => {
-                await this._register(this.nameInput.value, this.emailInput.value, this.passwordInput.value);
-            })
+            await this._onLoginClickCallback();
         });
+
+        this.nameInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                this.emailInput.focus();
+            }
+        });
+
+        this.emailInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                this.passwordInput.focus();
+            }
+        });
+
+        this.passwordInput.addEventListener('keypress', async (e) => {
+            if (e.key === 'Enter') {
+                await this._onRegisterClickCallback();
+            }
+        });
+    }
+
+    async _onRegisterClickCallback() {
+        this.wrongText.hideWrongText();
+        await ButtonLoader.wrap(this.registerButton, async () => {
+            await this._register(this.nameInput.value, this.emailInput.value, this.passwordInput.value);
+        })
     }
 
     async _register(name, email, password) {

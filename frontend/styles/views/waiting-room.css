@@ -111,6 +111,25 @@
     gap: 0.5rem;
 }
 
+.remove-team {
+    top: 16px;
+    right: 16px;
+    width: 38px;
+    height: 38px;
+    border: none;
+    background: none;
+    border-radius: 12px;
+    color: var(--color-wrong-text);
+    font-size: 36px;
+    line-height: 1;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.remove-team:hover {
+    transform: scale(1.2);
+}
+
 .team-item:hover {
     background: rgba(255, 255, 255, 0.1);
 }

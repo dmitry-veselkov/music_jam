@@ -1,7 +1,8 @@
 ﻿import {Component} from "../core/Component.js";
 import {tryGetRoomInfo, setTeamName} from "../services/RoomService.js";
-import {get404} from "../services/RouteServices.js";
-import {Logo, Input, Button} from "../components/UI.js";
+import {get404, redirectTo} from "../services/RouteServices.js";
+import {Logo} from "../components/UI.js";
+import {WaitingInfoPanel, WaitingTeamsPanel} from "../components/WaitingPanels.js";
 
 export class WaitingRoomView extends Component {
     /**
@@ -46,25 +47,8 @@ export class WaitingRoomView extends Component {
         })
     }
 
-    // _setUUID() {
-    //     const currentUUID = localStorage.getItem('team-uuid');
-    //     if (!currentUUID) {
-    //         localStorage.setItem('team-uuid', crypto.randomUUID());
-    //     }
-    //     return localStorage.getItem('team-uuid');
-    // }
-    //
-    // async _loadTeamInfoByUUID(uuid) {
-    //     const teamName = await getTeamNameByUUID(uuid);
-    //     if (teamName) {
-    //         this.state.myTeamName = teamName;
-    //         this.state.isNameSaved = true;
-    //     }
-    //}
-
     _setState(newState) {
         this.state = {...this.state, ...newState};
-        this._savedName = this.state.myTeamName;
         this.updateDOM();
     }
 
@@ -73,79 +57,12 @@ export class WaitingRoomView extends Component {
         this.attachEvents();
     }
 
-    _renderWaitingInfoPanel() {
-        const inputSettings = {
-            id: "team-name-input",
-            placeholder: "Например: Команда 1",
-            maxLength: 60,
-            value: this.state.myTeamName,
-            disabled: this.state.isNameSaved
-        }
-
-        const buttonSettings = {
-            id: "save-team-btn",
-            text: this.state.isNameSaved ? "Изменить" : "Войти в игру",
-            variant: this.state.isNameSaved ? "outline" : "primary"
-        }
-
-        return `<aside class="waiting-info-panel">
-                    <div class="card info-card">
-                        <div class="badge room-badge">Код комнаты: ${this.data.roomCode}</div>
-                        <h1 class="game-title">${this.state.gameName}</h1>
-                        <p class="game-author">Создатель: <strong>${this.state.creator}</strong></p>
-                        
-                        <div class="team-form-container">
-                            <h3>Ваша команда</h3>
-                            <p class="text-muted">Придумайте название, чтобы другие вас узнали.</p>
-                            
-                            <div class="team-input-group">
-                                ${Input(inputSettings)}
-                            </div>
-                            
-                            <div class="btn-wrapper mt-3">
-                                ${Button(buttonSettings)}
-                            </div>
-                        </div>
-                    </div>
-                </aside>`
-    }
-
-    _renderWaitingTeamsPanel() {
-        const teamsListLogic = this.state.teams.length === 0
-            ? `<li class="empty-state">Пока никого нет. Будьте первыми!</li>`
-            : this.state.teams
-                .map(team => `
-                    <li class="team-item ${team === this.state.myTeamName ? 'my-team' : ''}">
-                        <span class="team-icon">👥</span>
-                        <span class="team-name">${team}</span>
-                        ${team === this.state.myTeamName ? '<span class="badge-you">Вы</span>' : ''}
-                    </li>`)
-                .join('')
-
-        return `<main class="waiting-teams-panel">
-                    <div class="card teams-card">
-                        <div class="teams-header">
-                            <h2>Уже в лобби 
-                                <span class="team-count">
-                                    (${this.state.teams.length})
-                                </span>
-                            </h2>
-                            <div class="pulse-indicator">Ожидание...</div>
-                        </div>
-                        
-                        <ul class="teams-list">
-                            ${teamsListLogic}
-                        </ul>
-                    </div>
-                </main>`
-    }
-
     render() {
         return `
             <div class="logo-corner">${Logo()}</div>
             <div class="waiting-layout">
-                ${this._renderWaitingInfoPanel()}
-                ${this._renderWaitingTeamsPanel()}
+                ${WaitingInfoPanel(this.state, this.data)}
+                ${WaitingTeamsPanel(this.state)}
             </div>
         `;
     }
@@ -170,24 +87,25 @@ export class WaitingRoomView extends Component {
         if (this.state.isNameSaved) {
             this.state.isNameSaved = false;
             this.updateDOM();
-        } else {
-            this.state.isNameSaved = true;
-
-            const resp = await setTeamName(
-                this.state.gameId,
-                this.state.roomCode,
-                this._savedName,
-                this.state.myTeamName
-            );
-            if (resp.status !== 'ok') {
-                alert("Имя не было сохранено. Повторите попытку!");
-                return;
-            }
-
-            this._savedName = this.state.myTeamName;
-            sessionStorage.setItem('team-name', this.state.myTeamName);
-            this.updateDOM();
+            return;
         }
+
+        this.state.isNameSaved = true;
+        const resp = await setTeamName(
+            this.state.gameId,
+            this.state.roomCode,
+            this._savedName,
+            this.state.myTeamName
+        );
+        if (resp.status !== 'ok') {
+            // TODO заменить alert
+            alert("Имя не было сохранено. Повторите попытку!");
+            return;
+        }
+
+        this._savedName = this.state.myTeamName;
+        sessionStorage.setItem('team-name', this.state.myTeamName);
+        this.updateDOM();
     }
 
     _connectSocket() {
@@ -199,17 +117,35 @@ export class WaitingRoomView extends Component {
 
         this.ws.onmessage = (event) => {
             const data = JSON.parse(event.data);
-            console.log('ws message:', data);
+            console.log(data.type);
 
-            if (data.type === "init" || data.type === "update") {
+            if (data.type === "init") {
+                this.state.teams = data.teams;
+                let storageName = sessionStorage.getItem('team-name');
+                if (!this.state.teams.includes(storageName)) {
+                    sessionStorage.removeItem('team-name');
+                }
+                storageName = sessionStorage.getItem('team-name');
+                if (storageName) {
+                    this.state.myTeamName = storageName;
+                    this.state.isNameSaved = true;
+                } else {
+                    this.state.isNameSaved = '';
+                    this.state.isNameSaved = false;
+                }
+                this._savedName = this.state.myTeamName;
+                this.updateDOM();
+            } else if (data.type === "update") {
+                if (!data.teams.includes(this.state.myTeamName)) {
+                    redirectTo(`/`);
+                    alert("Вас забанили за читы!");
+                    return;
+                }
                 this.state.teams = data.teams;
                 this.updateDOM();
-            }
-
-            if (data.type === "game_started"){
+            } else if (data.type === "game_started") {
                 sessionStorage.setItem('teams', JSON.stringify(data.teams));
-                window.history.pushState({}, '', `/room/active/${this.data.roomCode}`);
-                window.dispatchEvent(new Event('popstate'));
+                redirectTo(`/room/active/${this.data.roomCode}`);
             }
         };
     }

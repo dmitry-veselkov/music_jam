@@ -1,27 +1,27 @@
-﻿export async function fetchGetTo(api_path) {
+﻿export async function fetchGetTo(apiPath) {
     /**
      * GET-запрос на api_path
      */
     try {
-        const response = await fetch(api_path, {
+        const response = await fetch(apiPath, {
             credentials: 'include',
         });
         if (!response.ok) {
-            throw new Error(`Ошибка сервера при запросе на ${api_path}: ${response.status}`);
+            throw new Error(`Получен статус ${response.status} при запросе на {api_path}`);
         }
         return await response.json();
     } catch (error) {
-        console.error(`Ошибка при запросе на ${api_path}: ${error}`);
+        console.error(`Сетевая ошибка при запросе на ${apiPath}: ${error}`);
         return null;
     }
 }
 
-export async function fetchPostTo(api_path, payload) {
+export async function fetchPostTo(apiPath, payload) {
     /**
      * POST-запрос на api_path c данными из payload
      */
     try {
-        const response = await fetch(api_path, {
+        const response = await fetch(apiPath, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -30,12 +30,12 @@ export async function fetchPostTo(api_path, payload) {
         });
 
         if (!response.ok) {
-            throw new Error(`Ошибка сервера при запросе на ${api_path}: ${response.status}`);
+            throw new Error(`Ошибка сервера при запросе на ${apiPath}: ${response.status}`);
         }
 
         return await response.json();
     } catch (error) {
-        console.error(`Ошибка при запросе на ${api_path}: ${error}`);
+        console.error(`Ошибка при запросе на ${apiPath}: ${error}`);
         return null;
     }
 }

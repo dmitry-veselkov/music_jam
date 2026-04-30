@@ -58,13 +58,29 @@ export class LoginView extends Component {
 
     _addEventListeners() {
         /**
-         * Клик на кнопку - и запускает аутентификация и авторизация пользователя
+         * Добавление обработчика на кнопку и удобных переключений между инпутами по enter
          */
         this.loginButton.addEventListener("click", async () => {
-            this.wrongText.hideWrongText();
-            await ButtonLoader.wrap(this.loginButton, async () => {
-                await this._login(this.emailInput.value, this.passwordInput.value);
-            });
+            await this._onLoginClickCallback();
+        });
+
+        this.emailInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                this.passwordInput.focus();
+            }
+        });
+
+        this.passwordInput.addEventListener('keypress', async (e) => {
+            if (e.key === 'Enter') {
+                await this._onLoginClickCallback();
+            }
+        });
+    }
+
+    async _onLoginClickCallback() {
+        this.wrongText.hideWrongText();
+        await ButtonLoader.wrap(this.loginButton, async () => {
+            await this._login(this.emailInput.value, this.passwordInput.value);
         });
     }
 

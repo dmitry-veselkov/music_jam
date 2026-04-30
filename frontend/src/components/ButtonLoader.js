@@ -7,7 +7,6 @@
         if (!button || button.classList.contains('loading')) return;
 
         button.classList.add('loading');
-        console.log(button.classList);
         button.disabled = true;
     }
 
