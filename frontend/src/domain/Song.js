@@ -1,4 +1,6 @@
-﻿export class Song {
+﻿import {AudioManager as audioManager, AudioManager} from "../services/AudioManager.js";
+
+export class Song {
     constructor(title, artist, questionUrl, answerUrl) {
         this.title = title;
         this.artist = artist;
@@ -9,42 +11,25 @@
     play(gameState) {
         if (!this.questionUrl) return;
 
-        if (gameState.audio) {
-            gameState.audio.pause();
-            gameState.audio = null;
-        }
-
         const url = `/api/play?file_name=${encodeURIComponent(this.questionUrl)}`;
-        gameState.audio = new Audio(url);
+        AudioManager.set(url);
+        AudioManager.play();
 
-        gameState.audio.addEventListener('ended', () => {
-            gameState.audio = null;
-        });
-
-        gameState.audio.play().catch(err => {
-            console.error("Ошибка воспроизведения:", err);
+        AudioManager.currentAudio.addEventListener('ended', () => {
+            AudioManager.currentAudio = null;
         });
     }
 
     playCorrectAnswer(gameState, onEnded = null) {
         if (!this.answerUrl) return;
 
-        if (gameState.audio) {
-            gameState.audio.pause();
-            gameState.audio = null;
-        }
-
         const url = `/api/play?file_name=${encodeURIComponent(this.answerUrl)}`;
-        gameState.audio = new Audio(url);
+        AudioManager.set(url);
+        AudioManager.play();
 
-        gameState.audio.addEventListener('ended', () => {
-            gameState.audio = null;
+        AudioManager.currentAudio.addEventListener('ended', () => {
+            AudioManager.currentAudio = null;
             if (onEnded) onEnded();
-        });
-
-
-        gameState.audio.play().catch(err => {
-            console.error("Ошибка воспроизведения:", err);
         });
     }
 }

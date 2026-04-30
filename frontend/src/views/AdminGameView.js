@@ -5,6 +5,8 @@ import {Logo, Button} from "../components/UI.js";
 import {GameSettings} from "../domain/GameSettings.js";
 import {OnGameRating} from "../components/OnGameRating.js";
 import {OnGameTable} from "../components/OnGameTable.js";
+import {redirectTo} from "../services/RouteServices.js";
+import {AudioManager} from "../services/AudioManager.js";
 
 export class AdminGameView extends Component {
     constructor(container, data) {
@@ -220,8 +222,7 @@ export class AdminGameView extends Component {
                 await endGame(this.data.roomCode);
                 sessionStorage.removeItem('teams');
                 new Promise(r => setTimeout(r, 200));
-                window.history.pushState({}, '', '/account');
-                window.dispatchEvent(new Event('popstate'));
+                redirectTo('/account');
             });
         }
         if (valueEl) {
@@ -235,12 +236,12 @@ export class AdminGameView extends Component {
         const musicBtn = this.container.querySelector('#music-btn');
         if (musicBtn) {
             musicBtn.addEventListener('click', () => {
-                if (!this.state.audio) return;
-                if (this.state.audio.paused) {
-                    this.state.audio.play();
+                if (!AudioManager.currentAudio) return;
+                if (AudioManager.currentAudio.paused) {
+                    AudioManager.play();
                     musicBtn.textContent = '❚❚';
                 } else {
-                    this.state.audio.pause();
+                    AudioManager.pause();
                     musicBtn.textContent = '▶';
                 }
 
@@ -250,10 +251,7 @@ export class AdminGameView extends Component {
         const clearAudioBtn = this.container.querySelector('#clear-audio-btn');
         if (clearAudioBtn) {
             clearAudioBtn.addEventListener('click', () => {
-                if (this.state.audio) {
-                    this.state.audio.pause();
-                    this.state.audio = null;
-                }
+                AudioManager.stop();
                 this.state.isShowingAnswer = false;
                 this.updateDOM();
             })
@@ -261,7 +259,7 @@ export class AdminGameView extends Component {
     }
 
     async _processTeamAnswer(isCorrect, points) {
-        this.state.audio.pause();
+        AudioManager.pause();
 
         this.ws.send(JSON.stringify({
             type: 'add_points',
@@ -284,7 +282,7 @@ export class AdminGameView extends Component {
             this.state.disabledTeams.push(this.state.buzzedTeam);
             this.state.buzzedTeam = null;
             this.state.teamAnswer = null;
-            this.state.audio.play();
+            AudioManager.play();
         }
 
         this.ws.send(JSON.stringify({
@@ -346,9 +344,7 @@ export class AdminGameView extends Component {
 
             if (data.type === 'player_buzzed') {
                 this.state.buzzedTeam = data.team;
-                if (this.state.audio) {
-                    this.state.audio.pause();
-                }
+                AudioManager.pause();
                 this.updateDOM();
             }
 

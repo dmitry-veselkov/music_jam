@@ -1,6 +1,6 @@
 import {Component} from "../core/Component.js";
 import {Button, Logo} from "../components/UI.js";
-import {get404} from "../services/RouteServices.js";
+import {get404, redirectTo} from "../services/RouteServices.js";
 import {tryGetGameSettings} from "../services/GamesServices.js";
 import {GameSettings} from "../domain/GameSettings.js";
 import {OnGameRating} from "../components/OnGameRating.js";
@@ -69,26 +69,26 @@ export class GameView extends Component {
                             <div class="modal-badge">🎧 Сейчас играет</div>
                             <div class="track-preview-subtitle">
                                 ${
-                                    this.state.activeCell
-                                        ? 'Организатор запустил вопрос. Можно отвечать.'
-                                        : 'Дождитесь, пока организатор выберет категорию.'
-                                }
+            this.state.activeCell
+                ? 'Организатор запустил вопрос. Можно отвечать.'
+                : 'Дождитесь, пока организатор выберет категорию.'
+        }
                             </div>
                         </div>
 
                         ${
-                        this.state.activeCell && this.state.canBuzz && !this.state.hadWrongAnswer
-                            ? Button({text: 'Ответить', id: 'buzz-btn', extraClass: 'w-100'})
-                            : `<button class="btn btn-secondary w-100" disabled>
+            this.state.activeCell && this.state.canBuzz && !this.state.hadWrongAnswer
+                ? Button({text: 'Ответить', id: 'buzz-btn', extraClass: 'w-100'})
+                : `<button class="btn btn-secondary w-100" disabled>
                                            ${
-                                            this.state.hadWrongAnswer
-                                                ? 'Вы ответили неправильно'
-                                                : this.state.activeCell
-                                                    ? 'Кто-то уже отвечает'
-                                                    : 'Ожидание вопроса'
-                                            }
+                    this.state.hadWrongAnswer
+                        ? 'Вы ответили неправильно'
+                        : this.state.activeCell
+                            ? 'Кто-то уже отвечает'
+                            : 'Ожидание вопроса'
+                }
                                            </button>`
-                        }
+        }
                     </div>
                 </aside>
 
@@ -190,7 +190,7 @@ export class GameView extends Component {
                 this.state.canBuzz = !this.state.hadWrongAnswer;
                 this.updateDOM();
 
-                if (this.state.hadWrongAnswer){
+                if (this.state.hadWrongAnswer) {
                     setTimeout(() => {
                         this.state.hadWrongAnswer = false;
                         this.updateDOM();
@@ -224,8 +224,8 @@ export class GameView extends Component {
 
             if (data.type === 'game_ended') {
                 sessionStorage.removeItem('teams');
-                window.history.pushState({}, '', '/');
-                window.dispatchEvent(new Event('popstate'));
+                sessionStorage.removeItem('team-name');
+                redirectTo('/');
             }
 
             if (data.type === 'add_points') {

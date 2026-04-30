@@ -1,4 +1,5 @@
 ﻿import {get404} from "../services/RouteServices.js";
+import {AudioManager} from "../services/AudioManager.js";
 
 export class Router {
     constructor(routes, container) {
@@ -21,7 +22,9 @@ export class Router {
 
     handleRoute() {
         let dataForView = {};
-        const path = this._updateRoomPath(window.location.pathname, dataForView);
+        const prevPath = window.location.pathname;
+        const path = this._updateRoomPath(prevPath, dataForView);
+        this._tryStopMusic(prevPath);
 
         const historyState = window.history.state || {};
         const combinedData = {...historyState, ...dataForView};
@@ -41,6 +44,12 @@ export class Router {
             return path.slice(0, path.length - roomCode.length - 1);
         }
         return path;
+    }
+
+    _tryStopMusic(prevPath) {
+        if (prevPath.includes('admin_active')) {
+            AudioManager.stop();
+        }
     }
 
     _showView(View, data) {

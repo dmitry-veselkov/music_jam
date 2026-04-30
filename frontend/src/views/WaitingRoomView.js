@@ -49,7 +49,6 @@ export class WaitingRoomView extends Component {
 
     _setState(newState) {
         this.state = {...this.state, ...newState};
-        this._savedName = this.state.myTeamName;
         this.updateDOM();
     }
 
@@ -122,6 +121,19 @@ export class WaitingRoomView extends Component {
 
             if (data.type === "init") {
                 this.state.teams = data.teams;
+                let storageName = sessionStorage.getItem('team-name');
+                if (!this.state.teams.includes(storageName)) {
+                    sessionStorage.removeItem('team-name');
+                }
+                storageName = sessionStorage.getItem('team-name');
+                if (storageName) {
+                    this.state.myTeamName = storageName;
+                    this.state.isNameSaved = true;
+                } else {
+                    this.state.isNameSaved = '';
+                    this.state.isNameSaved = false;
+                }
+                this._savedName = this.state.myTeamName;
                 this.updateDOM();
             } else if (data.type === "update") {
                 if (!data.teams.includes(this.state.myTeamName)) {

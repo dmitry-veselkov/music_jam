@@ -189,9 +189,10 @@ class ApiRouter:
             code = code.upper().strip()
             await self.db_hands.update_game_any_param(code, "status", "ended")
             await self._broadcast_room_message(code, {"type": "game_ended"})
-            return {
-                "success": True
-            }
+            for ws in self.rooms[code]:
+                ws.close()
+            self.room_state.pop(code)
+            return {"success": True}
 
         @self.router.post('/upload_music')
         async def upload_track(title: str = Form(...),
