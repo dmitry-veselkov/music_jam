@@ -7,7 +7,7 @@ from db.hands_db import DatabaseHands
 from fastapi import APIRouter, Cookie, HTTPException, Response, WebSocket, WebSocketDisconnect, status, UploadFile, \
     File, Form
 from services import Services
-from api_schemes import LoginSchema, RegisterSchema, SaveGameSchema, TeamSchema
+from api_schemes import LoginSchema, RegisterSchema, SaveGameSchema, TeamSchema, RemoveTeamSchema
 from s3 import S3
 
 
@@ -139,7 +139,7 @@ class ApiRouter:
             # await self._ensure_room_loaded(code)
             teams = self.room_state[code]["teams"]
 
-            if data.name not in teams:
+            if data.oldName not in teams:
                 teams.append(data.name)
             else:
                 for i, t in enumerate(teams):
@@ -148,6 +148,13 @@ class ApiRouter:
                         break
             await self._broadcast_room(code)
             return {"status": "ok"}
+
+        @self.router.post('/remove_team')
+        async def remove_team(data: RemoveTeamSchema) -> None:
+            team_name, code = data.team_name, data.code
+            teams = self.room_state[code]["teams"]
+            teams.remove(data.team_name)
+            await self._broadcast_room(data.code)
 
         # @self.router.post('/add_points')
         # async def add_points(code, payload : AddPointsSchema):
@@ -275,6 +282,7 @@ class ApiRouter:
 
     async def _broadcast_room(self, code: str) -> None:
         payload = {"type": "update", "teams": self.room_state[code]["teams"]}
+        print(payload)
 
         dead = []
         for ws in self.rooms[code]:

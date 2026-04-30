@@ -118,13 +118,20 @@ export class WaitingRoomView extends Component {
 
         this.ws.onmessage = (event) => {
             const data = JSON.parse(event.data);
+            console.log(data.type);
 
-            if (data.type === "init" || data.type === "update") {
+            if (data.type === "init") {
                 this.state.teams = data.teams;
                 this.updateDOM();
-            }
-
-            if (data.type === "game_started") {
+            } else if (data.type === "update") {
+                if (!data.teams.includes(this.state.myTeamName)) {
+                    redirectTo(`/`);
+                    alert("Вас забанили за читы!");
+                    return;
+                }
+                this.state.teams = data.teams;
+                this.updateDOM();
+            } else if (data.type === "game_started") {
                 sessionStorage.setItem('teams', JSON.stringify(data.teams));
                 redirectTo(`/room/active/${this.data.roomCode}`);
             }

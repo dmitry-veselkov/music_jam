@@ -20,6 +20,9 @@ class TeamSchema(BaseModel):
     oldName: str
     name: str
 
+class RemoveTeamSchema(BaseModel):
+    team_name: str
+    code: str
 
 class SaveGameSchema(BaseModel):
     roomCode: str

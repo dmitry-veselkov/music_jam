@@ -12,3 +12,8 @@ export async function setTeamName(gameId, code, oldName, newName) {
     const payload = {"id": gameId, "code": code, "oldName": oldName, "name": newName};
     return await fetchPostTo(`/api/set_team_name`, payload);
 }
+
+export async function removeTeam(teamName, code) {
+    const payload = {"team_name": teamName, "code": code};
+    return await fetchPostTo(`/api/remove_team`, payload);
+}
