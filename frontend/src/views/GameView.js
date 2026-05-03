@@ -65,29 +65,29 @@ export class GameView extends Component {
                             <p><strong>Описание:</strong> ${this.gameSettings.description || '—'}</p>
                         </div>
 
-                        <div class="player-status-card" style="margin-top: 1rem; margin-bottom: 1rem;"">
+                        <div class="player-status-card" style="margin-top: 1rem; margin-bottom: 1rem;">
                             <div class="track-preview-subtitle">
                                 ${
-            this.state.activeCell
-                ? 'Организатор запустил вопрос. Можно отвечать.'
-                : 'Дождитесь, пока организатор выберет категорию.'
-        }
+                                    this.state.activeCell
+                                        ? 'Организатор запустил вопрос. Можно отвечать.'
+                                        : 'Дождитесь, пока организатор выберет категорию.'
+                                }
                             </div>
                         </div>
 
                         ${
-            this.state.activeCell && this.state.canBuzz && !this.state.hadWrongAnswer
-                ? Button({text: 'Ответить', id: 'buzz-btn', extraClass: 'w-100'})
-                : `<button class="btn btn-secondary w-100" disabled>
+                            this.state.activeCell && this.state.canBuzz && !this.state.hadWrongAnswer
+                                ? Button({text: 'Ответить', id: 'buzz-btn', extraClass: 'w-100'})
+                                : `<button class="btn btn-secondary w-100" disabled>
                                            ${
-                    this.state.hadWrongAnswer
-                        ? 'Вы ответили неправильно'
-                        : this.state.activeCell
-                            ? 'Кто-то уже отвечает'
-                            : 'Ожидание вопроса'
-                }
-                                           </button>`
-        }
+                                    this.state.hadWrongAnswer
+                                        ? 'Вы ответили неправильно'
+                                        : this.state.activeCell
+                                            ? 'Кто-то уже отвечает'
+                                            : 'Ожидание вопроса'
+                                }
+                                                           </button>`
+                        }
                     </div>
                 </aside>
 
