@@ -77,7 +77,9 @@ const CostsRow = (costs) => {
                         <input type="number"
                                class="cost-edit"
                                data-idx="${idx}"
-                               value="${cost}">
+                               value="${cost}"
+                               min="0"
+                               max="3000">
             
                         <button class="remove-btn remove-col"
                                 data-idx="${idx}">
