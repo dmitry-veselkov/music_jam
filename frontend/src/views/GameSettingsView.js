@@ -5,7 +5,7 @@ import {authenticationToGame} from "../services/AccountServices.js";
 import {GameSettings} from "../domain/GameSettings.js";
 import {Song} from "../domain/Song.js";
 import {ButtonLoader} from "../components/ButtonLoader.js";
-import {AsideSettings, MainEditor} from "../components/GameSettingsPanels.js";
+import {AsideSettings, MainEditor, Toast} from "../components/GameSettingsPanels.js";
 import {AddMusicModal} from "../components/AddMusicModal.js";
 
 export class GameSettingsView extends Component {
@@ -26,19 +26,6 @@ export class GameSettingsView extends Component {
         this.updateDOM();
     }
 
-    // async _authentication() {
-    //     const userInfo = await checkAuthorizedOrRedirect();
-    //     if (!userInfo) return;
-    //
-    //     const roomInfo = await tryGetGameSettings(this.data.roomCode);
-    //     if (!roomInfo || !roomInfo.exists || userInfo.id != roomInfo.admin_user_id) {
-    //         this.container.innerHTML = get404();
-    //         return;
-    //     }
-    //
-    //     return userInfo, roomInfo;
-    // }
-
     updateDOM() {
         this.container.innerHTML = this.render();
         this.attachEvents();
@@ -52,6 +39,7 @@ export class GameSettingsView extends Component {
                     ${MainEditor(this.gameSettings, this.data.roomCode)}
                 </div>
                 ${AddMusicModal(this.currentCell)}
+                ${Toast()}
         `;
     }
 
@@ -139,12 +127,15 @@ export class GameSettingsView extends Component {
         }
 
         const saveChangesBtn = this.container.querySelector('#save-changes');
-        saveChangesBtn.addEventListener('click', async () => {
-            await ButtonLoader.wrap(saveChangesBtn, async () => {
-                await saveGameSettings(this.getPayload());
-                this.updateDOM();
-            });
-        });
+        if (saveChangesBtn) {
+            saveChangesBtn.onclick = async () => {
+                await ButtonLoader.wrap(saveChangesBtn, async () => {
+                    await saveGameSettings(this.getPayload());
+                    this.updateDOM();
+                    this.showToast();
+                });
+            }
+        }
 
         this.container.querySelectorAll('input[name="game-mode"]').forEach(radio => {
             radio.onchange = (e) => {
@@ -227,5 +218,15 @@ export class GameSettingsView extends Component {
 
         this.closeModal();
         this.updateDOM();
+    }
+
+    showToast(text = 'Изменения сохранены') {
+        const toast = document.getElementById('save-toast');
+        if (!toast) return;
+
+        toast.textContent = `✅ ${text}`;
+        toast.classList.add('visible');
+
+        setTimeout(() => toast.classList.remove('visible'), 3000);
     }
 }

@@ -154,3 +154,12 @@ const ModeForm = (mode) => {
             </div>
     `;
 }
+
+
+export const Toast = (text = 'Изменения сохранены') => {
+    return `
+        <div class="toast" id="save-toast">
+            ${text}
+        </div>
+    `;
+}

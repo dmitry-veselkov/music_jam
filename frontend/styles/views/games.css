@@ -919,3 +919,25 @@ input[type="range"] {
         gap: 0.5rem;
     }
 }
+
+.toast {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    background: #22c55e;
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+.toast.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
