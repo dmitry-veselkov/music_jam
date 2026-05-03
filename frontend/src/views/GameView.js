@@ -229,9 +229,11 @@ export class GameView extends Component {
             }
 
             if (data.type === 'add_points') {
-                console.log('add_points');
                 const team = data.team;
                 const points = data.points;
+                if (points <= 0) {
+                    this.state.hadWrongAnswer = true;
+                }
                 this.state.players[team] += points;
                 this.updateDOM();
             }

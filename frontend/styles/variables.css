@@ -16,4 +16,5 @@
     --spacing-xl: 40px;
 
     --transition-fast: 0.2s ease;
+    --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
 }
