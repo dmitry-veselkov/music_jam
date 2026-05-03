@@ -63,17 +63,21 @@
     border: 1px solid var(--color-border);
     padding: 1rem;
     -webkit-overflow-scrolling: touch;
+    max-width: 100%;
 }
 
 .edit-table {
-    width: 100%;
+    width: max-content;
+    min-width: 100%;
     border-collapse: separate;
     border-spacing: 0.5rem;
+    table-layout: fixed;
 }
 
 /* Ячейки */
 .edit-table th, .edit-table td {
     min-width: 120px;
+    max-width: 160px;
     padding: 0;
 }
 
@@ -89,6 +93,20 @@
 
 .th-content:focus-within, .td-content:focus-within {
     border-color: var(--color-primary);
+}
+
+.readonly-td .td-content,
+.readonly-th .th-content {
+    min-width: 0;
+}
+
+.readonly-td span,
+.readonly-th span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: block;
+    max-width: 100%;
 }
 
 /* Инпуты внутри таблицы */
@@ -125,6 +143,13 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+.cell-sub {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
 }
 
 /* Кнопки удаления */
