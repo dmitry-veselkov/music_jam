@@ -9,6 +9,7 @@ from fastapi import APIRouter, Cookie, HTTPException, Response, WebSocket, WebSo
 from services import Services
 from api_schemes import LoginSchema, RegisterSchema, SaveGameSchema, TeamSchema, RemoveTeamSchema
 from s3 import S3
+from domain.room import Room
 
 
 class ApiRouter:
@@ -21,9 +22,7 @@ class ApiRouter:
         self._setup_routes()
         self.logger = logger
         self.s3 = s3
-
-        self.rooms: dict[str, set[WebSocket]] = defaultdict(set)
-        self.room_state: dict[str, dict[str, list[Any]]] = defaultdict(lambda: {"teams": []})
+        self.rooms: dict[str, Room] = {}
 
     def _setup_routes(self) -> None:
         @self.router.post("/login")
@@ -113,7 +112,6 @@ class ApiRouter:
             await self.db_hands.update_game_any_param(code, "description", data.description)
             await self.db_hands.update_game_any_param(code, "mode", data.mode)
 
-            print(data.tracks)
             await self.db_hands.save_game_grid(
                 code,
                 data.categories,
@@ -136,40 +134,27 @@ class ApiRouter:
         @self.router.post('/set_team_name')
         async def set_team_name(data: TeamSchema) -> dict[str, Any]:
             code = data.code
-            # await self._ensure_room_loaded(code)
-            teams = self.room_state[code]["teams"]
-
-            if data.oldName not in teams:
-                teams.append(data.name)
+            # teams = self.rooms[code].teams.keys()
+            # self.rooms[code].teams[data.oldName] = data.name
+            if data.oldName not in self.rooms[code].teams:
+                scores = 0
             else:
-                for i, t in enumerate(teams):
-                    if t == data.oldName:
-                        teams[i] = data.name
-                        break
-            await self._broadcast_room(code)
+                scores = self.rooms[code].teams.pop(data.oldName)
+            self.rooms[code].add_team(data.name, scores)
+
+            await self.rooms[code].broadcast_room()
             return {"status": "ok"}
 
         @self.router.post('/remove_team')
         async def remove_team(data: RemoveTeamSchema) -> None:
             team_name, code = data.team_name, data.code
-            teams = self.room_state[code]["teams"]
-            teams.remove(data.team_name)
-            await self._broadcast_room(data.code)
-
-        # @self.router.post('/add_points')
-        # async def add_points(code, payload : AddPointsSchema):
-        #     points = payload.points if payload.correct else -payload.points
-        #     return await self.db_hands.update_score_team(code,
-        #                                                  payload.team,
-        #                                                  points)
-
-        # @self.router.get('/get_team_name')
-        # async def get_team_name(uuid: str) -> Response:
-        #     return await self.db_hands.get_team_name(uuid)
+            self.rooms[code].remove_team(team_name)
+            await self.rooms[code].broadcast_room()
 
         @self.router.get('/run_game')
         async def run_game(code: str = '') -> None | dict[str, Any]:
             code = code.upper().strip()
+            self.rooms[code] = Room(code)
             await self.db_hands.update_game_any_param(code, "status", "waiting")
             room_info = await self.db_hands.get_room_info(code)
             tracks_info = await self.db_hands.get_room_tracks(code)
@@ -179,19 +164,16 @@ class ApiRouter:
         async def start_game(code: str = ''):
             code = code.upper().strip()
             await self.db_hands.update_game_any_param(code, "status", "playing")
-            await self._broadcast_start(code)
-            return {
-                "success": True
-            }
+            await self.rooms[code].broadcast_start()
+            return {"success": True}
 
         @self.router.post('/end_game')
         async def end_game(code: str = ''):
             code = code.upper().strip()
             await self.db_hands.update_game_any_param(code, "status", "ended")
-            await self._broadcast_room_message(code, {"type": "game_ended"})
-            for ws in self.rooms[code]:
-                ws.close()
-            self.room_state.pop(code)
+            await self.rooms[code].send_payload_to_all({"type": "game_ended"})
+            self.rooms[code].close_room()
+            self.rooms.pop(code)
             return {"success": True}
 
         @self.router.post('/upload_music')
@@ -248,23 +230,18 @@ class ApiRouter:
         @self.router.websocket("/ws/room/{code}")
         async def room_ws(websocket: WebSocket, code: str) -> None:
             code = code.upper().strip()
-
             await websocket.accept()
-            self.rooms[code].add(websocket)
 
-            # await self._ensure_room_loaded(code)
-
-            await websocket.send_json({"type": "init", "teams": self.room_state[code]["teams"]})
+            self.rooms[code].add_socket(websocket)
+            teams_names = list(self.rooms[code].teams.keys())
+            await websocket.send_json({"type": "init", "teams": teams_names})
 
             try:
                 while True:
                     msg = await websocket.receive_json()
-                    code = code.upper().strip()
-
-                    if msg['type'] in ('track_started', 'player_buzzed', 'team_answer', 'game_ended', 'show_answer',
-                                       'add_points', 'reset_answer_btn'):
-                        await self._broadcast_room_message(code, msg)
-
+                    if msg['type'] in ('track_started', 'player_buzzed', 'team_answer', 'game_ended',
+                                       'show_answer', 'add_points', 'reset_answer_btn'):
+                        await self.rooms[code].send_payload_to_all(msg)
             except WebSocketDisconnect:
                 self.rooms[code].discard(websocket)
 
@@ -272,52 +249,3 @@ class ApiRouter:
         if not token or not (payload := self.services.try_get_jwt_payload(token)):
             return None
         return payload
-
-    # async def _ensure_room_loaded(self, code: str):
-    #     if self.room_state[code]["teams"]:
-    #         return
-    #     room_info = await self.db_hands.get_room_info(code)
-    #     tracks_info = await self.db_hands.get_room_tracks(code)
-    #     if room_info:
-    #         self.room_state[code]["teams"] = self.services.parse_room_info(room_info, tracks_info)['teams']
-
-    async def _broadcast_room(self, code: str) -> None:
-        payload = {"type": "update", "teams": self.room_state[code]["teams"]}
-        print(payload)
-
-        dead = []
-        for ws in self.rooms[code]:
-            try:
-                await ws.send_json(payload)
-            except:
-                dead.append(ws)
-
-        for ws in dead:
-            self.rooms[code].discard(ws)
-
-    async def _broadcast_room_message(self, code: str, payload: dict):
-        dead = []
-        for ws in self.rooms[code]:
-            try:
-                await ws.send_json(payload)
-            except:
-                dead.append(ws)
-
-        for ws in dead:
-            self.rooms[code].discard(ws)
-
-    async def _broadcast_start(self, code: str):
-        code = code.upper().strip()
-        payload = {
-            "type": "game_started",
-            "teams": self.room_state[code]["teams"]
-        }
-        dead = []
-        for ws in self.rooms[code]:
-            try:
-                await ws.send_json(payload)
-            except:
-                dead.append(ws)
-
-        for ws in dead:
-            self.rooms[code].discard(ws)

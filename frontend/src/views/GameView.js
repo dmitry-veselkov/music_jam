@@ -30,7 +30,6 @@ export class GameView extends Component {
 
     _applyRoomInfo(roomInfo) {
         this.gameSettings.init(roomInfo);
-
     }
 
     async mount() {

@@ -115,53 +115,81 @@
     font-size: 1.1rem;
 }
 
-/* Превью ячейки вопроса */
+/* Базовая ячейка (Пустая) */
 .preview-cell {
-    background: #1a1a1a;
-    height: 50px;
+    background: rgba(255, 255, 255, 0.03); /* Почти прозрачная, намек на слот */
+    height: 54px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 0.5rem;
-    color: #444;
-    font-weight: bold;
-    border: 1px dashed #333;
+    border-radius: 0.75rem;
+    color: #666; /* Неяркий текст для пустой ячейки */
+    font-weight: 500;
+    border: 2px dashed #333; /* Пунктир подчеркивает, что сюда нужно что-то вставить */
     padding: 0 0.5rem;
     text-align: center;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
 }
 
-.preview-cell:hover {
-    border-color: #555;
-    background: #222;
+/* Эффект при наведении на доступную ячейку */
+.preview-cell:hover:not(.disabled-cell) {
+    border-color: var(--color-primary);
+    background: rgba(29, 185, 84, 0.05);
+    color: #fff;
+    transform: translateY(-1px);
 }
 
-/* Ячейка заполнена данными - ГОТОВА к игре */
+/* Ячейка ЗАПОЛНЕНА данными — теперь она выглядит как солидная кнопка */
 .cell-filled {
-    background: #1f2937;
-    color: var(--color-primary) !important;
-    border: 1px solid rgba(34, 197, 94, 0.2) !important;
-    box-shadow: inset 0 0 10px rgba(34, 197, 94, 0.05);
+    background: #2a2a2a; /* Темный, но не серый "фон" */
+    color: #fff !important;
+    border: 2px solid #3e3e3e !important; /* Сплошная граница */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-/* Ячейка в фокусе/выбрана */
+/* Добавим индикатор на заполненную ячейку (маленькая точка или полоска слева) */
+.cell-filled::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 20%;
+    bottom: 20%;
+    width: 3px;
+    background: var(--color-primary);
+    border-radius: 0 4px 4px 0;
+}
+
+/* Ячейка в фокусе/ВЫБРАНА в данный момент */
 .cell-active {
-    outline: 3px solid #22c55e;
-    outline-offset: -3px;
-    background: #252525;
+    background: #1db954 !important; /* Используем основной цвет (зеленый Spotify-style) */
+    color: white !important;
+    border-color: #1ed760 !important;
+    box-shadow: 0 0 15px rgba(29, 185, 84, 0.4);
+    transform: scale(1.02);
+    z-index: 2;
 }
 
-/* Ячейка уже "сыграна" или недоступна */
+.cell-active .cell-sub {
+    color: white;
+}
+
+/* Ячейка недоступна */
 .disabled-cell {
-    pointer-events: none;
-    opacity: 0.35;
-    background: #111 !important;
+    cursor: not-allowed;
+    opacity: 0.2;
+    background: transparent !important;
     border: 1px solid #222 !important;
     filter: grayscale(1);
+}
+
+/* Текст внутри ячейки */
+.cell-sub {
+    font-size: 0.85rem;
+    line-height: 1.2;
+    pointer-events: none; /* Чтобы не мешать клику по кнопке */
 }
 
 /* Кнопки удаления */
