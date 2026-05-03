@@ -111,8 +111,9 @@ export class GameView extends Component {
         if (!this.state.answer) return '';
 
         return `
-        <div class="modal-overlay">
+        <div class="modal-overlay" id="answer-overlay">
             <div class="card modal-card answer-card">
+                <button class="modal-close" id="close-answer-btn">×</button>
                 <div class="answer-icon">🎵</div>
                 <div class="answer-label">Правильный ответ</div>
                 <p class="answer-title">${this.state.answer.title}</p>
@@ -272,6 +273,21 @@ export class GameView extends Component {
                     this.state.showAnswerInput = false;
                     this.updateDOM();
                 };
+            }
+        }
+
+        const closeCorrectAnswer = this.container.querySelector('#close-answer-btn');
+        if (closeCorrectAnswer) {
+            closeCorrectAnswer.onclick = () => {
+                this.container.querySelector('#answer-overlay').remove();
+            }
+        }
+
+        const closeCorrectAnswerBackground = this.container.querySelector('#answer-overlay');
+        if (closeCorrectAnswerBackground) {
+            closeCorrectAnswerBackground.onclick = (e) => {
+                if (e.target.id === 'answer-overlay')
+                    e.target.remove();
             }
         }
     }

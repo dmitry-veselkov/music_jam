@@ -306,6 +306,14 @@ input[type="range"] {
     box-shadow: 0 0 0 4px rgba(29, 185, 84, 0.15);
 }
 
+.modal-card {
+    width: 100%;
+    max-width: 400px;
+    max-height: calc(100vh - 48px);
+    overflow-y: auto;
+    position: relative;
+}
+
 .track-preview-card {
     display: flex;
     gap: 14px;
@@ -398,6 +406,7 @@ input[type="range"] {
     max-width: 400px;
     max-height: calc(100vh - 48px);
     overflow-y: auto;
+    position: relative;
 }
 
 .player-table-wrapper {
