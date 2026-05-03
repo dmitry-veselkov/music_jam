@@ -134,18 +134,12 @@ export class AdminGameView extends Component {
                     </div>
 
                     <div class="btn-group-vertical">
-                        ${this.state.activeCell ? Button({
-            text: 'Завершить вопрос',
-            id: 'end-question-btn',
-            extraClass: 'w-100'
-        }) : ''}
-            
                         <div style="margin-top: 0.75rem;">
                             ${Button({
-            text: 'Завершить игру',
-            id: 'end-btn',
-            extraClass: 'w-100'
-        })}
+                                text: 'Завершить игру',
+                                id: 'end-btn',
+                                extraClass: 'w-100'
+                            })}
                         </div>
                     </div>
                 </div>
@@ -155,11 +149,16 @@ export class AdminGameView extends Component {
                         <div class="audio-panel__controls">
                             ${Button({text: '❚❚', id: 'music-btn'})}
                             ${this.state.isShowingAnswer ? Button({
-            text: '✕ Завершить ответ',
-            id: 'clear-audio-btn',
-            variant: 'outline'
-        }) : ''}
+                                text: '✕ Завершить ответ',
+                                id: 'clear-audio-btn',
+                                variant: 'outline'
+                        }) : ''}
                         </div>
+                        ${this.state.activeCell ? Button({
+                            text: 'Закрыть вопрос',
+                            id: 'end-question-btn',
+                            variant: 'outline'
+                        }) : ''}
                 </div>
             </aside>
            
