@@ -21,6 +21,7 @@ export class GameView extends Component {
             canBuzz: false,
             answer: null,
             showAnswerInput: false,
+            whoAnswers : null,
             players: Object.fromEntries(
                 teams.map(team => [team, 0])
             )
@@ -83,10 +84,10 @@ export class GameView extends Component {
                                     this.state.hadWrongAnswer
                                         ? 'Вы ответили неправильно'
                                         : this.state.activeCell
-                                            ? 'Кто-то уже отвечает'
+                                            ? `${this.state.whoAnswers} отвечает`
                                             : 'Ожидание вопроса'
                                 }
-                                                           </button>`
+                                  </button>`
                         }
                     </div>
                 </aside>
@@ -187,6 +188,7 @@ export class GameView extends Component {
                 const myTeam = sessionStorage.getItem('team-name') ?? 'Неизвестная команда';
                 this.state.hadWrongAnswer = data.disabledTeams.includes(myTeam);
                 this.state.canBuzz = !this.state.hadWrongAnswer;
+                this.state.whoAnswers = null;
                 this.updateDOM();
 
                 if (this.state.hadWrongAnswer) {
@@ -200,6 +202,7 @@ export class GameView extends Component {
             if (data.type === 'player_buzzed') {
                 this.state.canBuzz = false;
                 const myTeam = sessionStorage.getItem('team-name') ?? 'Неизвестная команда';
+                this.state.whoAnswers = myTeam;
                 if (data.team === myTeam) {
                     this.state.showAnswerInput = this.gameSettings.mode === false;
                 }
@@ -211,7 +214,8 @@ export class GameView extends Component {
                     title: data.title,
                     artist: data.artist,
                 }
-                this.state.canBuzz = true;
+                this.state.whoAnswers = null;
+                this.state.canBuzz = false;
                 this.state.showAnswerInput = false;
                 this.state.activeCell = null;
                 this.updateDOM();
