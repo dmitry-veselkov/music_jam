@@ -8,7 +8,7 @@ import {OnGameTable} from "../components/OnGameTable.js";
 import {redirectTo} from "../services/RouteServices.js";
 import {AudioManager} from "../services/AudioManager.js";
 import {CalculatorModal} from "../components/AdminCalculatorModal.js";
-import {CorrectAnswerModal} from "../components/CorrectAnswerModal.js";
+import {CorrectAnswerModalForAdmin} from "../components/AnswerModals.js";
 import {EditorSidebar} from "../components/EditorSidebar.js";
 import {QuestionService} from "../domain/QuestionService.js";
 
@@ -74,7 +74,7 @@ export class AdminGameView extends Component {
                         <div class="badge">Код комнаты: ${this.data.roomCode}</div>
                         <div class="badge">Режим организатора</div>
                     </div>
-                    ${CorrectAnswerModal(this.state.currentAnswer)}
+                    ${CorrectAnswerModalForAdmin(this.state.currentAnswer)}
                     ${OnGameTable(this.gameSettings, this.state, this._tableOptions)}
                     ${OnGameRating(this.state.players)}
                 </main>

@@ -1,17 +1,18 @@
 import {Component} from "../core/Component.js";
-import {Button, Logo} from "../components/UI.js";
+import {Logo} from "../components/UI.js";
 import {get404, redirectTo} from "../services/RouteServices.js";
 import {tryGetGameSettings} from "../services/GamesServices.js";
 import {GameSettings} from "../domain/GameSettings.js";
 import {OnGameRating} from "../components/OnGameRating.js";
 import {OnGameTable} from "../components/OnGameTable.js";
+import {AnswerInput, CorrectAnswerModalForPlayer, IncorrectAnswerModal} from "../components/AnswerModals.js";
+import {PlayerGameSidebar} from "../components/PlayerGameSidebar.js";
 
 export class GameView extends Component {
     constructor(container, data) {
         super(container, data);
 
         this.gameSettings = new GameSettings();
-        this.audio = null;
 
         const teams = JSON.parse(sessionStorage.getItem('teams') || '[]');
 
@@ -55,43 +56,8 @@ export class GameView extends Component {
             <div class="logo-corner">${Logo()}</div>
 
             <div class="editor-layout player-mode">
-                <aside class="editor-sidebar">
-                    <div class="card">
-                        <h2 class="card-title">Информация об игре</h2>
-
-                        <div class="game-meta">
-                            <p><strong>Название:</strong> ${this.gameSettings.title || '—'}</p>
-                            <p><strong>Автор:</strong> ${this.gameSettings.author || '—'}</p>
-                            <p><strong>Описание:</strong> ${this.gameSettings.description || '—'}</p>
-                        </div>
-
-                        <div class="player-status-card" style="margin-top: 1rem; margin-bottom: 1rem;"">
-                            <div class="modal-badge">🎧 Сейчас играет</div>
-                            <div class="track-preview-subtitle">
-                                ${
-            this.state.activeCell
-                ? 'Организатор запустил вопрос. Можно отвечать.'
-                : 'Дождитесь, пока организатор выберет категорию.'
-        }
-                            </div>
-                        </div>
-
-                        ${
-            this.state.activeCell && this.state.canBuzz && !this.state.hadWrongAnswer
-                ? Button({text: 'Ответить', id: 'buzz-btn', extraClass: 'w-100'})
-                : `<button class="btn btn-secondary w-100" disabled>
-                                           ${
-                    this.state.hadWrongAnswer
-                        ? 'Вы ответили неправильно'
-                        : this.state.activeCell
-                            ? 'Кто-то уже отвечает'
-                            : 'Ожидание вопроса'
-                }
-                                           </button>`
-        }
-                    </div>
-                </aside>
-
+                ${PlayerGameSidebar(this.state, this.gameSettings)}
+                
                 <main class="editor-main">
                     <div class="table-header-actions">
                         <div class="badge">Код комнаты: ${this.data.roomCode}</div>
@@ -101,59 +67,11 @@ export class GameView extends Component {
                     ${OnGameRating(this.state.players, sessionStorage.getItem('team-name'))}
                 </main>
             </div>
-            ${this.renderCorrectAnswer()}
-            ${this.renderAnswerInput()}
-            ${this.renderIncorrectAnswer()}
+            ${CorrectAnswerModalForPlayer(this.state.answer)}
+            ${AnswerInput(this.state.showAnswerInput)}
+            ${IncorrectAnswerModal(this.state.hadWrongAnswer)}
         `;
     }
-
-    renderCorrectAnswer() {
-        if (!this.state.answer) return '';
-
-        return `
-        <div class="modal-overlay">
-            <div class="card modal-card answer-card">
-                <div class="answer-icon">🎵</div>
-                <div class="answer-label">Правильный ответ</div>
-                <p class="answer-title">${this.state.answer.title}</p>
-                <p class="answer-artist">${this.state.answer.artist}</p>
-            </div>
-        </div>`;
-    }
-
-    renderIncorrectAnswer() {
-        if (!this.state.hadWrongAnswer) return '';
-        return `
-        <div class="modal-overlay answer-fade">
-            <div class="card modal-card answer-card">
-                <div class="answer-icon">🎵</div>
-                <div class="answer-label">Вы дали неправильный ответ!</div>
-            </div>
-        </div>`;
-    }
-
-    renderAnswerInput() {
-        if (!this.state.showAnswerInput) return '';
-
-        return `
-            <div class="modal-overlay">
-                <div class="card modal-card">
-                    <h3 class="card-title">Ваш ответ</h3>
-                        <div class="form-group">
-                            <label>Исполнитель</label>
-                            <input class="ui-input" id="answer-artist" placeholder="Введите исполнителя" />
-                        </div>
-                        <div class="form-group">
-                            <label>Название трека</label>
-                            <input class="ui-input" id="answer-title" placeholder="Введите название" />
-                        </div>
-                        <div class="btn-group-vertical">
-                            ${Button({text: 'Отправить', id: 'submit-answer-btn', extraClass: 'w-100'})}
-                        </div>
-                </div>
-            </div>`;
-    }
-
 
     _connectSocket() {
         if (this.ws) {
@@ -187,15 +105,16 @@ export class GameView extends Component {
             if (data.type === 'reset_answer_btn') {
                 const myTeam = sessionStorage.getItem('team-name') ?? 'Неизвестная команда';
                 this.state.hadWrongAnswer = data.disabledTeams.includes(myTeam);
+                console.log(this.state.hadWrongAnswer);
                 this.state.canBuzz = !this.state.hadWrongAnswer;
                 this.updateDOM();
 
-                if (this.state.hadWrongAnswer) {
-                    setTimeout(() => {
-                        this.state.hadWrongAnswer = false;
-                        this.updateDOM();
-                    }, 3000);
-                }
+                // if (this.state.hadWrongAnswer) {
+                //     setTimeout(() => {
+                //         this.state.hadWrongAnswer = false;
+                //         this.updateDOM();
+                //     }, 3000);
+                // }
             }
 
             if (data.type === 'player_buzzed') {
@@ -215,6 +134,7 @@ export class GameView extends Component {
                 this.state.canBuzz = true;
                 this.state.showAnswerInput = false;
                 this.state.activeCell = null;
+                this.state.hadWrongAnswer = false;
                 this.updateDOM();
                 setTimeout(() => {
                     this.state.answer = null
@@ -231,9 +151,6 @@ export class GameView extends Component {
             if (data.type === 'add_points') {
                 const team = data.team;
                 const points = data.points;
-                if (points <= 0) {
-                    this.state.hadWrongAnswer = true;
-                }
                 this.state.players[team] += points;
                 this.updateDOM();
             }
