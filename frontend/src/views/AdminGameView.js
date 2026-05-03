@@ -75,8 +75,6 @@ export class AdminGameView extends Component {
             <div class="modal-backdrop"></div>
 
             <div class="modal-dialog">
-                <button class="modal-close" id="close-calculator-modal" aria-label="Закрыть">×</button>
-
                 <div class="modal-header">
                     <div class="modal-badge">🧮 Калькулятор</div>
                     <h3 class="modal-title">Отвечает: <strong>${this.state.buzzedTeam}</strong></h3>
@@ -97,7 +95,8 @@ export class AdminGameView extends Component {
                             type="number"
                             value="${defaultPoints}"
                             min="0"
-                            placeholder="${defaultPoints}">
+                            placeholder="${defaultPoints}"
+                            max="3000">
                     </div>
                 </div>
 
