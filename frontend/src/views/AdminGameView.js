@@ -138,6 +138,7 @@ export class AdminGameView extends Component {
                     AudioManager.pause();
                     musicBtn.textContent = '▶';
                 }
+
             })
         }
 

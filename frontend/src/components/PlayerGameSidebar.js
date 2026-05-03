@@ -40,6 +40,6 @@ function getDisabledReason(state) {
     return state.hadWrongAnswer
         ? 'Вы ответили неправильно'
         : state.activeCell
-            ? 'Кто-то уже отвечает'
+            ? `${state.whoAnswers} отвечает`
             : 'Ожидание вопроса';
 }

@@ -36,7 +36,8 @@ export const CalculatorModal = (state, gameSettings) => {
                             type="number"
                             value="${defaultPoints}"
                             min="0"
-                            placeholder="${defaultPoints}">
+                            placeholder="${defaultPoints}"
+                            max="3000">
                     </div>
                 </div>
 

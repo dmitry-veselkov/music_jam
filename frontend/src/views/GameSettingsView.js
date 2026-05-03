@@ -5,7 +5,7 @@ import {authenticationToGame} from "../services/AccountServices.js";
 import {GameSettings} from "../domain/GameSettings.js";
 import {Song} from "../domain/Song.js";
 import {ButtonLoader} from "../components/ButtonLoader.js";
-import {AsideSettings, MainEditor} from "../components/GameSettingsPanels.js";
+import {AsideSettings, MainEditor, Toast, ModeExplanationModal} from "../components/GameSettingsPanels.js";
 import {AddMusicModal} from "../components/AddMusicModal.js";
 
 export class GameSettingsView extends Component {
@@ -26,19 +26,6 @@ export class GameSettingsView extends Component {
         this.updateDOM();
     }
 
-    // async _authentication() {
-    //     const userInfo = await checkAuthorizedOrRedirect();
-    //     if (!userInfo) return;
-    //
-    //     const roomInfo = await tryGetGameSettings(this.data.roomCode);
-    //     if (!roomInfo || !roomInfo.exists || userInfo.id != roomInfo.admin_user_id) {
-    //         this.container.innerHTML = get404();
-    //         return;
-    //     }
-    //
-    //     return userInfo, roomInfo;
-    // }
-
     updateDOM() {
         this.container.innerHTML = this.render();
         this.attachEvents();
@@ -52,6 +39,8 @@ export class GameSettingsView extends Component {
                     ${MainEditor(this.gameSettings, this.data.roomCode)}
                 </div>
                 ${AddMusicModal(this.currentCell)}
+                ${Toast()}
+                ${ModeExplanationModal()}
         `;
     }
 
@@ -115,18 +104,18 @@ export class GameSettingsView extends Component {
                     song: this.gameSettings.cells[e.currentTarget.dataset.row][e.currentTarget.dataset.col].song,
                 };
                 this.updateDOM();
-                this.openModal();
+                this.openTrackModal();
             };
         });
 
         const cancelBtn = this.container.querySelector('#cancel-track');
         if (cancelBtn) {
-            cancelBtn.onclick = () => this.closeModal();
+            cancelBtn.onclick = () => this.closeTrackModal();
         }
 
         const closeBtn = this.container.querySelector('#close-modal');
         if (closeBtn) {
-            closeBtn.onclick = () => this.closeModal();
+            closeBtn.onclick = () => this.closeTrackModal();
         }
 
         const saveTrackBtn = this.container.querySelector('#save-track');
@@ -139,26 +128,59 @@ export class GameSettingsView extends Component {
         }
 
         const saveChangesBtn = this.container.querySelector('#save-changes');
-        saveChangesBtn.addEventListener('click', async () => {
-            await ButtonLoader.wrap(saveChangesBtn, async () => {
-                await saveGameSettings(this.getPayload());
-                this.updateDOM();
-            });
-        });
+        if (saveChangesBtn) {
+            saveChangesBtn.onclick = async () => {
+                await ButtonLoader.wrap(saveChangesBtn, async () => {
+                    await saveGameSettings(this.getPayload());
+                    this.updateDOM();
+                    this.showToast();
+                });
+            }
+        }
 
         this.container.querySelectorAll('input[name="game-mode"]').forEach(radio => {
             radio.onchange = (e) => {
                 this.gameSettings.mode = e.target.value === 'voice';
             };
         });
+
+        const closeModeBtn = this.container.querySelector('#close-mode-explanation');
+        if (closeModeBtn)
+        {
+            closeModeBtn.onclick = () => {
+                const modal = this.container.querySelector('#mode-explanation-overlay');
+                modal.classList.add('hidden');
+            }
+        }
+
+        const openModeBtn = this.container.querySelector('#open-mode-explanation');
+        if (openModeBtn)
+        {
+            openModeBtn.onclick = () => {
+                const modal = this.container.querySelector('#mode-explanation-overlay');
+                modal.classList.remove('hidden');
+            }
+        }
+
+        const closeModeBackground = this.container.querySelector('#mode-explanation-overlay');
+        if (closeModeBackground)
+        {
+            closeModeBackground.onclick = (e) => {
+                if (e.target.id === 'mode-explanation-overlay')
+                {
+                    const modal = this.container.querySelector('#mode-explanation-overlay');
+                    modal.classList.add('hidden');
+                }
+            }
+        }
     }
 
-    openModal() {
+    openTrackModal() {
         const modal = this.container.querySelector('#track-modal');
         modal.classList.remove('hidden');
     }
 
-    closeModal() {
+    closeTrackModal() {
         const modal = this.container.querySelector('#track-modal');
         modal.classList.add('hidden');
     }
@@ -225,7 +247,17 @@ export class GameSettingsView extends Component {
 
         this.gameSettings.setSong(row, col, song);
 
-        this.closeModal();
+        this.closeTrackModal();
         this.updateDOM();
+    }
+
+    showToast(text = 'Изменения сохранены') {
+        const toast = document.getElementById('save-toast');
+        if (!toast) return;
+
+        toast.textContent = `✅ ${text}`;
+        toast.classList.add('visible');
+
+        setTimeout(() => toast.classList.remove('visible'), 3000);
     }
 }

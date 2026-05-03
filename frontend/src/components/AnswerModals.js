@@ -16,6 +16,7 @@ export const CorrectAnswerModalForPlayer = (answer) => {
     return `
         <div class="modal-overlay">
             <div class="card modal-card answer-card">
+                <button class="modal-close" id="close-answer-btn">×</button>
                 <div class="answer-icon">🎵</div>
                 <div class="answer-label">Правильный ответ</div>
                 <p class="answer-title">${answer.title}</p>

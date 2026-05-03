@@ -1,59 +1,22 @@
 import {Component} from "../core/Component.js";
-import {Logo} from "../components/UI.js";
+import {Button, Logo} from "../components/UI.js";
 import {get404, redirectTo} from "../services/RouteServices.js";
 import {tryGetGameSettings} from "../services/GamesServices.js";
 import {GameSettings} from "../domain/GameSettings.js";
 import {OnGameRating} from "../components/OnGameRating.js";
 import {OnGameTable} from "../components/OnGameTable.js";
-import {AnswerInput, CorrectAnswerModalForPlayer, IncorrectAnswerModal} from "../components/AnswerModals.js";
-import {PlayerGameSidebar} from "../components/PlayerGameSidebar.js";
 
-export class GameView extends Component {
+export class GameEndingView extends Component {
     constructor(container, data) {
         super(container, data);
-
-        this.gameSettings = new GameSettings();
-
-        const teams = JSON.parse(sessionStorage.getItem('teams') || '[]');
-
-        this.state = {
-            activeCell: null,
-            hadWrongAnswer: false,
-            canBuzz: false,
-            answer: null,
-            showAnswerInput: false,
-            whoAnswers : null,
-            players: Object.fromEntries(
-                teams.map(team => [team, 0])
-            )
-        };
     }
 
     _applyRoomInfo(roomInfo) {
         this.gameSettings.init(roomInfo);
+
     }
 
     async mount() {
-        const roomInfo = await tryGetGameSettings(this.data.roomCode);
-
-        if (!roomInfo.exists) {
-            this.container.innerHTML = get404();
-            return;
-        }
-
-        this._onKeyDown = (e) => {
-            if (e.key === 'Enter') {
-                const buzzBtn = this.container.querySelector('#buzz-btn');
-                if (buzzBtn && !buzzBtn.disabled) {
-                    buzzBtn.click();
-                }
-            }
-        };
-
-        document.addEventListener('keydown', this._onKeyDown);
-        this._connectSocket();
-        this._applyRoomInfo(roomInfo);
-        this.updateDOM();
     }
 
     updateDOM() {
@@ -66,8 +29,6 @@ export class GameView extends Component {
             <div class="logo-corner">${Logo()}</div>
 
             <div class="editor-layout player-mode">
-                ${PlayerGameSidebar(this.state, this.gameSettings)}
-                
                 <main class="editor-main">
                     <div class="table-header-actions">
                         <div class="badge">Код комнаты: ${this.data.roomCode}</div>
@@ -77,11 +38,57 @@ export class GameView extends Component {
                     ${OnGameRating(this.state.players, sessionStorage.getItem('team-name'))}
                 </main>
             </div>
-            ${CorrectAnswerModalForPlayer(this.state.answer)}
-            ${AnswerInput(this.state.showAnswerInput)}
-            ${IncorrectAnswerModal(this.state.hadWrongAnswer)}
         `;
     }
+
+    renderCorrectAnswer() {
+        if (!this.state.answer) return '';
+
+        return `
+        <div class="modal-overlay" id="answer-overlay">
+            <div class="card modal-card answer-card">
+                <button class="modal-close" id="close-answer-btn">×</button>
+                <div class="answer-icon">🎵</div>
+                <div class="answer-label">Правильный ответ</div>
+                <p class="answer-title">${this.state.answer.title}</p>
+                <p class="answer-artist">${this.state.answer.artist}</p>
+            </div>
+        </div>`;
+    }
+
+    renderIncorrectAnswer() {
+        if (!this.state.hadWrongAnswer) return '';
+        return `
+        <div class="modal-overlay answer-fade">
+            <div class="card modal-card answer-card">
+                <div class="answer-icon">🎵</div>
+                <div class="answer-label">Вы дали неправильный ответ!</div>
+            </div>
+        </div>`;
+    }
+
+    renderAnswerInput() {
+        if (!this.state.showAnswerInput) return '';
+
+        return `
+            <div class="modal-overlay">
+                <div class="card modal-card">
+                    <h3 class="card-title">Ваш ответ</h3>
+                        <div class="form-group">
+                            <label>Исполнитель</label>
+                            <input class="ui-input" id="answer-artist" placeholder="Введите исполнителя" />
+                        </div>
+                        <div class="form-group">
+                            <label>Название трека</label>
+                            <input class="ui-input" id="answer-title" placeholder="Введите название" />
+                        </div>
+                        <div class="btn-group-vertical">
+                            ${Button({text: 'Отправить', id: 'submit-answer-btn', extraClass: 'w-100'})}
+                        </div>
+                </div>
+            </div>`;
+    }
+
 
     _connectSocket() {
         if (this.ws) {
@@ -119,12 +126,12 @@ export class GameView extends Component {
                 this.state.whoAnswers = null;
                 this.updateDOM();
 
-                // if (this.state.hadWrongAnswer) {
-                //     setTimeout(() => {
-                //         this.state.hadWrongAnswer = false;
-                //         this.updateDOM();
-                //     }, 3000);
-                // }
+                if (this.state.hadWrongAnswer) {
+                    setTimeout(() => {
+                        this.state.hadWrongAnswer = false;
+                        this.updateDOM();
+                    }, 3000);
+                }
             }
 
             if (data.type === 'player_buzzed') {
@@ -143,10 +150,9 @@ export class GameView extends Component {
                     artist: data.artist,
                 }
                 this.state.whoAnswers = null;
-                this.state.canBuzz = true;
+                this.state.canBuzz = false;
                 this.state.showAnswerInput = false;
                 this.state.activeCell = null;
-                this.state.hadWrongAnswer = false;
                 this.updateDOM();
                 setTimeout(() => {
                     this.state.answer = null
@@ -161,6 +167,7 @@ export class GameView extends Component {
             }
 
             if (data.type === 'add_points') {
+                console.log('add_points');
                 const team = data.team;
                 const points = data.points;
                 this.state.players[team] += points;
