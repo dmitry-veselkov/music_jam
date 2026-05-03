@@ -1,4 +1,8 @@
-﻿/* Основной контейнер */
+﻿.modal-overlay.hidden {
+    display: none;
+}
+
+/* Основной контейнер */
 .editor-layout {
     display: grid;
     grid-template-columns: 320px 1fr;

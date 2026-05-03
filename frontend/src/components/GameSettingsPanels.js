@@ -136,7 +136,13 @@ const DescriptionForm = (description) => {
 const ModeForm = (mode) => {
     return `
             <div class="form-group">
-                <label>Режим игры</label>
+                <label style="display: flex; align-items: center; gap: 0.5rem;">
+                    Режим игры
+                    <button class="remove-btn" 
+                            id="open-mode-explanation" 
+                            title="Описание режимов?" 
+                            style="width: 22px; height: 22px; font-size: 0.85rem; color: var(--color-text-muted);">?</button>
+                </label>
                     <div class="mode-toggle">
                         <label class="mode-option">
                             <input type="radio"
@@ -162,6 +168,38 @@ export const Toast = (text = 'Изменения сохранены') => {
     return `
         <div class="toast" id="save-toast">
             ${text}
+        </div>
+    `;
+}
+
+export const ModeExplanationModal = () => {
+    return `
+        <div class="modal-overlay hidden" id="mode-explanation-overlay">
+            <div class="card modal-card" style="position: relative; padding: 1.5rem;">
+                <button class="modal-close" id="close-mode-explanation">×</button>
+                
+                <h2 class="card-title" style="margin-bottom: 1rem;">Режимы игры</h2>
+
+                <div class="track-preview-card" style="margin-bottom: 0.75rem;">
+                    <div class="track-preview-icon">🔊</div>
+                    <div class="track-preview-text">
+                        <div class="track-preview-title">Озвучка</div>
+                        <div class="track-preview-subtitle">
+                            Игроки отвечают вслух. Подходящий режим для очной игры
+                        </div>
+                    </div>
+                </div>
+
+                <div class="track-preview-card">
+                    <div class="track-preview-icon">📝</div>
+                    <div class="track-preview-text">
+                        <div class="track-preview-title">Текстовый режим</div>
+                        <div class="track-preview-subtitle">
+                            Игроки отвечают в формочке. Подходящий режим для онлайн-игры
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     `;
 }
