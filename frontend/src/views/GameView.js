@@ -41,6 +41,16 @@ export class GameView extends Component {
             return;
         }
 
+        this._onKeyDown = (e) => {
+            if (e.key === 'Enter') {
+                const buzzBtn = this.container.querySelector('#buzz-btn');
+                if (buzzBtn && !buzzBtn.disabled) {
+                    buzzBtn.click();
+                }
+            }
+        };
+
+        document.addEventListener('keydown', this._onKeyDown);
         this._connectSocket();
         this._applyRoomInfo(roomInfo);
         this.updateDOM();
