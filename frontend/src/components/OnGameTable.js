@@ -66,7 +66,7 @@ const RowSongs = (gameSettings, state, options, rIdx) => {
 
             const text = isActive ? '🔊 Играет...' : !cell.played
                 ? notPlayedText
-                : 'Нет трека';
+                : cell.song.title;
 
             return `<td>${CellButton(filledClass, activeClass, rIdx, cIdx, text)}</td>`;
         })

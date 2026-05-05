@@ -14,7 +14,7 @@ export const CorrectAnswerModalForPlayer = (answer) => {
     if (!answer) return '';
 
     return `
-        <div class="modal-overlay">
+        <div class="modal-overlay" id="answer-overlay">
             <div class="card modal-card answer-card">
                 <button class="modal-close" id="close-answer-btn">×</button>
                 <div class="answer-icon">🎵</div>

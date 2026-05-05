@@ -119,12 +119,6 @@ export class GameView extends Component {
                 this.state.whoAnswers = null;
                 this.updateDOM();
 
-                // if (this.state.hadWrongAnswer) {
-                //     setTimeout(() => {
-                //         this.state.hadWrongAnswer = false;
-                //         this.updateDOM();
-                //     }, 3000);
-                // }
             }
 
             if (data.type === 'player_buzzed') {
@@ -206,11 +200,11 @@ export class GameView extends Component {
         const closeCorrectAnswer = this.container.querySelector('#close-answer-btn');
         if (closeCorrectAnswer) {
             closeCorrectAnswer.onclick = () => {
-                this.container.querySelector('#answer-overlay').remove();
+                closeCorrectAnswer.closest('.modal-overlay').remove();
             }
         }
 
-        const closeCorrectAnswerBackground = this.container.querySelector('#answer-overlay');
+        const closeCorrectAnswerBackground =  document.querySelector('#answer-overlay');
         if (closeCorrectAnswerBackground) {
             closeCorrectAnswerBackground.onclick = (e) => {
                 if (e.target.id === 'answer-overlay')
