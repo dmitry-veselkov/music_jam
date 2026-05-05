@@ -149,8 +149,6 @@ export class GameView extends Component {
             }
 
             if (data.type === 'game_ended') {
-                sessionStorage.removeItem('teams');
-                sessionStorage.removeItem('team-name');
                 redirectTo('/');
             }
 

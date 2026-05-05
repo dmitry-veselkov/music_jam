@@ -10,6 +10,7 @@ import {AccountView} from "./views/AccountView.js";
 import {GameView} from "./views/GameView.js";
 import {AdminWaitingRoomView} from "./views/AdminWaitingRoomView.js";
 import {AdminGameView} from "./views/AdminGameView.js";
+import {GameEndingViewUniversal} from "./views/GameEndingViewUniversal.js";
 
 // const bus = new EventBus();
 const appContainer = document.getElementById('app');
@@ -24,6 +25,7 @@ const routes = {
     '/room/active': GameView,
     '/room/admin_waiting': AdminWaitingRoomView,
     '/room/admin_active': AdminGameView,
+    '/room/finish' : GameEndingViewUniversal
 };
 
 const router = new Router(routes, appContainer);
