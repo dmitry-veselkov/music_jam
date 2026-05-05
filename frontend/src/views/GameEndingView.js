@@ -11,11 +11,6 @@ export class GameEndingView extends Component {
         super(container, data);
     }
 
-    _applyRoomInfo(roomInfo) {
-        this.gameSettings.init(roomInfo);
-
-    }
-
     async mount() {
     }
 
@@ -40,55 +35,6 @@ export class GameEndingView extends Component {
             </div>
         `;
     }
-
-    renderCorrectAnswer() {
-        if (!this.state.answer) return '';
-
-        return `
-        <div class="modal-overlay" id="answer-overlay">
-            <div class="card modal-card answer-card">
-                <button class="modal-close" id="close-answer-btn">×</button>
-                <div class="answer-icon">🎵</div>
-                <div class="answer-label">Правильный ответ</div>
-                <p class="answer-title">${this.state.answer.title}</p>
-                <p class="answer-artist">${this.state.answer.artist}</p>
-            </div>
-        </div>`;
-    }
-
-    renderIncorrectAnswer() {
-        if (!this.state.hadWrongAnswer) return '';
-        return `
-        <div class="modal-overlay answer-fade">
-            <div class="card modal-card answer-card">
-                <div class="answer-icon">🎵</div>
-                <div class="answer-label">Вы дали неправильный ответ!</div>
-            </div>
-        </div>`;
-    }
-
-    renderAnswerInput() {
-        if (!this.state.showAnswerInput) return '';
-
-        return `
-            <div class="modal-overlay">
-                <div class="card modal-card">
-                    <h3 class="card-title">Ваш ответ</h3>
-                        <div class="form-group">
-                            <label>Исполнитель</label>
-                            <input class="ui-input" id="answer-artist" placeholder="Введите исполнителя" />
-                        </div>
-                        <div class="form-group">
-                            <label>Название трека</label>
-                            <input class="ui-input" id="answer-title" placeholder="Введите название" />
-                        </div>
-                        <div class="btn-group-vertical">
-                            ${Button({text: 'Отправить', id: 'submit-answer-btn', extraClass: 'w-100'})}
-                        </div>
-                </div>
-            </div>`;
-    }
-
 
     _connectSocket() {
         if (this.ws) {
@@ -177,59 +123,6 @@ export class GameEndingView extends Component {
     }
 
     attachEvents() {
-        const buzzBtn = this.container.querySelector('#buzz-btn');
-        if (buzzBtn) {
-            buzzBtn.onclick = () => {
-                const team = sessionStorage.getItem('team-name') ?? 'Неизвестная команда';
 
-                this.ws.send(JSON.stringify({
-                    type: 'player_buzzed',
-                    team
-                }));
-
-                this.state.canBuzz = false;
-                this.updateDOM();
-            };
         }
-        if (this.gameSettings.mode === false) {
-            const submitBtn = this.container.querySelector('#submit-answer-btn');
-            if (submitBtn) {
-                submitBtn.onclick = () => {
-                    const artist = this.container.querySelector('#answer-artist').value.trim();
-                    const title = this.container.querySelector('#answer-title').value.trim();
-
-                    this.ws.send(JSON.stringify({
-                        type: 'team_answer',
-                        team: sessionStorage.getItem('team-name') ?? 'Неизвестная команда',
-                        artist,
-                        title
-                    }));
-                    this.state.showAnswerInput = false;
-                    this.updateDOM();
-                };
-            }
-        }
-
-        const closeCorrectAnswer = this.container.querySelector('#close-answer-btn');
-        if (closeCorrectAnswer) {
-            closeCorrectAnswer.onclick = () => {
-                this.container.querySelector('#answer-overlay').remove();
-            }
-        }
-
-        const closeCorrectAnswerBackground = this.container.querySelector('#answer-overlay');
-        if (closeCorrectAnswerBackground) {
-            closeCorrectAnswerBackground.onclick = (e) => {
-                if (e.target.id === 'answer-overlay')
-                    e.target.remove();
-            }
-        }
-    }
-
-    _tableOptions = {
-        showFilledState: true,
-        showActiveState: true,
-        emptyText: '-',
-        useLaunchText: false
-    }
 }

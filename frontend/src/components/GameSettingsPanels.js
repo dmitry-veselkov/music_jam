@@ -126,9 +126,7 @@ const DescriptionForm = (description) => {
                 <textarea class="ui-input sync-input"
                           data-key="description"
                           rows="3"
-                          placeholder="О чем эта игра?">
-                        ${description}
-                </textarea>
+                          placeholder="О чем эта игра?">${description?.trim()}</textarea>
             </div>
     `;
 }
