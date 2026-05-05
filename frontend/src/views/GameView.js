@@ -124,7 +124,7 @@ export class GameView extends Component {
             if (data.type === 'player_buzzed') {
                 this.state.canBuzz = false;
                 const myTeam = sessionStorage.getItem('team-name') ?? 'Неизвестная команда';
-                this.state.whoAnswers = myTeam;
+                this.state.whoAnswers = data.team;
                 if (data.team === myTeam) {
                     this.state.showAnswerInput = this.gameSettings.mode === false;
                 }
