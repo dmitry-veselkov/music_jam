@@ -72,7 +72,7 @@ export class RegisterView extends Component {
          * Навешиваем обработчик на кнопку регистрации и добавляем переходы по enter
          */
         this.registerButton.addEventListener("click", async () => {
-            await this._onLoginClickCallback();
+            await this._onRegisterClickCallback();
         });
 
         this.nameInput.addEventListener('keypress', (e) => {
