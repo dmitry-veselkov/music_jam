@@ -275,7 +275,9 @@ class ApiRouter:
                                        'show_answer', 'add_points', 'reset_answer_btn'):
                         await self.rooms[code].send_payload_to_all(msg)
             except WebSocketDisconnect:
-                self.rooms[code].discard(websocket)
+                room = self.rooms.get(code)
+                if room:
+                    self.rooms[code].discard(websocket)
 
     def _get_token_payload(self, token: str | None) -> dict[str, Any] | None:
         if not token or not (payload := self.services.try_get_jwt_payload(token)):
