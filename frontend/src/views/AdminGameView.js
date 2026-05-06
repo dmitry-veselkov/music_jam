@@ -1,5 +1,5 @@
 import {Component} from "../core/Component.js";
-import {endGame} from "../services/GamesServices.js";
+import {addPlayedTrack, endGame, getRoomState} from "../services/GamesServices.js";
 import {authenticationToGame} from "../services/AccountServices.js";
 import {Logo} from "../components/UI.js";
 import {GameSettings} from "../domain/GameSettings.js";
@@ -11,12 +11,11 @@ import {CalculatorModal} from "../components/AdminCalculatorModal.js";
 import {CorrectAnswerModalForAdmin} from "../components/AnswerModals.js";
 import {EditorSidebar} from "../components/EditorSidebar.js";
 import {QuestionService} from "../domain/QuestionService.js";
+import {ConfirmEndGameModal} from "../components/EndGameModal.js";
 
 export class AdminGameView extends Component {
     constructor(container, data) {
         super(container, data);
-        const teams = JSON.parse(sessionStorage.getItem('teams') || '[]');
-
         this.gameSettings = new GameSettings();
 
         this.state = {
@@ -25,10 +24,11 @@ export class AdminGameView extends Component {
             disabledTeams: [],
             teamAnswer: null,
             showCalculatorModal: false,
-            players: Object.fromEntries(teams.map(team => [team, 0])),
-            playedCells: [], // TODO это нужно подгружать с сервера
+            players: null,
+            playedCells: [],
             currentAnswer: null,
             isShowingAnswer: false,
+            showEndConfirm : false
         };
     }
 
@@ -46,13 +46,21 @@ export class AdminGameView extends Component {
         this._connectSocket();
         this._applyRoomInfo(roomInfo);
 
+
+        const roomState = await getRoomState(this.data.roomCode);
+        console.log(roomState);
+        if (roomState) {
+            this.state.players = roomState.teams;
+            this.state.playedCells = roomState.played_tracks;
+        }
+
         this.questionService = new QuestionService(
             this.state,
             this.gameSettings,
             this.ws,
-            () => this.updateDOM()
+            () => this.updateDOM(),
+            this.data.roomCode
         );
-
         this.updateDOM();
     }
 
@@ -62,6 +70,7 @@ export class AdminGameView extends Component {
     }
 
     render() {
+        console.log('render currentAnswer:', this.state.currentAnswer);
         return `
             <div class="logo-corner">${Logo()}</div>
     
@@ -81,6 +90,8 @@ export class AdminGameView extends Component {
                
             
             ${CalculatorModal(this.state, this.gameSettings)}
+            ${ConfirmEndGameModal(this.state.showEndConfirm)}
+            </div>
         `;
     }
 
@@ -93,8 +104,13 @@ export class AdminGameView extends Component {
 
         const awardBtn = this.container.querySelector('#award-btn');
         if (awardBtn) {
-            awardBtn.addEventListener('click', async () => await
-                this.questionService.processTeamAnswer(true, +valueEl.value));
+            awardBtn.addEventListener('click', async () => {
+                const cell = this.state.activeCell;
+                const row = cell?.row;
+                const col = cell?.col;
+                await this.questionService.processTeamAnswer(true, +valueEl.value);
+                await addPlayedTrack(row, col, this.data.roomCode);
+            })
         }
 
         const wrongBtn = this.container.querySelector('#wrong-btn');
@@ -105,17 +121,37 @@ export class AdminGameView extends Component {
 
         const endQuestionBtn = this.container.querySelector('#end-question-btn');
         if (endQuestionBtn) {
-            endQuestionBtn.addEventListener('click', async () => await
-                this.questionService.stop())
+            endQuestionBtn.addEventListener('click', async () => {
+                const cell = this.state.activeCell;
+                const row = cell?.row;
+                const col = cell?.col;
+                await this.questionService.stop();
+                await addPlayedTrack(row, col, this.data.roomCode);
+            });
         }
 
         const endBtn = this.container.querySelector('#end-btn');
         if (endBtn) {
-            endBtn.addEventListener('click', async () => {
+            endBtn.addEventListener('click', () => {
+                this.state.showEndConfirm = true;
+                this.updateDOM();
+            });
+        }
+
+        const confirmEndBtn = this.container.querySelector('#confirm-end-btn');
+        if (confirmEndBtn) {
+            confirmEndBtn.addEventListener('click', async () => {
+                sessionStorage.setItem('final-scores', JSON.stringify(this.state.players));
                 await endGame(this.data.roomCode);
-                sessionStorage.removeItem('teams');
-                new Promise(r => setTimeout(r, 200));
-                redirectTo('/account');
+                redirectTo(`/room/finish/${this.data.roomCode}`);
+            });
+        }
+
+        const cancelEndBtn = this.container.querySelector('#cancel-end-btn');
+        if (cancelEndBtn) {
+            cancelEndBtn.addEventListener('click', () => {
+                this.state.showEndConfirm = false;
+                this.updateDOM();
             });
         }
 

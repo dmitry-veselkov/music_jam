@@ -1,4 +1,13 @@
-﻿.modal-overlay.hidden {
+﻿.btn-danger {
+    border-color: #ff4d4d;
+    color: #ff4d4d;
+}
+
+.btn-danger:hover {
+    background: rgba(255, 77, 77, 0.1);
+}
+
+.modal-overlay.hidden {
     display: none;
 }
 
@@ -504,6 +513,39 @@ input[type="range"] {
     padding: 8px 8px;
     color: var(--color-text);
     word-break: break-word;
+}
+
+.top-player-wrapper {
+    text-align: center;
+    margin: 20px 0;
+    font-family: Arial, sans-serif;
+}
+
+.top-player-title {
+    font-size: 24px;
+    color: gold;
+    text-shadow: 1px 1px 2px #000;
+    margin-bottom: 10px;
+}
+
+.top-player-card {
+    display: inline-block;
+    background: #2c3e50;
+    color: #ecf0f1;
+    padding: 20px 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.top-player-team {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.top-player-score {
+    font-size: 18px;
+    color: #f1c40f;
 }
 
 .rank-cell {

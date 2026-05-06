@@ -34,6 +34,11 @@ class SaveGameSchema(BaseModel):
     tracks: list[list[dict | None]]
 
 class AddPointsSchema(BaseModel):
-    points : int
+    code: str
     team : str
-    correct : bool
+    points : int
+
+class AddPlayedTrack(BaseModel):
+    code : str
+    row : int
+    column : int

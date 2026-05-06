@@ -1,11 +1,13 @@
 ﻿import {AudioManager} from "../services/AudioManager.js";
+import {givePoints} from "../services/GamesServices.js";
 
 export class QuestionService {
-    constructor(state, gameSettings, ws, updateDOM) {
+    constructor(state, gameSettings, ws, updateDOM, code) {
         this.state = state;
         this.gameSettings = gameSettings;
         this.ws = ws;
         this.updateDOM = updateDOM;
+        this.code = code;
     }
 
     async stop() {
@@ -68,7 +70,7 @@ export class QuestionService {
     startSong(e) {
         const row = +e.currentTarget.dataset.row;
         const col = +e.currentTarget.dataset.col;
-        if (this.state.playedCells.some(c => c.row === row && c.col === col)) return;
+        if (this.state.playedCells.some(([r, c]) => r === row && c === col)) return;
 
         const cell = this.gameSettings.cells?.[row]?.[col];
         if (!cell) return;
@@ -78,7 +80,6 @@ export class QuestionService {
             title: cell.song.title,
             artist: cell.song.artist,
         };
-
         cell.song.play(this.state);
         cell.played = true;
         this.ws.send(JSON.stringify({
@@ -86,7 +87,7 @@ export class QuestionService {
             row,
             col
         }));
-        this.state.playedCells.push(this.state.activeCell);
+        this.state.playedCells.push([row, col]);
         this.updateDOM();
     }
 
@@ -111,6 +112,7 @@ export class QuestionService {
             team: this.state.buzzedTeam,
             points: points,
         }));
+        givePoints(this.code, this.state.buzzedTeam, points);
     }
 
     _resetAnswerButton() {

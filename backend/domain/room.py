@@ -7,6 +7,7 @@ class Room:
         self.code: str = code.upper().strip()
         self.teams: dict[str, int] = {}
         self.sockets: set[WebSocket] = set()
+        self.played_tracks : set[tuple[int, int]] = set()
 
     def add_team(self, team_name: str, scores: int = 0) -> None:
         if team_name not in self.teams:
@@ -25,6 +26,9 @@ class Room:
     def close_room(self) -> None:
         for socket in self.sockets:
             socket.close()
+
+    def add_played_track(self, row_index : int, column_index: int) -> None:
+        self.played_tracks.add((row_index, column_index))
 
     def add_socket(self, socket: WebSocket) -> None:
         self.sockets.add(socket)

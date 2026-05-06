@@ -55,28 +55,28 @@ const RowSongs = (gameSettings, state, options, rIdx) => {
 
     return gameSettings.costs
         .map((cost, cIdx) => {
-
+            const isPlayed = state.playedCells?.some(([r, c]) => r === rIdx && c === cIdx);
             const cell = gameSettings.cells?.[rIdx]?.[cIdx] || {};
             const isActive = state.activeCell?.row === rIdx && state.activeCell?.col === cIdx;
 
             const filledClass = showFilledState && cell.song ? 'cell-filled' : '';
             const activeClass = showActiveState && isActive ? 'cell-active' : '';
+            const playedClass = isPlayed ? 'cell-played' : '';
 
             const notPlayedText = useLaunchText ? '▶ Запустить' : emptyText;
 
-            const text = isActive ? '🔊 Играет...' : !cell.played
-                ? notPlayedText
-                : cell.song.title;
-
-            return `<td>${CellButton(filledClass, activeClass, rIdx, cIdx, text)}</td>`;
+            const text = isActive ? '🔊 Играет...' : isPlayed
+                ? cell.song.title
+                : notPlayedText;
+            return `<td>${CellButton(filledClass, activeClass, playedClass, rIdx, cIdx, text)}</td>`;
         })
         .join('');
 }
 
-const CellButton = (filledClass, activeClass, rIdx, cIdx, text) => {
+const CellButton = (filledClass, activeClass, playedClass, rIdx, cIdx, text) => {
     return `
         <button
-            class="preview-cell track-cell organizer-track-btn ${filledClass} ${activeClass}"
+            class="preview-cell track-cell organizer-track-btn ${filledClass} ${activeClass} ${playedClass}"
             data-row="${rIdx}"
             data-col="${cIdx}"
             style="width: 100%;">

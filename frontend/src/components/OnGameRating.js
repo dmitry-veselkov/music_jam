@@ -24,3 +24,20 @@
                 </table>
             </div>`;
 }
+
+export const TopPlayer = (players) => {
+    const entries = Object.entries(players);
+    const sorted = [...entries]
+        .sort((a, b) => b[1] - a[1]);
+    if (sorted.length === 0) return ``;
+    const [team, score] = sorted[0];
+    return `
+        <div class="top-player-wrapper">
+            <h2 class="top-player-title">Победитель игры!</h2>
+            <div class="top-player-card">
+                <div class="top-player-team">${team}</div>
+                <div class="top-player-score">${score} очков</div>
+            </div>
+        </div>
+    `;
+}

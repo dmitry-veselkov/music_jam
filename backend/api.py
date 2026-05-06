@@ -7,7 +7,8 @@ from db.hands_db import DatabaseHands
 from fastapi import APIRouter, Cookie, HTTPException, Response, WebSocket, WebSocketDisconnect, status, UploadFile, \
     File, Form
 from services import Services
-from api_schemes import LoginSchema, RegisterSchema, SaveGameSchema, TeamSchema, RemoveTeamSchema
+from api_schemes import LoginSchema, RegisterSchema, SaveGameSchema, TeamSchema, RemoveTeamSchema, AddPointsSchema, \
+    AddPlayedTrack
 from s3 import S3
 from domain.room import Room
 
@@ -131,6 +132,25 @@ class ApiRouter:
             songs = await self.db_hands.get_room_tracks(code)
             return self.services.parse_room_info(room_info, songs) if room_info else None
 
+        @self.router.get('/room_state')
+        async def get_room_state(code: str):
+            code = code.upper().strip()
+            room = self.rooms.get(code)
+            if not room:
+                return {"teams": {}, "played_tracks": []}
+            return {
+                "teams": room.teams,
+                "played_tracks": [list(t) for t in room.played_tracks]
+            }
+
+        @self.router.post('/give_points')
+        async def give_points(data : AddPointsSchema):
+            code = data.code.upper().strip()
+            room = self.rooms.get(code)
+            if room:
+                room.update_score(data.team, data.points)
+            return {"success" : True}
+
         @self.router.post('/set_team_name')
         async def set_team_name(data: TeamSchema) -> dict[str, Any]:
             code = data.code
@@ -161,20 +181,27 @@ class ApiRouter:
             return self.services.parse_room_info(room_info, tracks_info) if room_info else None
 
         @self.router.post('/start_game')
-        async def start_game(code: str = ''):
+        async def start_game(code: str = '') -> dict[str, bool]:
             code = code.upper().strip()
             await self.db_hands.update_game_any_param(code, "status", "playing")
             await self.rooms[code].broadcast_start()
             return {"success": True}
 
         @self.router.post('/end_game')
-        async def end_game(code: str = ''):
+        async def end_game(code: str = '') -> dict[str, bool]:
             code = code.upper().strip()
             await self.db_hands.update_game_any_param(code, "status", "ended")
             await self.rooms[code].send_payload_to_all({"type": "game_ended"})
             self.rooms[code].close_room()
             self.rooms.pop(code)
             return {"success": True}
+
+        @self.router.post('/add_played_track')
+        async def add_played_track(data: AddPlayedTrack):
+            code = data.code.upper().strip()
+            self.rooms[code].add_played_track(data.row, data.column)
+            return {"success": True}
+
 
         @self.router.post('/upload_music')
         async def upload_track(title: str = Form(...),

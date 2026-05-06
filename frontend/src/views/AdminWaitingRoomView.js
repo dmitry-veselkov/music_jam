@@ -108,7 +108,6 @@ export class AdminWaitingRoomView extends Component {
         startGameBtn.addEventListener("click", async (event) => {
             const gameId = this.data.roomCode;
             await startGame(gameId);
-            sessionStorage.setItem('teams', JSON.stringify(this.state.teams));
             redirectTo(`/room/admin_active/${gameId}`);
         });
 
@@ -126,7 +125,6 @@ export class AdminWaitingRoomView extends Component {
             .addEventListener('click', async (e) => {
                 if (e.target.classList.contains('remove-team')) {
                     const teamName = event.target.dataset.name;
-                    console.log("Удаляем команду:", teamName);
                     await removeTeam(teamName, this.state.roomCode);
                 }
             });

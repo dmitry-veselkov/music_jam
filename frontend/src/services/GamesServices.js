@@ -18,7 +18,6 @@ export async function tryGetGameSettings(code) {
 }
 
 export async function saveGameSettings(payload) {
-    console.log('payload', payload);
     return await fetchPostTo(`/api/gameSettings`, payload);
 }
 
@@ -30,6 +29,16 @@ export async function endGame(code){
     return await fetchPostTo(`/api/end_game?code=${code}`);
 }
 
-export async function updateTeamScores(code, payload){
-    return await fetchPostTo(`/api/add_points?code=${code}`, payload);
+export async function addPlayedTrack(rIdx, cIdx, code){
+    const payload = { code, row: rIdx, column: cIdx };
+    return await fetchPostTo(`/api/add_played_track?code=${code}`, payload);
+}
+
+export async function getRoomState(code) {
+    return await fetchGetTo(`/api/room_state?code=${code}`);
+}
+
+export async function givePoints(code, team, points) {
+    const payload = { code, team, points };
+    return await fetchPostTo(`/api/give_points?code=${code}`, payload);
 }

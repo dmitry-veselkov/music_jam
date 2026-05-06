@@ -1,7 +1,7 @@
 import {Component} from "../core/Component.js";
 import {Logo} from "../components/UI.js";
 import {get404, redirectTo} from "../services/RouteServices.js";
-import {tryGetGameSettings} from "../services/GamesServices.js";
+import {getRoomState, tryGetGameSettings} from "../services/GamesServices.js";
 import {GameSettings} from "../domain/GameSettings.js";
 import {OnGameRating} from "../components/OnGameRating.js";
 import {OnGameTable} from "../components/OnGameTable.js";
@@ -11,11 +11,7 @@ import {PlayerGameSidebar} from "../components/PlayerGameSidebar.js";
 export class GameView extends Component {
     constructor(container, data) {
         super(container, data);
-
         this.gameSettings = new GameSettings();
-
-        const teams = JSON.parse(sessionStorage.getItem('teams') || '[]');
-
         this.state = {
             activeCell: null,
             hadWrongAnswer: false,
@@ -23,9 +19,8 @@ export class GameView extends Component {
             answer: null,
             showAnswerInput: false,
             whoAnswers : null,
-            players: Object.fromEntries(
-                teams.map(team => [team, 0])
-            )
+            players: {},
+            playedCells: []
         };
     }
 
@@ -51,6 +46,13 @@ export class GameView extends Component {
         };
 
         document.addEventListener('keydown', this._onKeyDown);
+
+        const roomState = await getRoomState(this.data.roomCode);
+        if (roomState) {
+            this.state.players = roomState.teams;
+            this.state.playedCells = roomState.played_tracks;
+        }
+
         this._connectSocket();
         this._applyRoomInfo(roomInfo);
         this.updateDOM();
@@ -132,6 +134,10 @@ export class GameView extends Component {
             }
 
             if (data.type === 'show_answer') {
+                const cell = this.state.activeCell;
+                const row = cell?.row;
+                const col = cell?.col;
+                this.state.playedCells.push([row, col]);
                 this.state.answer = {
                     title: data.title,
                     artist: data.artist,
@@ -149,7 +155,8 @@ export class GameView extends Component {
             }
 
             if (data.type === 'game_ended') {
-                redirectTo('/');
+                sessionStorage.setItem('final-scores', JSON.stringify(this.state.players));
+                redirectTo(`/room/finish/${this.data.roomCode}`);
             }
 
             if (data.type === 'add_points') {
