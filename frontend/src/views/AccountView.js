@@ -1,7 +1,7 @@
 ﻿import {Component} from "../core/Component.js";
 import {Logo, Button} from "../components/UI.js";
 import {checkAuthorizedOrRedirect} from "../services/AccountServices.js";
-import {generateEmptyGame, getAllUserGames} from "../services/GamesServices.js";
+import {generateEmptyGame, getAllUserGames, deleteGame} from "../services/GamesServices.js";
 import {ButtonLoader} from "../components/ButtonLoader.js";
 import {GamesList} from "../components/GamesList.js";
 import {redirectTo} from "../services/RouteServices.js";
@@ -78,6 +78,26 @@ export class AccountView extends Component {
                     sessionStorage.removeItem('teams');
                     const gameId = event.currentTarget.dataset.gameCode;
                     redirectTo(`/room/admin_waiting/${gameId}`);
+                });
+            });
+        }
+
+        const deleteGameButtons = document.querySelectorAll("[data-delete-id]");
+        if (deleteGameButtons) {
+            deleteGameButtons.forEach(button => {
+                button.addEventListener("click", async (event) => {
+                    const btn = event.currentTarget;
+                    const gameId = event.currentTarget.dataset.gameCode;
+                    try {
+                        await deleteGame(gameId);
+                        const card = btn.closest(".game-card");
+                        if (card) {
+                            card.remove();
+                        }
+                    } catch (error) {
+                        console.error("Ошибка при удалении:", error);
+                        alert("Не удалось удалить игру");
+                    }
                 });
             });
         }

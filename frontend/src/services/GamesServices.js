@@ -9,6 +9,10 @@ export async function generateEmptyGame() {
     return await fetchPostTo(`/api/create_new_game`);
 }
 
+export async function deleteGame(code) {
+    return await fetchPostTo(`/api/delete_game?code=${code}`);
+}
+
 export async function tryRunGame(code) {
     return await fetchGetTo(`/api/run_game?code=${code}`);
 }

@@ -18,18 +18,25 @@ const GameCard = (game) => {
                 <h3>${game.title}</h3>
                 <p class="room-code">Код лобби: <strong>${game.join_code}</strong></p>
                 <div class="game-actions mt-3">
+                <button
+                        class="btn btn-primary btn-sm"
+                        data-start-id="${game.id}"
+                        data-game-code="${game.join_code}">
+                        Запустить
+                    </button>
+                    <button
+                        class="btn btn-danger btn-sm"
+                        data-delete-id="${game.id}"
+                        data-game-code="${game.join_code}">
+                        Удалить
+                    </button>
                     <button
                         class="btn btn-outline btn-sm"
                         data-edit-id="${game.id}"
                         data-game-code="${game.join_code}">
                         Редактировать
                     </button>
-                    <button
-                        class="btn btn-primary btn-sm"
-                        data-start-id="${game.id}"
-                        data-game-code="${game.join_code}">
-                        Запустить
-                    </button>
+                    
                 </div>
             </div>`;
 }

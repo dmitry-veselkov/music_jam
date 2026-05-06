@@ -171,6 +171,11 @@ class ApiRouter:
             self.rooms[code].remove_team(team_name)
             await self.rooms[code].broadcast_room()
 
+        @self.router.post('/delete_game')
+        async def delete_game(code : str = '') -> None:
+            code = code.upper().strip()
+            await self.db_hands.delete_game(code)
+
         @self.router.get('/run_game')
         async def run_game(code: str = '') -> None | dict[str, Any]:
             code = code.upper().strip()
