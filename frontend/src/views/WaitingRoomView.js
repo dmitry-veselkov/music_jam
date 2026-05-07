@@ -75,6 +75,12 @@ export class WaitingRoomView extends Component {
             this.state.myTeamName = e.target.value;
         });
 
+        input.addEventListener('keypress', async (e) => {
+            if (e.key === 'Enter') {
+                await this._saveTeamName();
+            }
+        });
+
         saveBtn.addEventListener('click', () => this._saveTeamName());
     }
 
@@ -138,6 +144,7 @@ export class WaitingRoomView extends Component {
             } else if (data.type === "update") {
                 if (!data.teams.includes(this.state.myTeamName)) {
                     redirectTo(`/`);
+                    sessionStorage.removeItem('team-name');
                     alert("Вас забанили за читы!");
                     return;
                 }
