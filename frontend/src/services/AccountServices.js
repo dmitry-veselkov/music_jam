@@ -39,3 +39,8 @@ export async function authenticationToGame(container, roomCode) {
 
     return [userInfo, roomInfo];
 }
+
+export async function exit() {
+    await fetchPostTo('/api/logout')
+    redirectTo("/");
+}

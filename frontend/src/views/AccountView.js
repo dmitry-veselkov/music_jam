@@ -1,6 +1,6 @@
 ﻿import {Component} from "../core/Component.js";
 import {Logo, Button} from "../components/UI.js";
-import {checkAuthorizedOrRedirect} from "../services/AccountServices.js";
+import {checkAuthorizedOrRedirect, exit} from "../services/AccountServices.js";
 import {generateEmptyGame, getAllUserGames, deleteGame} from "../services/GamesServices.js";
 import {ButtonLoader} from "../components/ButtonLoader.js";
 import {GamesList} from "../components/GamesList.js";
@@ -16,11 +16,8 @@ export class AccountView extends Component {
     }
 
     async mount() {
-        console.log('Ищу пользователя');
         const userInfo = await checkAuthorizedOrRedirect();
-        console.log('Че-то нашел у пользователя');
         if (userInfo) {
-            console.log('Нашел пользователя');
             await this._setState(userInfo);
             this.container.innerHTML = this.render(userInfo);
             this._addEventListeners();
@@ -36,7 +33,12 @@ export class AccountView extends Component {
     render(userInfo) {
         return `
             <div class="page-layout" style="overflow-y: auto; height: 100vh;">
-                <div class="header-top">${Logo()}</div>
+                <div class="header-top">
+                    <header class="start-header">
+                        ${Logo()}
+                        <button id="exit-btn" class="btn btn-outline btn-sm">Выйти</button>
+                    </header>
+                </div>
                 
                 <main class="dashboard-container">
                     <div class="dashboard-header mt-3">
@@ -44,7 +46,7 @@ export class AccountView extends Component {
                         <div class="mt-3">${Button(this._createNewGameButtonSetts)}</div>
                     </div>
 
-                    ${GamesList(this.state.games)}                   
+                    ${GamesList(this.state.games)}
                 </main>
             </div>
         `;
@@ -101,6 +103,12 @@ export class AccountView extends Component {
                 });
             });
         }
+
+        document
+            .querySelector("#exit-btn")
+            .addEventListener("click", async () => {
+                await exit();
+            })
     }
 
     async _createNewGame() {

@@ -74,6 +74,10 @@ class ApiRouter:
 
             return {"email": payload["email"], "name": payload['name'], 'id': payload['sub']}
 
+        @self.router.post("/logout", status_code=204)
+        async def logout_user(response: Response) -> None:
+            response.delete_cookie("token")
+
         @self.router.post('/create_new_game')
         async def create_new_game(token: str = Cookie(None)):
             payload = self.services.try_get_jwt_payload(token)
@@ -144,12 +148,12 @@ class ApiRouter:
             }
 
         @self.router.post('/give_points')
-        async def give_points(data : AddPointsSchema):
+        async def give_points(data: AddPointsSchema):
             code = data.code.upper().strip()
             room = self.rooms.get(code)
             if room:
                 room.update_score(data.team, data.points)
-            return {"success" : True}
+            return {"success": True}
 
         @self.router.post('/set_team_name')
         async def set_team_name(data: TeamSchema) -> dict[str, Any]:
@@ -172,7 +176,7 @@ class ApiRouter:
             await self.rooms[code].broadcast_room()
 
         @self.router.post('/delete_game')
-        async def delete_game(code : str = '') -> None:
+        async def delete_game(code: str = '') -> None:
             code = code.upper().strip()
             await self.db_hands.delete_game(code)
 
@@ -206,7 +210,6 @@ class ApiRouter:
             code = data.code.upper().strip()
             self.rooms[code].add_played_track(data.row, data.column)
             return {"success": True}
-
 
         @self.router.post('/upload_music')
         async def upload_track(title: str = Form(...),
