@@ -123,7 +123,6 @@ export class WaitingRoomView extends Component {
 
         this.ws.onmessage = (event) => {
             const data = JSON.parse(event.data);
-            console.log(data.type);
 
             if (data.type === "init") {
                 this.state.teams = data.teams;
@@ -143,6 +142,7 @@ export class WaitingRoomView extends Component {
                 this.updateDOM();
             } else if (data.type === "update") {
                 if (!data.teams.includes(this.state.myTeamName)) {
+                    this.ws.close();
                     redirectTo(`/`);
                     sessionStorage.removeItem('team-name');
                     alert("Вас забанили за читы!");
