@@ -2,7 +2,6 @@
 from typing import Any
 
 from domain.team import Team
-from uuid import UUID
 
 
 class Room:
@@ -23,56 +22,85 @@ class Room:
         """
         return [team.name for team in self.teams.values()]
 
-    def is_team_kicked(self, uuid: str) -> bool:
+    @property
+    def teams_scores(self) -> dict[str, int]:
+        """
+        :return: Словарь {название_команды: счет} — формат, который ожидает фронт
+        """
+        return {team.name: team.score for team in self.teams.values()}
+
+    @property
+    def kicked_uuids(self) -> list[str]:
+        return list(self.black_list)
+
+    def is_team_kicked(self, uuid: str | None) -> bool:
+        if not uuid:
+            return False
         return uuid in self.black_list
+
+    def _is_name_taken(self, name: str, exclude_uuid: str | None = None) -> bool:
+        for uuid, team in self.teams.items():
+            if uuid == exclude_uuid:
+                continue
+            if team.name == name:
+                return True
+        return False
 
     async def update_team_name(self, uuid: str | None, new_name: str) -> str | None:
         """
+        Создает новую команду или переименовывает существующую (по uuid из куки).
+
         :param uuid: UUID команды, которой хотим обновить имя
-                    (если команда еще не сознада, UUID сгенерируется здесь)
+                    (если команда еще не создана, UUID сгенерируется здесь)
         :param new_name: Новое имя для команды
-        :return: Строковое представление UUID для сохранения в куку
+        :return: Строковое представление UUID для сохранения в куку.
+                 None — если имя уже занято другой командой.
         """
-        print(new_name)
-        print(self.team_names)
-        if new_name in self.team_names:
+        new_name = new_name.strip()
+        if not new_name:
             return None
 
-        if uuid not in self.teams:
-            team = Team(new_name)
-        else:
-            team = self.teams.pop(uuid)
+        if self._is_name_taken(new_name, exclude_uuid=uuid):
+            return None
+
+        if uuid and uuid in self.teams:
+            team = self.teams[uuid]
             team.name = new_name
-        uuid = team.uuid
-        self.teams[uuid] = team
+            result_uuid = uuid
+        else:
+            team = Team(new_name)
+            result_uuid = str(team.uuid)
+            self.teams[result_uuid] = team
+
         await self.send_updated_info()
-        return str(uuid)
+        return result_uuid
 
     async def remove_team(self, name: str) -> None:
         """
-        :param name: Имя команды, которую будут кикать (должно быть уникально, иначе удалим первую)
+        :param name: Имя команды, которую кикают (должно быть уникально, иначе удалим первую)
         """
-        for team in self.teams.values():
+        for uuid, team in list(self.teams.items()):
             if team.name == name:
-                kicked_team = self.teams.pop(team.uuid)
-                self.black_list.add(kicked_team.uuid) # Кикнутая команда добавляется в список заблокированных
+                self.teams.pop(uuid)
+                self.black_list.add(uuid)
                 await self.send_updated_info()
                 break
 
-    def get_team_info(self, uuid: str) -> dict[str, str] | None:
+    def get_team_info(self, uuid: str | None) -> dict[str, Any] | None:
         """
         :param uuid: UUID команды
         :return: Если команда найдена, то имя и очки команды
         """
-        if uuid not in self.teams:
+        if not uuid or uuid not in self.teams:
             return None
         team = self.teams[uuid]
         return {'name': team.name, 'score': team.score}
 
-    def update_score(self, uuid: str, score: int) -> None:
-        if uuid in self.teams:
-            team = self.teams[uuid]
-            team.score += score
+    def update_score_by_name(self, name: str, score: int) -> None:
+        for team in self.teams.values():
+            if team.name == name:
+                team.score += score
+                return
 
     def discard(self, socket: WebSocket) -> None:
         self.sockets.discard(socket)
@@ -91,7 +119,7 @@ class Room:
         payload = {
             'type': 'update',
             'teams': self.team_names,
-            'kicked': self.black_list,
+            'kicked': self.kicked_uuids,
         }
         await self.send_payload_to_all(payload)
 
@@ -107,7 +135,7 @@ class Room:
         for ws in self.sockets:
             try:
                 await ws.send_json(payload)
-            except:
+            except Exception:
                 dead.append(ws)
         for ws in dead:
             self.sockets.discard(ws)

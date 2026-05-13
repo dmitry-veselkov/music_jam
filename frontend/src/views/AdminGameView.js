@@ -141,9 +141,9 @@ export class AdminGameView extends Component {
         const confirmEndBtn = this.container.querySelector('#confirm-end-btn');
         if (confirmEndBtn) {
             confirmEndBtn.addEventListener('click', async () => {
-                sessionStorage.setItem('final-scores', JSON.stringify(this.state.players));
-                await endGame(this.data.roomCode);
-                redirectTo(`/room/finish/${this.data.roomCode}`);
+                const result = await endGame(this.data.roomCode);
+                const players = result?.players ?? this.state.players ?? {};
+                redirectTo(`/room/finish/${this.data.roomCode}`, {players});
             });
         }
 

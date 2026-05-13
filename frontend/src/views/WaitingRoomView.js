@@ -15,7 +15,6 @@ export class WaitingRoomView extends Component {
 
         this.ws = null;
         this.state = {
-            gameId: null,
             roomCode: null,
             gameName: 'Загрузка...',
             creator: 'Загрузка...',
@@ -27,23 +26,25 @@ export class WaitingRoomView extends Component {
 
     async mount() {
         const roomData = await tryGetRoomInfo(this.data.roomCode);
+        console.log(roomData);
         if (!roomData || roomData.status !== 'waiting') {
             this.container.innerHTML = get404();
             return;
         }
 
-        this._connectSocket();
+        const myTeam = await tryGetTeamInfo(this.data.roomCode);
+        console.log(myTeam);
 
         this.state = {
-            gameId: roomData.id,
             roomCode: roomData.code,
             gameName: roomData.title || 'Без названия',
             creator: roomData.author || 'неизвестный...',
-            myTeamName: '',
-            isNameSaved: false,
+            myTeamName: myTeam?.name || '',
+            isNameSaved: !!myTeam?.name,
             teams: roomData.teams || []
-        }
+        };
 
+        this._connectSocket();
         this.updateDOM();
     }
 
@@ -87,11 +88,17 @@ export class WaitingRoomView extends Component {
 
         if (this.state.isNameSaved) {
             this.state.isNameSaved = false;
-        } else {
-            this.state.isNameSaved = true;
-            await setTeamName(this.state.gameId, this.state.roomCode, this.state.myTeamName);
+            this.updateDOM();
+            return;
         }
 
+        const result = await setTeamName(this.state.roomCode, this.state.myTeamName.trim());
+        if (!result) {
+            alert("Это имя уже занято, выберите другое");
+            return;
+        }
+
+        this.state.isNameSaved = true;
         this.updateDOM();
     }
 
@@ -104,10 +111,10 @@ export class WaitingRoomView extends Component {
             const data = JSON.parse(event.data);
             switch (data.type) {
                 case 'init':
-                    await this.initRoom(data.teams);
+                    await this._refreshTeams(data.teams);
                     break;
                 case 'update':
-                    await this.updateRoom(data.teams, data.kicked);
+                    await this._handleUpdate(data.teams);
                     break;
                 case 'game_started':
                     redirectTo(`/room/active/${this.data.roomCode}`);
@@ -116,24 +123,23 @@ export class WaitingRoomView extends Component {
         };
     }
 
-    async initRoom(teams) {
+    async _refreshTeams(teams) {
         this.state.teams = teams;
-        const roomInfo = await tryGetTeamInfo(this.state.roomCode);
-        if (!roomInfo) {
-            return;
+        const myTeam = await tryGetTeamInfo(this.state.roomCode);
+        if (myTeam?.name) {
+            this.state.myTeamName = myTeam.name;
+            this.state.isNameSaved = true;
         }
-        this.state.myTeamName = roomInfo.name;
-        this.state.isNameSaved = true;
         this.updateDOM();
     }
 
-    async updateRoom(teams, kicked) {
+    async _handleUpdate(teams) {
         this.state.teams = teams;
         const isIKicked = await checkKicked(this.state.roomCode);
         if (isIKicked) {
             this.ws.close();
-            redirectTo(`/`);
             alert("Вас забанили за читы!");
+            redirectTo(`/`);
             return;
         }
         this.updateDOM();

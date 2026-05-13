@@ -42,7 +42,7 @@ class Services:
         return ''.join(secrets.choice(self._CODE_ALPHABET) for _ in range(self._CODE_LENGTH))
 
     @staticmethod
-    def parse_room_info(room_info: list[dict[Any, Any]], tracks_info) -> dict[str, Any]:
+    def parse_room_info(room_info: list[dict[Any, Any]], tracks_info, teams) -> dict[str, Any]:
         first = room_info[0]
         return {
             'id': first['id'],
@@ -54,6 +54,7 @@ class Services:
             'costs': tracks_info['costs'],
             'categories': tracks_info['categories'],
             'tracks': tracks_info['tracks'],
+            'teams': teams,
         }
 
     @staticmethod

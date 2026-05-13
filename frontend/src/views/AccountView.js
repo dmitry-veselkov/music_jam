@@ -77,7 +77,6 @@ export class AccountView extends Component {
         if (startButtons) {
             startButtons.forEach(button => {
                 button.addEventListener("click", async (event) => {
-                    // sessionStorage.removeItem('teams'); // TODO что это такое и зачем оно надо
                     const gameId = event.currentTarget.dataset.gameCode;
                     redirectTo(`/room/admin_waiting/${gameId}`);
                 });

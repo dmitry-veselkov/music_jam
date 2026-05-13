@@ -134,7 +134,10 @@ class ApiRouter:
             code = code.upper().strip()
             room_info = await self.db_hands.get_room_info(code)
             songs = await self.db_hands.get_room_tracks(code)
-            return self.services.parse_room_info(room_info, songs) if room_info else None
+            teams = None
+            if code in self.rooms:
+                teams = self.rooms[code].team_names
+            return self.services.parse_room_info(room_info, songs, teams) if room_info else None
 
         @self.router.get('/room_state')
         async def get_room_state(code: str):
@@ -143,7 +146,7 @@ class ApiRouter:
             if not room:
                 return {"teams": {}, "played_tracks": []}
             return {
-                "teams": room.teams,
+                "teams": room.teams_scores,
                 "played_tracks": [list(t) for t in room.played_tracks]
             }
 
@@ -152,57 +155,71 @@ class ApiRouter:
             code = data.code.upper().strip()
             room = self.rooms.get(code)
             if room:
-                room.update_score(data.team, data.points)
+                room.update_score_by_name(data.team, data.points)
             return {"success": True}
 
         @self.router.post('/update_team_name')
-        async def update_team_name(data: TeamSchema, response: Response, uuid: str | None = Cookie(None)) -> str | None:
+        async def update_team_name(
+            data: TeamSchema,
+            response: Response,
+            team_uuid: str | None = Cookie(None)
+        ) -> str | None:
             """
             :param data: Информация о команде (код комнаты и новое название)
             :param response: Ответ для сохранения куки
-            :param uuid: UUID команды
+            :param team_uuid: UUID команды (из куки)
             """
-            room = self.rooms[data.code]
-            uuid = await room.update_team_name(uuid=uuid, new_name=data.name)
-            if uuid is not None:
-                response.set_cookie("uuid", uuid, httponly=True)
-            return uuid
+            code = data.code.upper().strip()
+            room = self.rooms.get(code)
+            if not room:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Room not found")
+
+            new_uuid = await room.update_team_name(uuid=team_uuid, new_name=data.name)
+            if new_uuid is not None:
+                response.set_cookie("team_uuid", new_uuid, httponly=True, samesite="lax")
+            return new_uuid
 
         @self.router.get('/get_team_info')
-        async def get_team_info(code: str, uuid: str | None = Cookie(None)) -> dict[str, str] | None:
+        async def get_team_info(code: str, team_uuid: str | None = Cookie(None)) -> dict[str, Any] | None:
             """
             :param code: Код комнаты
-            :param uuid: UUID команды
+            :param team_uuid: UUID команды (из куки)
             :return: Если команда найдена, то имя и очки команды
             """
-            if code not in self.rooms or not uuid:
+            code = code.upper().strip()
+            room = self.rooms.get(code)
+            print(team_uuid)
+            if not room or not team_uuid:
                 return None
-            room = self.rooms[code]
-            return room.get_team_info(uuid)
+            return room.get_team_info(team_uuid)
 
         @self.router.post('/remove_team')
         async def remove_team(data: KickTeamSchema) -> None:
-            room = self.rooms[data.code]
-            await room.remove_team(data.name)
+            code = data.code.upper().strip()
+            room = self.rooms.get(code)
+            if room:
+                await room.remove_team(data.name)
 
         @self.router.get('/check_kicked')
-        async def check_kicked(code: str, uuid: str | None = Cookie(None)) -> bool:
-            room = self.rooms[code]
-            return room.is_team_kicked(uuid)
+        async def check_kicked(code: str, team_uuid: str | None = Cookie(None)) -> bool:
+            code = code.upper().strip()
+            room = self.rooms.get(code)
+            if not room:
+                return False
+            return room.is_team_kicked(team_uuid)
 
         @self.router.post('/delete_game')
         async def delete_game(code: str = '') -> None:
             code = code.upper().strip()
             await self.db_hands.delete_game(code)
 
-        @self.router.get('/run_game')
-        async def run_game(code: str = '') -> None | dict[str, Any]:
+        @self.router.get('/set_waiting_status')
+        async def run_game(code: str = '') -> None:
             code = code.upper().strip()
+            if code in self.rooms:
+                return
             self.rooms[code] = Room(code)
             await self.db_hands.update_game_any_param(code, "status", "waiting")
-            room_info = await self.db_hands.get_room_info(code)
-            tracks_info = await self.db_hands.get_room_tracks(code)
-            return self.services.parse_room_info(room_info, tracks_info) if room_info else None
 
         @self.router.post('/start_game')
         async def start_game(code: str = '') -> dict[str, bool]:
@@ -212,13 +229,20 @@ class ApiRouter:
             return {"success": True}
 
         @self.router.post('/end_game')
-        async def end_game(code: str = '') -> dict[str, bool]:
+        async def end_game(code: str = '') -> dict[str, Any]:
             code = code.upper().strip()
             await self.db_hands.update_game_any_param(code, "status", "ended")
-            await self.rooms[code].send_payload_to_all({"type": "game_ended"})
-            self.rooms[code].close_room()
-            self.rooms.pop(code)
-            return {"success": True}
+            room = self.rooms.get(code)
+            final_players: dict[str, int] = {}
+            if room:
+                final_players = room.teams_scores
+                await room.send_payload_to_all({
+                    "type": "game_ended",
+                    "players": final_players,
+                })
+                room.close_room()
+                self.rooms.pop(code, None)
+            return {"success": True, "players": final_players}
 
         @self.router.post('/add_played_track')
         async def add_played_track(data: AddPlayedTrack):
@@ -282,20 +306,22 @@ class ApiRouter:
             code = code.upper().strip()
             await websocket.accept()
 
-            self.rooms[code].add_socket(websocket)
-            teams_names = list(self.rooms[code].teams.keys())
-            await websocket.send_json({"type": "init", "teams": teams_names})
+            room = self.rooms.get(code)
+            if not room:
+                await websocket.close()
+                return
+
+            room.add_socket(websocket)
+            await websocket.send_json({"type": "init", "teams": room.team_names})
 
             try:
                 while True:
                     msg = await websocket.receive_json()
                     if msg['type'] in ('track_started', 'player_buzzed', 'team_answer', 'game_ended',
                                        'show_answer', 'add_points', 'reset_answer_btn'):
-                        await self.rooms[code].send_payload_to_all(msg)
+                        await room.send_payload_to_all(msg)
             except WebSocketDisconnect:
-                room = self.rooms.get(code)
-                if room:
-                    self.rooms[code].discard(websocket)
+                room.discard(websocket)
 
     def _get_token_payload(self, token: str | None) -> dict[str, Any] | None:
         if not token or not (payload := self.services.try_get_jwt_payload(token)):

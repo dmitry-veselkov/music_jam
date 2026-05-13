@@ -3,17 +3,17 @@ import {get404, redirectTo} from "../services/RouteServices.js";
 
 import {Logo, Button} from "../components/UI.js";
 import {authenticationToGame} from "../services/AccountServices.js";
-import {startGame, tryRunGame} from "../services/GamesServices.js";
-import {removeTeam} from "../services/RoomService.js";
+import {startGame, trySetWaitingStatus} from "../services/GamesServices.js";
+import {removeTeam, tryGetRoomInfo} from "../services/RoomService.js";
 
 export class AdminWaitingRoomView extends Component {
     constructor(container, data) {
         super(container, data);
-        this._savedName = '';
 
         this.state = {
-            gameName: 'Загрузка...',
-            creator: 'Загрузка...',
+            roomCode: null,
+            gameName: '',
+            creator: '',
             teams: []
         };
     }
@@ -25,27 +25,19 @@ export class AdminWaitingRoomView extends Component {
             return;
         }
 
-        const roomInfo = await tryRunGame(this.data.roomCode);
-        if (!roomInfo) {
-            // TODO Хз надо ли тут делать эту проверку. По идее, если бы было 404, то упали бы раньше...
-            this.container.innerHTML = get404();
-            return;
-        }
+        await trySetWaitingStatus(this.data.roomCode);
+        const roomInfo = await tryGetRoomInfo(this.data.roomCode);
+        console.log(roomInfo);
 
         this._connectSocket();
 
-        this._setState({
-            gameId: roomInfo.id,
+        this.state = {
             roomCode: roomInfo.code,
             gameName: roomInfo.title || 'Без названия',
             creator: roomInfo.author || 'неизвестный...',
-            teams: roomInfo.teams || []
-        })
-    }
+            teams: roomInfo.teams || [],
+        }
 
-    _setState(newState) {
-        this.state = {...this.state, ...newState};
-        this._savedName = this.state.myTeamName;
         this.updateDOM();
     }
 

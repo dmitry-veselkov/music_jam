@@ -2,6 +2,7 @@ import {Component} from "../core/Component.js";
 import {Logo} from "../components/UI.js";
 import {get404, redirectTo} from "../services/RouteServices.js";
 import {getRoomState, tryGetGameSettings} from "../services/GamesServices.js";
+import {tryGetTeamInfo} from "../services/RoomService.js";
 import {GameSettings} from "../domain/GameSettings.js";
 import {OnGameRating} from "../components/OnGameRating.js";
 import {OnGameTable} from "../components/OnGameTable.js";
@@ -13,6 +14,7 @@ export class GameView extends Component {
         super(container, data);
         this.gameSettings = new GameSettings();
         this.state = {
+            myTeamName: '',
             activeCell: null,
             hadWrongAnswer: false,
             canBuzz: false,
@@ -35,6 +37,14 @@ export class GameView extends Component {
             this.container.innerHTML = get404();
             return;
         }
+
+        // Игрок должен быть зарегистрирован — иначе на главную
+        const myTeam = await tryGetTeamInfo(this.data.roomCode);
+        if (!myTeam?.name) {
+            redirectTo('/');
+            return;
+        }
+        this.state.myTeamName = myTeam.name;
 
         this._onKeyDown = (e) => {
             if (e.key === 'Enter') {
@@ -76,7 +86,7 @@ export class GameView extends Component {
                     </div>
 
                     ${OnGameTable(this.gameSettings, this.state, this._tableOptions)}
-                    ${OnGameRating(this.state.players, sessionStorage.getItem('team-name'))}
+                    ${OnGameRating(this.state.players, this.state.myTeamName)}
                 </main>
             </div>
             ${CorrectAnswerModalForPlayer(this.state.answer)}
@@ -115,7 +125,7 @@ export class GameView extends Component {
             }
 
             if (data.type === 'reset_answer_btn') {
-                const myTeam = sessionStorage.getItem('team-name') ?? 'Неизвестная команда';
+                const myTeam = this.state.myTeamName;
                 this.state.hadWrongAnswer = data.disabledTeams.includes(myTeam);
                 this.state.canBuzz = !this.state.hadWrongAnswer;
                 this.state.whoAnswers = null;
@@ -125,7 +135,7 @@ export class GameView extends Component {
 
             if (data.type === 'player_buzzed') {
                 this.state.canBuzz = false;
-                const myTeam = sessionStorage.getItem('team-name') ?? 'Неизвестная команда';
+                const myTeam = this.state.myTeamName;
                 this.state.whoAnswers = data.team;
                 if (data.team === myTeam) {
                     this.state.showAnswerInput = this.gameSettings.mode === false;
@@ -155,14 +165,17 @@ export class GameView extends Component {
             }
 
             if (data.type === 'game_ended') {
-                sessionStorage.setItem('final-scores', JSON.stringify(this.state.players));
-                redirectTo(`/room/finish/${this.data.roomCode}`);
+                const players = data.players ?? this.state.players ?? {};
+                redirectTo(`/room/finish/${this.data.roomCode}`, {
+                    players,
+                    myTeamName: this.state.myTeamName,
+                });
             }
 
             if (data.type === 'add_points') {
                 const team = data.team;
                 const points = data.points;
-                this.state.players[team] += points;
+                this.state.players[team] = (this.state.players[team] || 0) + points;
                 this.updateDOM();
             }
         };
@@ -172,7 +185,7 @@ export class GameView extends Component {
         const buzzBtn = this.container.querySelector('#buzz-btn');
         if (buzzBtn) {
             buzzBtn.onclick = () => {
-                const team = sessionStorage.getItem('team-name') ?? 'Неизвестная команда';
+                const team = this.state.myTeamName;
 
                 this.ws.send(JSON.stringify({
                     type: 'player_buzzed',
@@ -192,7 +205,7 @@ export class GameView extends Component {
 
                     this.ws.send(JSON.stringify({
                         type: 'team_answer',
-                        team: sessionStorage.getItem('team-name') ?? 'Неизвестная команда',
+                        team: this.state.myTeamName,
                         artist,
                         title
                     }));

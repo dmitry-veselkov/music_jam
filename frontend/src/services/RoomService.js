@@ -8,8 +8,8 @@ export async function tryGetTeamInfo(code) {
     return await fetchGetTo(`/api/get_team_info?code=${code}`);
 }
 
-export async function setTeamName(gameId, code, newName) {
-    const payload = {"id": gameId, "code": code, "name": newName};
+export async function setTeamName(code, newName) {
+    const payload = {"code": code, "name": newName};
     return await fetchPostTo(`/api/update_team_name`, payload);
 }
 

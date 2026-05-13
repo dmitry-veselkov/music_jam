@@ -23,6 +23,7 @@ export async function fetchPostTo(apiPath, payload) {
     try {
         const response = await fetch(apiPath, {
             method: 'POST',
+            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json'
             },
