@@ -4,16 +4,20 @@ export async function tryGetRoomInfo(code) {
     return await fetchGetTo(`/api/get_room_info?code=${code}`);
 }
 
-// export async function getTeamNameByUUID(uuid) {
-//     return await fetchGetTo(`/api/get_team_name?uuid=${uuid}`);
-// }
+export async function tryGetTeamInfo(code) {
+    return await fetchGetTo(`/api/get_team_info?code=${code}`);
+}
 
-export async function setTeamName(gameId, code, oldName, newName) {
-    const payload = {"id": gameId, "code": code, "oldName": oldName, "name": newName};
-    return await fetchPostTo(`/api/set_team_name`, payload);
+export async function setTeamName(gameId, code, newName) {
+    const payload = {"id": gameId, "code": code, "name": newName};
+    return await fetchPostTo(`/api/update_team_name`, payload);
 }
 
 export async function removeTeam(teamName, code) {
-    const payload = {"team_name": teamName, "code": code};
+    const payload = {"name": teamName, "code": code};
     return await fetchPostTo(`/api/remove_team`, payload);
+}
+
+export async function checkKicked(code) {
+    return await fetchGetTo(`/api/check_kicked?code=${code}`);
 }

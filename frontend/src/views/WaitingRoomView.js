@@ -1,5 +1,5 @@
 ﻿import {Component} from "../core/Component.js";
-import {tryGetRoomInfo, setTeamName} from "../services/RoomService.js";
+import {tryGetRoomInfo, setTeamName, tryGetTeamInfo, checkKicked} from "../services/RoomService.js";
 import {get404, redirectTo} from "../services/RouteServices.js";
 import {Logo} from "../components/UI.js";
 import {WaitingInfoPanel, WaitingTeamsPanel} from "../components/WaitingPanels.js";
@@ -12,11 +12,11 @@ export class WaitingRoomView extends Component {
      */
     constructor(container, data) {
         super(container, data);
-        this._savedName = '';
 
-        sessionStorage.removeItem('teams');
-
+        this.ws = null;
         this.state = {
+            gameId: null,
+            roomCode: null,
             gameName: 'Загрузка...',
             creator: 'Загрузка...',
             myTeamName: '',
@@ -24,7 +24,6 @@ export class WaitingRoomView extends Component {
             teams: []
         };
     }
-
 
     async mount() {
         const roomData = await tryGetRoomInfo(this.data.roomCode);
@@ -35,20 +34,16 @@ export class WaitingRoomView extends Component {
 
         this._connectSocket();
 
-        // const uuid = this._setUUID();
-        // await this._loadTeamInfoByUUID(uuid);
-
-        this._setState({
+        this.state = {
             gameId: roomData.id,
             roomCode: roomData.code,
             gameName: roomData.title || 'Без названия',
             creator: roomData.author || 'неизвестный...',
+            myTeamName: '',
+            isNameSaved: false,
             teams: roomData.teams || []
-        })
-    }
+        }
 
-    _setState(newState) {
-        this.state = {...this.state, ...newState};
         this.updateDOM();
     }
 
@@ -92,68 +87,55 @@ export class WaitingRoomView extends Component {
 
         if (this.state.isNameSaved) {
             this.state.isNameSaved = false;
-            this.updateDOM();
-            return;
+        } else {
+            this.state.isNameSaved = true;
+            await setTeamName(this.state.gameId, this.state.roomCode, this.state.myTeamName);
         }
 
-        this.state.isNameSaved = true;
-        const resp = await setTeamName(
-            this.state.gameId,
-            this.state.roomCode,
-            this._savedName,
-            this.state.myTeamName
-        );
-        if (resp.status !== 'ok') {
-            // TODO заменить alert
-            alert("Имя не было сохранено. Повторите попытку!");
-            return;
-        }
-
-        this._savedName = this.state.myTeamName;
-        sessionStorage.setItem('team-name', this.state.myTeamName);
         this.updateDOM();
     }
 
     _connectSocket() {
         if (this.ws) return;
         const protocol = window.location.protocol === "https:" ? "wss" : "ws";
-        this.ws = new WebSocket(
-            `${protocol}://${window.location.host}/api/ws/room/${this.data.roomCode}`
-        );
+        this.ws = new WebSocket(`${protocol}://${window.location.host}/api/ws/room/${this.data.roomCode}`);
 
-        this.ws.onmessage = (event) => {
+        this.ws.onmessage = async (event) => {
             const data = JSON.parse(event.data);
-
-            if (data.type === "init") {
-                this.state.teams = data.teams;
-                let storageName = sessionStorage.getItem('team-name');
-                if (!this.state.teams.includes(storageName)) {
-                    sessionStorage.removeItem('team-name');
-                }
-                storageName = sessionStorage.getItem('team-name');
-                if (storageName) {
-                    this.state.myTeamName = storageName;
-                    this.state.isNameSaved = true;
-                } else {
-                    this.state.isNameSaved = '';
-                    this.state.isNameSaved = false;
-                }
-                this._savedName = this.state.myTeamName;
-                this.updateDOM();
-            } else if (data.type === "update") {
-                if (!data.teams.includes(this.state.myTeamName)) {
-                    this.ws.close();
-                    redirectTo(`/`);
-                    sessionStorage.removeItem('team-name');
-                    alert("Вас забанили за читы!");
-                    return;
-                }
-                this.state.teams = data.teams;
-                this.updateDOM();
-            } else if (data.type === "game_started") {
-                sessionStorage.setItem('teams', JSON.stringify(data.teams));
-                redirectTo(`/room/active/${this.data.roomCode}`);
+            switch (data.type) {
+                case 'init':
+                    await this.initRoom(data.teams);
+                    break;
+                case 'update':
+                    await this.updateRoom(data.teams, data.kicked);
+                    break;
+                case 'game_started':
+                    redirectTo(`/room/active/${this.data.roomCode}`);
+                    break;
             }
         };
+    }
+
+    async initRoom(teams) {
+        this.state.teams = teams;
+        const roomInfo = await tryGetTeamInfo(this.state.roomCode);
+        if (!roomInfo) {
+            return;
+        }
+        this.state.myTeamName = roomInfo.name;
+        this.state.isNameSaved = true;
+        this.updateDOM();
+    }
+
+    async updateRoom(teams, kicked) {
+        this.state.teams = teams;
+        const isIKicked = await checkKicked(this.state.roomCode);
+        if (isIKicked) {
+            this.ws.close();
+            redirectTo(`/`);
+            alert("Вас забанили за читы!");
+            return;
+        }
+        this.updateDOM();
     }
 }

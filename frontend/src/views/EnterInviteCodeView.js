@@ -57,6 +57,8 @@ export class EnterInviteCodeView extends Component {
             data = await tryGetRoomInfo(code);
         })
 
+        // TODO Если игрок был зареган на эту игру (у него есть JWT токен с именем команды и кодом игры)
+        // TODO а игра уже началась, его должно кидать сразу в саму игру
         if (data && data.status === 'waiting') {
             redirectTo(`/room/waiting/${code}`, {roomCode: code})
         } else {

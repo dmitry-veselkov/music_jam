@@ -17,11 +17,10 @@ class RegisterSchema(BaseModel):
 class TeamSchema(BaseModel):
     id: int
     code: str
-    oldName: str
     name: str
 
-class RemoveTeamSchema(BaseModel):
-    team_name: str
+class KickTeamSchema(BaseModel):
+    name: str
     code: str
 
 class SaveGameSchema(BaseModel):

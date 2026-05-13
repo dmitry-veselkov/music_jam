@@ -133,9 +133,7 @@ export class AdminWaitingRoomView extends Component {
     _connectSocket() {
         if (this.ws) return;
         const protocol = window.location.protocol === "https:" ? "wss" : "ws";
-        this.ws = new WebSocket(
-            `${protocol}://${window.location.host}/api/ws/room/${this.data.roomCode}`
-        );
+        this.ws = new WebSocket(`${protocol}://${window.location.host}/api/ws/room/${this.data.roomCode}`);
 
         this.ws.onmessage = (event) => {
             const data = JSON.parse(event.data);

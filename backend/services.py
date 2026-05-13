@@ -4,7 +4,7 @@ import secrets
 from typing import Any
 
 import jwt
-import uuid
+from uuid import UUID, uuid4
 
 
 class Services:
@@ -58,4 +58,8 @@ class Services:
 
     @staticmethod
     def get_unique_s3_uuid(name: str):
-        return f"{uuid.uuid4()}_{name}"
+        return f"{uuid4()}_{name}"
+
+    @staticmethod
+    def get_uuid() -> str:
+        return str(uuid4())

@@ -7,8 +7,8 @@ from db.hands_db import DatabaseHands
 from fastapi import APIRouter, Cookie, HTTPException, Response, WebSocket, WebSocketDisconnect, status, UploadFile, \
     File, Form
 from services import Services
-from api_schemes import LoginSchema, RegisterSchema, SaveGameSchema, TeamSchema, RemoveTeamSchema, AddPointsSchema, \
-    AddPlayedTrack
+from api_schemes import LoginSchema, RegisterSchema, SaveGameSchema, TeamSchema, AddPointsSchema, AddPlayedTrack, \
+    KickTeamSchema
 from s3 import S3
 from domain.room import Room
 
@@ -155,25 +155,40 @@ class ApiRouter:
                 room.update_score(data.team, data.points)
             return {"success": True}
 
-        @self.router.post('/set_team_name')
-        async def set_team_name(data: TeamSchema) -> dict[str, Any]:
-            code = data.code
-            # teams = self.rooms[code].teams.keys()
-            # self.rooms[code].teams[data.oldName] = data.name
-            if data.oldName not in self.rooms[code].teams:
-                scores = 0
-            else:
-                scores = self.rooms[code].teams.pop(data.oldName)
-            self.rooms[code].add_team(data.name, scores)
+        @self.router.post('/update_team_name')
+        async def update_team_name(data: TeamSchema, response: Response, uuid: str | None = Cookie(None)) -> str | None:
+            """
+            :param data: Информация о команде (код комнаты и новое название)
+            :param response: Ответ для сохранения куки
+            :param uuid: UUID команды
+            """
+            room = self.rooms[data.code]
+            uuid = await room.update_team_name(uuid=uuid, new_name=data.name)
+            if uuid is not None:
+                response.set_cookie("uuid", uuid, httponly=True)
+            return uuid
 
-            await self.rooms[code].broadcast_room()
-            return {"status": "ok"}
+        @self.router.get('/get_team_info')
+        async def get_team_info(code: str, uuid: str | None = Cookie(None)) -> dict[str, str] | None:
+            """
+            :param code: Код комнаты
+            :param uuid: UUID команды
+            :return: Если команда найдена, то имя и очки команды
+            """
+            if code not in self.rooms or not uuid:
+                return None
+            room = self.rooms[code]
+            return room.get_team_info(uuid)
 
         @self.router.post('/remove_team')
-        async def remove_team(data: RemoveTeamSchema) -> None:
-            team_name, code = data.team_name, data.code
-            self.rooms[code].remove_team(team_name)
-            await self.rooms[code].broadcast_room()
+        async def remove_team(data: KickTeamSchema) -> None:
+            room = self.rooms[data.code]
+            await room.remove_team(data.name)
+
+        @self.router.get('/check_kicked')
+        async def check_kicked(code: str, uuid: str | None = Cookie(None)) -> bool:
+            room = self.rooms[code]
+            return room.is_team_kicked(uuid)
 
         @self.router.post('/delete_game')
         async def delete_game(code: str = '') -> None:
