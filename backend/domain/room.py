@@ -34,9 +34,10 @@ class Room:
         return list(self.black_list)
 
     def is_team_kicked(self, uuid: str | None) -> bool:
-        if not uuid:
+        if not uuid or uuid not in self.black_list:
             return False
-        return uuid in self.black_list
+        self.black_list.remove(uuid)
+        return True
 
     def _is_name_taken(self, name: str, exclude_uuid: str | None = None) -> bool:
         for uuid, team in self.teams.items():

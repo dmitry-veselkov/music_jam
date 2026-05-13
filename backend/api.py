@@ -201,12 +201,15 @@ class ApiRouter:
                 await room.remove_team(data.name)
 
         @self.router.get('/check_kicked')
-        async def check_kicked(code: str, team_uuid: str | None = Cookie(None)) -> bool:
+        async def check_kicked(code: str, response: Response, team_uuid: str | None = Cookie(None)) -> bool:
             code = code.upper().strip()
             room = self.rooms.get(code)
             if not room:
                 return False
-            return room.is_team_kicked(team_uuid)
+            is_kicked = room.is_team_kicked(team_uuid)
+            if is_kicked:
+                response.delete_cookie('team_uuid')
+            return is_kicked
 
         @self.router.post('/delete_game')
         async def delete_game(code: str = '') -> None:
