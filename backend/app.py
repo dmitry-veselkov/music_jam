@@ -1,7 +1,6 @@
 import logging
 import pathlib
 from typing import Any
-
 import uvicorn
 from routes.routes import Routes
 from db.database import Database
@@ -10,8 +9,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
-from services import Services
-from s3 import S3
+from services.services import Services
 from settings import Settings
 
 
@@ -26,8 +24,7 @@ class App:
 
         self.db = Database(self.settings)
         self.db_hands = DatabaseHands(self.db)
-        self.services = Services(self.settings.SECRET_JWT)
-        self.s3 = S3(self.settings.PUBLIC_KEY, self.settings.SECRET_KEY)
+        self.services = Services(self.settings.SECRET_JWT, self.settings.PUBLIC_KEY, self.settings.SECRET_KEY)
         self.logger = logging.getLogger("uvicorn")
 
         self.app.add_middleware(
@@ -43,11 +40,7 @@ class App:
     def _initialize_routers(self) -> None:
         # TODO по идее api не должно ничего знать про S3. это хороший функционал для сервиса
         # TODO который потом уже можно будет разбить на специализированные подклассы: криптография, s3 и пр.
-
-        # api_router = ApiRouter(self.db_hands, self.services, self.logger, self.s3)
-        # self.app.include_router(api_router.router, prefix="/api")
-
-        api_router = Routes(self.db_hands, self.services, self.logger, self.s3)
+        api_router = Routes(self.db_hands, self.services, self.logger)
         self.app.include_router(api_router.router, prefix='/api')
 
     def _initialize_static(self) -> None:

@@ -4,10 +4,10 @@ import secrets
 from typing import Any
 
 import jwt
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 
-class Services:
+class Crypto:
     _CODE_ALPHABET = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ"
     _CODE_LENGTH = 6
 
@@ -30,36 +30,17 @@ class Services:
 
         return jwt.encode(payload, self.secret_jwt, algorithm="HS256")
 
-    def try_get_jwt_payload(self, token: str) -> dict[str, Any] | None:
+    def get_token_payload(self, token: str | None) -> dict[str, Any] | None:
+        if not token:
+            return None
         try:
             payload = jwt.decode(token, self.secret_jwt, algorithms=["HS256"])
             return payload
         except jwt.PyJWTError as e:
-            print(e)
             return None
 
     def generate_new_code(self) -> str:
         return ''.join(secrets.choice(self._CODE_ALPHABET) for _ in range(self._CODE_LENGTH))
-
-    @staticmethod
-    def parse_room_info(room_info: list[dict[Any, Any]], tracks_info, teams) -> dict[str, Any]:
-        first = room_info[0]
-        return {
-            'id': first['id'],
-            'code': first['join_code'],
-            'status': first['status'],
-            'title': first['title'],
-            'author': first['name'],
-            'mode': first['mode'],
-            'costs': tracks_info['costs'],
-            'categories': tracks_info['categories'],
-            'tracks': tracks_info['tracks'],
-            'teams': teams,
-        }
-
-    @staticmethod
-    def get_unique_s3_uuid(name: str):
-        return f"{uuid4()}_{name}"
 
     @staticmethod
     def get_uuid() -> str:

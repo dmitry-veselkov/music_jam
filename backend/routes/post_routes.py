@@ -10,7 +10,7 @@ from fastapi import (
     File
 )
 
-from api_schemes import (
+from routes.schemes import (
     LoginSchema,
     RegisterSchema,
     SaveGameSchema,
@@ -31,16 +31,18 @@ class Post:
 
     def __init__(self, outer: "Routes") -> None:
         self.outer = outer
+        self.crypto = self.outer.services.crypto
+        self.s3 = self.outer.services.s3
 
     async def login(self, data: LoginSchema, response: Response) -> bool:
-        pass_hash = self.outer.services.get_hex_hash(data.password)
+        pass_hash = self.crypto.get_hex_hash(data.password)
         user = await self.outer.db_hands.get_user(data.email)
 
         if not user or user[2] != pass_hash:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
 
         _id, _name, _pass_hash, _email = user
-        token = self.outer.services.get_jwt_token(_id, _name, _email)
+        token = self.crypto.get_jwt_token(_id, _name, _email)
         response.set_cookie("token", token, httponly=True, samesite="lax")
 
         return True
@@ -52,10 +54,10 @@ class Post:
                 status_code=status.HTTP_400_BAD_REQUEST, detail="A user with this email already exists"
             )
 
-        pass_hash = self.outer.services.get_hex_hash(data.password)
+        pass_hash = self.crypto.get_hex_hash(data.password)
         _id = await self.outer.db_hands.insert_user(data.name, pass_hash, data.email)
 
-        token = self.outer.services.get_jwt_token(_id, data.name, data.email)
+        token = self.crypto.get_jwt_token(_id, data.name, data.email)
         response.set_cookie("token", token, httponly=True, samesite="lax")
 
         return {"name": data.name, "email": data.email}
@@ -64,10 +66,10 @@ class Post:
         response.delete_cookie("token")
 
     async def create_new_game(self, token: str = Cookie(None)):
-        payload = self.outer.services.try_get_jwt_payload(token)
+        payload = self.crypto.get_jwt_payload(token)
         _id = int(payload["sub"])
         for max_times in range(10):
-            code = self.outer.services.generate_new_code()
+            code = self.crypto.generate_new_code()
             game_info = await self.outer.db_hands.get_game_info(code)
             if game_info is None:
                 await self.outer.db_hands.create_game(
@@ -182,8 +184,8 @@ class Post:
         if question:
             if not question.content_type.startswith("audio/"):
                 return {"error": "Файл вопроса не аудио!"}
-            question_name = self.outer.services.get_unique_s3_uuid(question.filename)
-            self.outer.s3.upload(question.file, question_name, question.content_type)
+            question_name = self.crypto.get_unique_s3_uuid(question.filename)
+            self.outer.services.s3.upload(question.file, question_name, question.content_type)
         elif question_url:
             question_name = question_url
         else:
@@ -192,8 +194,8 @@ class Post:
         if answer:
             if not answer.content_type.startswith("audio/"):
                 return {"error": "Файл вопроса не аудио!"}
-            answer_name = self.outer.services.get_unique_s3_uuid(answer.filename)
-            self.outer.s3.upload(answer.file, answer_name, answer.content_type)
+            answer_name = self.s3.get_unique_s3_uuid(answer.filename)
+            self.outer.services.s3.upload(answer.file, answer_name, answer.content_type)
         elif answer_url:
             answer_name = answer_url
         else:
