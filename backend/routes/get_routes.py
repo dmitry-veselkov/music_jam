@@ -15,13 +15,15 @@ class Get:
 
     def __init__(self, outer: "Routes") -> None:
         self.outer = outer
+        self.crypto = self.outer.services.crypto
+        self.parser = self.outer.services.parser
 
     async def get_all_user_games(self, token: str | None = Cookie(None)) -> list[dict[str, Any]]:
         """
         :param token: JWT-токен пользователя из Cookies
         :return: Список всех игр данного пользователя
         """
-        payload = self.outer.get_token_payload(token)
+        payload = self.crypto.get_token_payload(token)
         if not payload:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
         _id = int(payload['sub'])
@@ -34,7 +36,7 @@ class Get:
         :param token: JWT-токен пользователя из Cookies
         :return: Информация о пользователе: email, name, id
         """
-        payload = self.outer.get_token_payload(token)
+        payload = self.crypto.get_token_payload(token)
         if not payload:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
 
@@ -44,7 +46,7 @@ class Get:
     # TODO: изменить url апишки
     # TODO: exists нафиг не нужен, можем просто None возвращать
     # TODO: после правок дописать доку к методу
-    async def get_game_settings(self, code: str = ''):
+    async def get_game_settings(self, code: str = '') -> dict[str, Any] | None:
         code = code.upper().strip()
         game = await self.outer.db_hands.get_game_info(code)
         if not game:
@@ -62,10 +64,10 @@ class Get:
         teams = None
         if code in self.outer.rooms:
             teams = self.outer.rooms[code].team_names
-        return self.outer.services.parse_room_info(room_info, songs, teams) if room_info else None
+        return self.parser.parse_room_info(room_info, songs, teams) if room_info else None
 
     # TODO: зачем возвращать такой словарь, если можно вернуть None
-    async def get_room_state(self, code: str):
+    async def get_room_state(self, code: str) -> dict[str, Any] | None:
         code = code.upper().strip()
         room = self.outer.rooms.get(code)
         if not room:
@@ -92,7 +94,7 @@ class Get:
         :param code: Код комнаты
         :param response: Response для изменения куки
         :param team_uuid: UUID конкректной команды из Cookie
-        :return: Была удалена команда или нет
+        :return: была удалена команда или нет
         """
         code = code.upper().strip()
         room = self.outer.rooms.get(code)
@@ -118,7 +120,7 @@ class Get:
         :param file_name: Имя музыкального файла для воспроизведения
         :return: Stream с передачей нужно файла
         """
-        body, content_type = self.outer.s3.get_stream(file_name)
+        body, content_type = self.outer.services.s3.get_stream(file_name)
         return StreamingResponse(
             body.iter_chunks(chunk_size=1024 * 512),
             media_type=content_type)

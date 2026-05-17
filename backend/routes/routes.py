@@ -1,23 +1,19 @@
 from logging import Logger
-from typing import Any
-
 from db.hands_db import DatabaseHands
 from fastapi import APIRouter
 from routes.get_routes import Get
 from routes.post_routes import Post
-from services import Services
+from services.services import Services
 from routes.ws_routes import WS
 from domain.room import Room
-from s3 import S3
 
 
 class Routes:
-    def __init__(self, db_hands: DatabaseHands, services: Services, logger: Logger, s3: S3) -> None:
+    def __init__(self, db_hands: DatabaseHands, services: Services, logger: Logger) -> None:
         self.router = APIRouter()
         self.db_hands = db_hands
         self.services = services
         self.logger = logger
-        self.s3 = s3
 
         self.get_routes = Get(self)
         self.post_routes = Post(self)
@@ -44,9 +40,3 @@ class Routes:
             if not name.startswith("_") and callable(method := getattr(self.ws_routes, name)):
                 print('ws')
                 self.router.websocket(f'/ws/room/' + '{code}')(method)
-
-    # TODO: что этот метод делает в апи не понятно вообще - в сервис его!
-    def get_token_payload(self, token: str | None) -> dict[str, Any] | None:
-        if not token or not (payload := self.services.try_get_jwt_payload(token)):
-            return None
-        return payload
