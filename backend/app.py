@@ -3,7 +3,7 @@ import pathlib
 from typing import Any
 
 import uvicorn
-from api import ApiRouter
+from routes.routes import Routes
 from db.database import Database
 from db.hands_db import DatabaseHands
 from fastapi import FastAPI, Request
@@ -41,8 +41,14 @@ class App:
         self._initialize_static()
 
     def _initialize_routers(self) -> None:
-        api_router = ApiRouter(self.db_hands, self.services, self.logger, self.s3)
-        self.app.include_router(api_router.router, prefix="/api")
+        # TODO по идее api не должно ничего знать про S3. это хороший функционал для сервиса
+        # TODO который потом уже можно будет разбить на специализированные подклассы: криптография, s3 и пр.
+
+        # api_router = ApiRouter(self.db_hands, self.services, self.logger, self.s3)
+        # self.app.include_router(api_router.router, prefix="/api")
+
+        api_router = Routes(self.db_hands, self.services, self.logger, self.s3)
+        self.app.include_router(api_router.router, prefix='/api')
 
     def _initialize_static(self) -> None:
         if self.FRONTEND_DIR.exists():
@@ -50,6 +56,7 @@ class App:
             self.app.add_api_route('/{path_name:path}', self.catch_all, methods=["GET"])
 
     async def catch_all(self, request: Request, path_name: str) -> FileResponse:  # а зачем тут request?
+        # TODO: действительно, хороший вопрос: а зачем request?
         file_path = self.FRONTEND_DIR / path_name
         if file_path.is_file():
             return FileResponse(file_path)

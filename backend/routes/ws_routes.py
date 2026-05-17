@@ -1,23 +1,32 @@
-﻿from routes import Routes
+﻿from typing import TYPE_CHECKING
+
 from fastapi import WebSocket, WebSocketDisconnect
+
+if TYPE_CHECKING:
+    from routes.routes import Routes
 
 
 class WS:
-    def __init__(self, outer: Routes) -> None:
+    def __init__(self, outer: "Routes") -> None:
         self.outer = outer
 
     async def room_ws(self, websocket: WebSocket, code: str) -> None:
         code = code.upper().strip()
-
         await websocket.accept()
-        self.outer.rooms[code].add(websocket)
 
-        await self.outer.ensure_room_loaded(code)
+        room = self.outer.rooms.get(code)
+        if not room:
+            await websocket.close()
+            return
 
-        await websocket.send_json({"type": "init", "teams": self.outer.room_state[code]["teams"]})
+        room.add_socket(websocket)
+        await websocket.send_json({"type": "init", "teams": room.team_names})
 
         try:
             while True:
-                await websocket.receive_json()
+                msg = await websocket.receive_json()
+                if msg['type'] in ('track_started', 'player_buzzed', 'team_answer', 'game_ended',
+                                   'show_answer', 'add_points', 'reset_answer_btn'):
+                    await room.send_payload_to_all(msg)
         except WebSocketDisconnect:
-            self.outer.rooms[code].discard(websocket)
+            room.discard(websocket)

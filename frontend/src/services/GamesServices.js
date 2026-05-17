@@ -14,15 +14,15 @@ export async function deleteGame(code) {
 }
 
 export async function trySetWaitingStatus(code) {
-    return await fetchGetTo(`/api/set_waiting_status?code=${code}`);
+    return await fetchGetTo(`/api/start_room?code=${code}`);
 }
 
 export async function tryGetGameSettings(code) {
-    return await fetchGetTo(`/api/gameSettings?code=${code}`);
+    return await fetchGetTo(`/api/get_game_settings?code=${code}`);
 }
 
 export async function saveGameSettings(payload) {
-    return await fetchPostTo(`/api/gameSettings`, payload);
+    return await fetchPostTo(`/api/save_room_settings`, payload);
 }
 
 export async function startGame(code){
@@ -39,7 +39,7 @@ export async function addPlayedTrack(rIdx, cIdx, code){
 }
 
 export async function getRoomState(code) {
-    return await fetchGetTo(`/api/room_state?code=${code}`);
+    return await fetchGetTo(`/api/get_room_state?code=${code}`);
 }
 
 export async function givePoints(code, team, points) {

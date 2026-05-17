@@ -304,28 +304,6 @@ class ApiRouter:
                 body.iter_chunks(chunk_size=1024 * 512),
                 media_type=content_type)
 
-        @self.router.websocket("/ws/room/{code}")
-        async def room_ws(websocket: WebSocket, code: str) -> None:
-            code = code.upper().strip()
-            await websocket.accept()
-
-            room = self.rooms.get(code)
-            if not room:
-                await websocket.close()
-                return
-
-            room.add_socket(websocket)
-            await websocket.send_json({"type": "init", "teams": room.team_names})
-
-            try:
-                while True:
-                    msg = await websocket.receive_json()
-                    if msg['type'] in ('track_started', 'player_buzzed', 'team_answer', 'game_ended',
-                                       'show_answer', 'add_points', 'reset_answer_btn'):
-                        await room.send_payload_to_all(msg)
-            except WebSocketDisconnect:
-                room.discard(websocket)
-
     def _get_token_payload(self, token: str | None) -> dict[str, Any] | None:
         if not token or not (payload := self.services.try_get_jwt_payload(token)):
             return None

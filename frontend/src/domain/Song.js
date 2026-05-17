@@ -11,7 +11,7 @@ export class Song {
     play(gameState) {
         if (!this.questionUrl) return;
 
-        const url = `/api/play?file_name=${encodeURIComponent(this.questionUrl)}`;
+        const url = `/api/play_song?file_name=${encodeURIComponent(this.questionUrl)}`;
         AudioManager.set(url);
         AudioManager.play();
 
@@ -23,7 +23,7 @@ export class Song {
     playCorrectAnswer(gameState, onEnded = null) {
         if (!this.answerUrl) return;
 
-        const url = `/api/play?file_name=${encodeURIComponent(this.answerUrl)}`;
+        const url = `/api/play_song?file_name=${encodeURIComponent(this.answerUrl)}`;
         AudioManager.set(url);
         AudioManager.play();
 

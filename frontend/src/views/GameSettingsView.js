@@ -226,7 +226,7 @@ export class GameSettingsView extends Component {
         formData.append("question_url", cell.song?.questionUrl ?? '');
         formData.append("answer_url", cell.song?.answerUrl ?? '');
 
-        const res = await fetch("/api/upload_music", {
+        const res = await fetch("/api/upload_track", {
             method: "POST",
             body: formData
         });

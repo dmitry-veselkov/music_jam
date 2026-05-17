@@ -18,25 +18,29 @@ class TeamSchema(BaseModel):
     code: str
     name: str
 
+
 class KickTeamSchema(BaseModel):
     name: str
     code: str
+
 
 class SaveGameSchema(BaseModel):
     roomCode: str
     title: str
     description: str
-    mode : bool
+    mode: bool
     categories: list[str]
     costs: list[int]
     tracks: list[list[dict | None]]
 
+
 class AddPointsSchema(BaseModel):
     code: str
-    team : str
-    points : int
+    team: str
+    points: int
+
 
 class AddPlayedTrack(BaseModel):
-    code : str
-    row : int
-    column : int
+    code: str
+    row: int
+    column: int
