@@ -12,7 +12,6 @@ import {AdminWaitingRoomView} from "./views/AdminWaitingRoomView.js";
 import {AdminGameView} from "./views/AdminGameView.js";
 import {GameEndingViewUniversal} from "./views/GameEndingViewUniversal.js";
 
-// const bus = new EventBus();
 const appContainer = document.getElementById('app');
 const routes = {
     '/': StartView,

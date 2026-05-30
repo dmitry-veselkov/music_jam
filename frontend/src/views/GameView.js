@@ -234,7 +234,7 @@ export class GameView extends Component {
     _tableOptions = {
         showFilledState: true,
         showActiveState: true,
-        emptyText: '-',
+        emptyText: '',
         useLaunchText: false
     }
 }

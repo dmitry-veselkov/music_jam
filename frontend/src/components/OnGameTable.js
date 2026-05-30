@@ -49,7 +49,7 @@ const RowSongs = (gameSettings, state, options, rIdx) => {
     const {
         showFilledState = true,
         showActiveState = true,
-        emptyText = '-',
+        emptyText = '',
         useLaunchText = false
     } = options;
 

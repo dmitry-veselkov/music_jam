@@ -11,11 +11,10 @@
     display: none;
 }
 
-/* Основной контейнер */
 .editor-layout {
     display: grid;
     grid-template-columns: 320px 1fr;
-    align-items: start; /* Важно для работы sticky-позиционирования */
+    align-items: start;
     gap: 2rem;
     padding: 100px 2rem 2rem;
     max-width: 1600px;
@@ -23,7 +22,6 @@
     min-height: 100vh;
 }
 
-/* Sidebar - фиксируем при скролле */
 .editor-sidebar {
     position: sticky;
     top: 100px;
@@ -47,7 +45,6 @@
     width: 100%;
 }
 
-/* Основная область таблицы */
 .editor-main {
     display: flex;
     flex-direction: column;
@@ -73,7 +70,6 @@
     word-break: break-all;
 }
 
-/* Таблица редактирования */
 .scroll-container {
     overflow: auto;
     background: var(--color-surface);
@@ -92,7 +88,6 @@
     table-layout: fixed;
 }
 
-/* Ячейки */
 .edit-table th, .edit-table td {
     min-width: 120px;
     max-width: 160px;
@@ -128,7 +123,6 @@
     max-width: 100%;
 }
 
-/* Инпуты внутри таблицы */
 .cost-edit, .cat-edit {
     background: transparent;
     border: none;
@@ -146,17 +140,16 @@
     font-size: 1.1rem;
 }
 
-/* Базовая ячейка (Пустая) */
 .preview-cell {
-    background: rgba(255, 255, 255, 0.03); /* Почти прозрачная, намек на слот */
+    background: rgba(255, 255, 255, 0.03);
     height: 54px;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 0.75rem;
-    color: #666; /* Неяркий текст для пустой ячейки */
+    color: #666;
     font-weight: 500;
-    border: 2px dashed #333; /* Пунктир подчеркивает, что сюда нужно что-то вставить */
+    border: 2px dashed #333;
     padding: 0 0.5rem;
     text-align: center;
     cursor: pointer;
@@ -165,23 +158,19 @@
     overflow: hidden;
 }
 
-/* Эффект при наведении на доступную ячейку */
 .preview-cell:hover:not(.disabled-cell) {
     border-color: var(--color-primary);
     background: rgba(29, 185, 84, 0.05);
     color: #fff;
     transform: translateY(-1px);
 }
-
-/* Ячейка ЗАПОЛНЕНА данными — теперь она выглядит как солидная кнопка */
 .cell-filled {
-    background: #2a2a2a; /* Темный, но не серый "фон" */
+    background: #2a2a2a;
     color: #fff !important;
-    border: 2px solid #3e3e3e !important; /* Сплошная граница */
+    border: 2px solid #3e3e3e !important;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-/* Добавим индикатор на заполненную ячейку (маленькая точка или полоска слева) */
 .cell-filled::before {
     content: '';
     position: absolute;
@@ -193,9 +182,8 @@
     border-radius: 0 4px 4px 0;
 }
 
-/* Ячейка в фокусе/ВЫБРАНА в данный момент */
 .cell-active {
-    background: #1db954 !important; /* Используем основной цвет (зеленый Spotify-style) */
+    background: #1db954 !important;
     color: white !important;
     border-color: #1ed760 !important;
     box-shadow: 0 0 15px rgba(29, 185, 84, 0.4);
@@ -207,7 +195,6 @@
     color: white;
 }
 
-/* Ячейка недоступна */
 .disabled-cell {
     cursor: not-allowed;
     opacity: 0.2;
@@ -216,11 +203,10 @@
     filter: grayscale(1);
 }
 
-/* Текст внутри ячейки */
 .cell-sub {
     font-size: 0.85rem;
     line-height: 1.2;
-    pointer-events: none; /* Чтобы не мешать клику по кнопке */
+    pointer-events: none;
 }
 
 .cell-sub {
@@ -230,7 +216,6 @@
     max-width: 100%;
 }
 
-/* Кнопки удаления */
 .remove-btn {
     background: #333;
     border: none;
@@ -261,7 +246,7 @@ input[type="range"] {
 .modal {
     position: fixed;
     inset: 0;
-    z-index: 1100; /* Выше липкого сайдбара */
+    z-index: 1100;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -284,7 +269,7 @@ input[type="range"] {
     z-index: 1;
     width: 100%;
     max-width: 520px;
-    max-height: 90vh; /* Предотвращаем уход за экран */
+    max-height: 90vh;
     overflow-y: auto;
     background: var(--color-secondary);
     border-radius: 24px;
@@ -450,7 +435,6 @@ input[type="range"] {
     }
 }
 
-/* Остальные стили элементов управления без изменений позиционирования */
 .modal-overlay {
     position: fixed;
     inset: 0;
@@ -713,8 +697,6 @@ input[type="range"] {
     font-weight: 700 !important;
 }
 
-/* ===== Адаптив ===== */
-
 @media (max-width: 1200px) {
     .editor-layout {
         grid-template-columns: 280px 1fr;
@@ -736,7 +718,6 @@ input[type="range"] {
     }
 }
 
-/* Сохранены медиа-запросы для мобилок с небольшими правками размеров */
 @media (max-width: 768px) {
     .editor-layout { padding-top: 70px; }
     .scroll-container { border-radius: 0.5rem; }
