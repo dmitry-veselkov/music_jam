@@ -66,7 +66,7 @@ class Post:
         response.delete_cookie("token")
 
     async def create_new_game(self, token: str = Cookie(None)):
-        payload = self.crypto.get_jwt_payload(token)
+        payload = self.crypto.get_token_payload(token)
         _id = int(payload["sub"])
         for max_times in range(10):
             code = self.crypto.generate_new_code()

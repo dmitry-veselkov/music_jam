@@ -146,7 +146,7 @@ const ModeForm = (mode) => {
                             <input type="radio"
                                 name="game-mode"
                                 value="text"
-                                ${mode ? 'checked' : ''}>
+                                ${!mode ? 'checked' : ''}>
                             <span>📝 Текстовый</span>
                         </label>
                         <label class="mode-option">

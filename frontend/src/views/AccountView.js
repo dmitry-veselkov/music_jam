@@ -5,6 +5,7 @@ import {generateEmptyGame, getAllUserGames, deleteGame} from "../services/GamesS
 import {ButtonLoader} from "../components/ButtonLoader.js";
 import {GamesList} from "../components/GamesList.js";
 import {redirectTo} from "../services/RouteServices.js";
+import {ConfirmModal} from "../components/ConfirmModal.js";
 
 export class AccountView extends Component {
     constructor(container, data) {
@@ -19,9 +20,13 @@ export class AccountView extends Component {
         const userInfo = await checkAuthorizedOrRedirect();
         if (userInfo) {
             await this._setState(userInfo);
-            this.container.innerHTML = this.render(userInfo);
-            this._addEventListeners();
+            this.updateDOM();
         }
+    }
+
+    updateDOM() {
+        this.container.innerHTML = this.render();
+        this._addEventListeners();
     }
 
     async _setState(userInfo) {
@@ -30,7 +35,7 @@ export class AccountView extends Component {
         sessionStorage.setItem("loadedUserGames", JSON.stringify(this.state.games));
     }
 
-    render(userInfo) {
+    render() {
         return `
             <div class="page-layout" style="overflow-y: auto; height: 100vh;">
                 <div class="header-top">
@@ -48,6 +53,8 @@ export class AccountView extends Component {
 
                     ${GamesList(this.state.games)}
                 </main>
+                
+                ${ConfirmModal(this.state.showDeleteConfirm, 'Удалить игру?', 'Удалить')}
             </div>
         `;
     }
@@ -87,19 +94,36 @@ export class AccountView extends Component {
         if (deleteGameButtons) {
             deleteGameButtons.forEach(button => {
                 button.addEventListener("click", async (event) => {
-                    const btn = event.currentTarget;
-                    const gameId = event.currentTarget.dataset.gameCode;
-                    try {
-                        await deleteGame(gameId);
-                        const card = btn.closest(".game-card");
-                        if (card) {
-                            card.remove();
-                        }
-                    } catch (error) {
-                        console.error("Ошибка при удалении:", error);
-                        alert("Не удалось удалить игру");
-                    }
+                    this.state.showDeleteConfirm = true;
+                    this.state.deleteTarget = event.currentTarget;
+                    this.updateDOM()
                 });
+            });
+        }
+
+        const confirmDeleteBtn = this.container.querySelector('#confirm-end-btn');
+        if (confirmDeleteBtn) {
+            confirmDeleteBtn.addEventListener('click', async () => {
+                await this._deleteGame();
+
+                const gameId = this.state.deleteTarget.dataset.gameCode;
+                const index = this.state.games.findIndex(g => g.join_code === gameId);
+                if (index !== -1) {
+                    this.state.games.splice(index, 1);
+                }
+
+                this.state.deleteTarget = null;
+                this.state.showDeleteConfirm = false;
+                this.updateDOM();
+            });
+        }
+
+        const cancelEndBtn = this.container.querySelector('#cancel-end-btn');
+        if (cancelEndBtn) {
+            cancelEndBtn.addEventListener('click', () => {
+                this.state.showDeleteConfirm = false;
+                this.state.deleteTarget = null;
+                this.updateDOM();
             });
         }
 
@@ -108,6 +132,25 @@ export class AccountView extends Component {
             .addEventListener("click", async () => {
                 await exit();
             })
+    }
+
+    async _deleteGame() {
+        const target = this.state.deleteTarget;
+        if (!target) {
+            return;
+        }
+
+        const gameId = target.dataset.gameCode;
+        try {
+            await deleteGame(gameId);
+            const card = target.closest(".game-card");
+            if (card) {
+                card.remove();
+            }
+        } catch (error) {
+            console.error("Ошибка при удалении:", error);
+            alert("Не удалось удалить игру");
+        }
     }
 
     async _createNewGame() {

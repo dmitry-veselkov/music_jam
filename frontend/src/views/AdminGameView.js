@@ -11,7 +11,7 @@ import {CalculatorModal} from "../components/AdminCalculatorModal.js";
 import {CorrectAnswerModalForAdmin} from "../components/AnswerModals.js";
 import {EditorSidebar} from "../components/EditorSidebar.js";
 import {QuestionService} from "../domain/QuestionService.js";
-import {ConfirmEndGameModal} from "../components/EndGameModal.js";
+import {ConfirmModal} from "../components/ConfirmModal.js";
 
 export class AdminGameView extends Component {
     constructor(container, data) {
@@ -90,7 +90,7 @@ export class AdminGameView extends Component {
                
             
             ${CalculatorModal(this.state, this.gameSettings)}
-            ${ConfirmEndGameModal(this.state.showEndConfirm)}
+            ${ConfirmModal(this.state.showEndConfirm, 'Завершить игру?', 'Завершить')}
             </div>
         `;
     }
