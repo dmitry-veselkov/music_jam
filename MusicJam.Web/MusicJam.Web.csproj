@@ -9,6 +9,13 @@
   <ItemGroup>
     <Folder Include="Frontend\" />
     <Folder Include="Middlewares\" />
+    <Folder Include="Models\Errors\" />
+    <Folder Include="Models\Requests\" />
+    <Folder Include="Models\Responses\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.31" />
   </ItemGroup>
 
 </Project>
