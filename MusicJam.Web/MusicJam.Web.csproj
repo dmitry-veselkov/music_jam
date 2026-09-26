@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Folder Include="Configurations\" />
     <Folder Include="Frontend\" />
     <Folder Include="Middlewares\" />
     <Folder Include="Models\Errors\" />
@@ -19,6 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MusicJam.Domain\MusicJam.Domain.csproj" />
+    <ProjectReference Include="..\MusicJam.Infrastructure\MusicJam.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

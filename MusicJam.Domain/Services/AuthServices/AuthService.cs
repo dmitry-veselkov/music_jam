@@ -1,14 +1,29 @@
-﻿using MusicJam.Domain.Models.Auth;
+﻿using MusicJam.Domain.Helpers;
+using MusicJam.Domain.Models.Auth;
 using MusicJam.Domain.Models.Common;
+using MusicJam.Domain.Services.Tokens;
+using MusicJam.Domain.Storages;
 
 namespace MusicJam.Domain.Services.AuthServices;
 
-internal class AuthService : IAuthService
+internal class AuthService(
+    IUsersStorage usersStorage,
+    ITokenService tokenService)
+    : IAuthService
 {
-    public async Task<Result<IAuthService.AuthError>> Login(AuthCredentials credentials)
+    public async Task<Result<string, IAuthService.AuthError>> Login(AuthCredentials credentials)
     {
-        await Task.CompletedTask;
+        var user = await usersStorage.TryGetUserByEmail(credentials.Email);
+        if (user is null)
+        {
+            return IAuthService.AuthError.UserNotFound;
+        }
 
-        return IAuthService.AuthError.SameUserAlreadyExists;
+        if (!PasswordHelper.Verify(credentials.Password, user.PasswordHash))
+        {
+            return IAuthService.AuthError.InvalidCredentials;
+        }
+
+        return tokenService.GenerateToken(user);
     }
 }

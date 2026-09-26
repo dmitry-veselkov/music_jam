@@ -9,7 +9,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddServices(this IServiceCollection services)
     {
         services
-            .AddSingleton<IAuthService, AuthService>()
+            .AddScoped<IAuthService, AuthService>()
             .Decorate<IAuthService, AuthServiceLoggingDecorator>();
 
         return services;

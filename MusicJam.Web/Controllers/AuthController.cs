@@ -7,9 +7,7 @@ namespace MusicJam.Web.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class AuthController(
-    IAuthService authService,
-    ILogger<AuthController> logger) : ControllerBase
+public class AuthController(IAuthService authService) : ControllerBase
 {
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -21,15 +19,34 @@ public class AuthController(
         var authCredentials = new AuthCredentials(request.Email, request.Password);
         var loginResult = await authService.Login(authCredentials);
 
-        return loginResult.IsSuccess ? Ok() : ErrorResponse(loginResult.Fault);
+        if (loginResult.IsFailure)
+        {
+            return ErrorResponse(loginResult.Fault);
+        }
+
+        var token = loginResult.GetValueOrThrow();
+        // todo veselkov.d access_token нужно вынести в константу
+        Response.Cookies.Append("access_token", token, GetTokenCookieOptions());
+
+        return Ok();
     }
 
     private IActionResult ErrorResponse(IAuthService.AuthError error)
     {
         return error switch
         {
-            IAuthService.AuthError.SameUserAlreadyExists => Conflict(),
+            IAuthService.AuthError.UserNotFound => NotFound(),
+            IAuthService.AuthError.InvalidCredentials => BadRequest(),
             _ => throw new ArgumentOutOfRangeException(error.ToString()),
         };
     }
+
+    private CookieOptions GetTokenCookieOptions() => new()
+    {
+        HttpOnly = true,
+        Secure = true,
+        SameSite = SameSiteMode.Strict,
+        // todo veselkov.d мне не нравится, что время жизни куки и жизнь самого токена никак не связаны и  захардкожены
+        Expires = DateTimeOffset.UtcNow.AddDays(3)
+    };
 }

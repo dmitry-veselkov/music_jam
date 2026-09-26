@@ -1,7 +1,9 @@
 ﻿using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using MusicJam.Domain.Extensions;
-using MusicJam.Web.Configurations;
+using MusicJam.Infrastructure.Configuration;
+using MusicJam.Infrastructure.Extensions;
 using MusicJam.Web.Models.Constants;
 
 namespace MusicJam.Web;
@@ -13,7 +15,7 @@ public class Startup(IConfiguration configuration)
     public void ConfigureServices(IServiceCollection services)
     {
         services.AddServices();
-        // services.AddInfrastructure();
+        services.AddInfrastructure();
         services.AddControllers();
 
         var jwtSettings = new JwtSettings();
@@ -26,8 +28,21 @@ public class Startup(IConfiguration configuration)
                 options.DefaultAuthenticateScheme = AuthSchemes.AccountJwtTokenScheme;
                 options.DefaultChallengeScheme = AuthSchemes.AccountJwtTokenScheme;
             })
-            .AddJwtBearer(AuthSchemes.AccountJwtTokenScheme,
-                options => { options.TokenValidationParameters = GetTokenValidationParameters(jwtSettings); })
+            .AddJwtBearer(
+                AuthSchemes.AccountJwtTokenScheme,
+                options =>
+                {
+                    options.TokenValidationParameters = GetTokenValidationParameters(jwtSettings);
+
+                    options.Events = new JwtBearerEvents
+                    {
+                        OnMessageReceived = context =>
+                        {
+                            context.Token = context.Request.Cookies["access_token"];
+                            return Task.CompletedTask;
+                        }
+                    };
+                })
             .AddCookie(AuthSchemes.GameSessionCookieScheme, options =>
             {
                 options.Cookie.Name = "session.id";

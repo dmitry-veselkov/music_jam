@@ -1,4 +1,4 @@
-﻿namespace MusicJam.Web.Configurations;
+﻿namespace MusicJam.Infrastructure.Configuration;
 
 public class JwtSettings
 {

@@ -7,8 +7,9 @@ public interface IAuthService
 {
     public enum AuthError
     {
-        SameUserAlreadyExists,
+        UserNotFound,
+        InvalidCredentials,
     }
 
-    Task<Result<AuthError>> Login(AuthCredentials credentials);
+    Task<Result<string, AuthError>> Login(AuthCredentials credentials);
 }
