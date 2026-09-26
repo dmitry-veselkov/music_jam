@@ -1,17 +1,35 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using MusicJam.Domain.Models.Auth;
+using MusicJam.Domain.Services.AuthServices;
+using MusicJam.Web.Models.Requests;
 
 namespace MusicJam.Web.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class AuthController(ILogger<AuthController> logger) : ControllerBase
+public class AuthController(
+    IAuthService authService,
+    ILogger<AuthController> logger) : ControllerBase
 {
-    // эндпоинт создан лишь для демонстрации работы с апи
-    [HttpGet]
+    [HttpPost]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public IActionResult Get()
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> Login([FromBody] AuthRequest request)
     {
-        logger.LogInformation("GET query on {Controller}", nameof(AuthController));
-        return Ok("Test auth api controller");
+        var authCredentials = new AuthCredentials(request.Email, request.Password);
+        var loginResult = await authService.Login(authCredentials);
+
+        return loginResult.IsSuccess ? Ok() : ErrorResponse(loginResult.Fault);
+    }
+
+    private IActionResult ErrorResponse(IAuthService.AuthError error)
+    {
+        return error switch
+        {
+            IAuthService.AuthError.SameUserAlreadyExists => Conflict(),
+            _ => throw new ArgumentOutOfRangeException(error.ToString()),
+        };
     }
 }

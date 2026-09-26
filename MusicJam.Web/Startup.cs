@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using Microsoft.IdentityModel.Tokens;
+using MusicJam.Domain.Extensions;
 using MusicJam.Web.Configurations;
 using MusicJam.Web.Models.Constants;
 
@@ -11,7 +12,7 @@ public class Startup(IConfiguration configuration)
 
     public void ConfigureServices(IServiceCollection services)
     {
-        // services.AddServices();
+        services.AddServices();
         // services.AddInfrastructure();
         services.AddControllers();
 
