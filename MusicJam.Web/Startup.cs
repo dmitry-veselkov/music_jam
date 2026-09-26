@@ -1,18 +1,13 @@
 ﻿using System.Text;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using MusicJam.Web.Configurations;
+using MusicJam.Web.Models.Constants;
 
 namespace MusicJam.Web;
 
-public class Startup
+public class Startup(IConfiguration configuration)
 {
-    public IConfiguration Configuration { get; }
-
-    public Startup(IConfiguration configuration)
-    {
-        Configuration = configuration;
-    }
+    private IConfiguration Configuration { get; } = configuration;
 
     public void ConfigureServices(IServiceCollection services)
     {
@@ -20,26 +15,43 @@ public class Startup
         // services.AddInfrastructure();
         services.AddControllers();
 
-        services.AddAuthorization();
-
         var jwtSettings = new JwtSettings();
         Configuration.GetSection(nameof(JwtSettings)).Bind(jwtSettings);
         services.Configure<JwtSettings>(Configuration.GetSection(nameof(JwtSettings)));
 
         services
-            .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer(options =>
+            .AddAuthentication(options =>
             {
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidIssuer = jwtSettings.Issuer,
-                    ValidateAudience = true,
-                    ValidAudience = jwtSettings.Audience,
-                    ValidateLifetime = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey)),
-                    ValidateIssuerSigningKey = true,
-                };
+                options.DefaultAuthenticateScheme = AuthSchemes.AccountJwtTokenScheme;
+                options.DefaultChallengeScheme = AuthSchemes.AccountJwtTokenScheme;
+            })
+            .AddJwtBearer(AuthSchemes.AccountJwtTokenScheme,
+                options => { options.TokenValidationParameters = GetTokenValidationParameters(jwtSettings); })
+            .AddCookie(AuthSchemes.GameSessionCookieScheme, options =>
+            {
+                options.Cookie.Name = "session.id";
+                options.Cookie.HttpOnly = true;
+                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                options.Cookie.SameSite = SameSiteMode.Strict;
+            });
+
+        services
+            .AddAuthorizationBuilder()
+            .AddPolicy(GamePolicies.ManageGamePolicy, policy =>
+            {
+                policy.AuthenticationSchemes.Add(AuthSchemes.GameSessionCookieScheme);
+                policy.RequireClaim(GameClaims.GameRole, nameof(GameRole.Admin));
+            })
+            .AddPolicy(GamePolicies.PlayGamePolicy, policy =>
+            {
+                policy.AuthenticationSchemes.Add(AuthSchemes.GameSessionCookieScheme);
+                policy.RequireClaim(GameClaims.GameRole, nameof(GameRole.Player));
+            })
+            .AddPolicy(GamePolicies.ViewGamePolicy, policy =>
+            {
+                policy.AuthenticationSchemes.Add(AuthSchemes.GameSessionCookieScheme);
+                policy.RequireClaim(GameClaims.GameRole, nameof(GameRole.Admin), nameof(GameRole.Player),
+                    nameof(GameRole.Viewer));
             });
     }
 
@@ -55,4 +67,15 @@ public class Startup
                 endpoints.MapFallbackToController("Index", "Home");
             });
     }
+
+    private static TokenValidationParameters GetTokenValidationParameters(JwtSettings jwtSettings) => new()
+    {
+        ValidateIssuer = true,
+        ValidIssuer = jwtSettings.Issuer,
+        ValidateAudience = true,
+        ValidAudience = jwtSettings.Audience,
+        ValidateLifetime = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey)),
+        ValidateIssuerSigningKey = true,
+    };
 }
