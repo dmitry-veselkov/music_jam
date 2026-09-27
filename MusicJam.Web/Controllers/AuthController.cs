@@ -6,7 +6,7 @@ using MusicJam.Web.Models.Requests;
 namespace MusicJam.Web.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/auth")]
 public class AuthController(IAuthService authService) : ControllerBase
 {
     [HttpPost]
@@ -16,6 +16,8 @@ public class AuthController(IAuthService authService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Login([FromBody] AuthRequest request)
     {
+        // todo veselkov.d добавить проверку, что пользак уже авторизован
+
         var authCredentials = new AuthCredentials(request.Email, request.Password);
         var loginResult = await authService.Login(authCredentials);
 

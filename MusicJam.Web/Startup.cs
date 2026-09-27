@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
 using MusicJam.Domain.Extensions;
 using MusicJam.Infrastructure.Configuration;
 using MusicJam.Infrastructure.Extensions;
@@ -17,6 +18,15 @@ public class Startup(IConfiguration configuration)
         services.AddServices();
         services.AddInfrastructure();
         services.AddControllers();
+
+        services.AddSwaggerGen(c =>
+        {
+            c.SwaggerDoc("v1", new OpenApiInfo
+            {
+                Title = "MusicJam API",
+                Version = "v1"
+            });
+        });
 
         var jwtSettings = new JwtSettings();
         Configuration.GetSection(nameof(JwtSettings)).Bind(jwtSettings);
@@ -73,6 +83,12 @@ public class Startup(IConfiguration configuration)
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
+        if (env.IsDevelopment())
+        {
+            app.UseSwagger();
+            app.UseSwaggerUI();
+        }
+
         app
             .UseRouting()
             .UseAuthentication()
