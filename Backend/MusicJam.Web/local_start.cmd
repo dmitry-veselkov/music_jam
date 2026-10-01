@@ -1,7 +1,7 @@
 @echo off
 cd /d "%~dp0"
 
-pushd ..\..\frontend
+pushd ..\..\Frontend
 call npm install
 call npm run build
 popd
