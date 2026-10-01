@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using MusicJam.Web.Configurations;
+using Microsoft.Extensions.FileProviders;
 
 namespace MusicJam.Web;
 
@@ -45,14 +46,18 @@ public class Startup
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
+        var distPath = Path.GetFullPath(Path.Combine("..", "..", "Frontend", "dist"));
+        var fileProvider = new PhysicalFileProvider(distPath);
         app
             .UseRouting()
+            .UseDefaultFiles(new DefaultFilesOptions { FileProvider = fileProvider })
+            .UseStaticFiles(new StaticFileOptions { FileProvider = fileProvider })
             .UseAuthentication()
             .UseAuthorization()
             .UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                endpoints.MapFallbackToController("Index", "Home");
+                endpoints.MapFallbackToFile("index.html", new StaticFileOptions { FileProvider = fileProvider });
             });
     }
 }
