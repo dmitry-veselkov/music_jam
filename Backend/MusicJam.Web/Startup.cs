@@ -46,17 +46,20 @@ public class Startup
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
-        var fileProvider = FrontendFiles.CreateProvider();
+        var staticFileOptions = new StaticFileOptions
+        {
+            FileProvider = FileProviderExtensions.CreateStaticFileProvider(env)
+        };
         app
             .UseRouting()
-            .UseDefaultFiles(new DefaultFilesOptions { FileProvider = fileProvider })
-            .UseStaticFiles(new StaticFileOptions { FileProvider = fileProvider })
+            .UseDefaultFiles(new DefaultFilesOptions { FileProvider = staticFileOptions.FileProvider })
+            .UseStaticFiles(staticFileOptions)
             .UseAuthentication()
             .UseAuthorization()
             .UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                endpoints.MapFallbackToFile("index.html", new StaticFileOptions { FileProvider = fileProvider });
+                endpoints.MapFallbackToFile("index.html", staticFileOptions);
             });
     }
 }
