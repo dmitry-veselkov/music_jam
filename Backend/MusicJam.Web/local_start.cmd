@@ -1,8 +1,10 @@
-cd Frontend\
+@echo off
+cd /d "%~dp0"
 
-:: todo здесь должна быть логика по сборке фронтенда
-
-cd ..
+pushd ..\..\Frontend
+call npm install
+call npm run build
+popd
 
 start dotnet run -c=Release
 

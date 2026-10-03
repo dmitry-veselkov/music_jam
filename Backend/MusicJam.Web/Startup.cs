@@ -6,6 +6,7 @@ using MusicJam.Domain.Extensions;
 using MusicJam.Infrastructure.Configuration;
 using MusicJam.Infrastructure.Extensions;
 using MusicJam.Web.Models.Constants;
+using MusicJam.Web.DI;
 
 namespace MusicJam.Web;
 
@@ -88,16 +89,22 @@ public class Startup(IConfiguration configuration)
             app.UseSwagger();
             app.UseSwaggerUI();
         }
+        
+        var staticFileOptions = new StaticFileOptions
+        {
+            FileProvider = FileProviderExtensions.CreateStaticFileProvider(env)
+        };
 
         app
             .UseRouting()
+            .UseDefaultFiles(new DefaultFilesOptions { FileProvider = staticFileOptions.FileProvider })
+            .UseStaticFiles(staticFileOptions)
             .UseAuthentication()
             .UseAuthorization()
             .UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                endpoints.MapFallbackToController("Index", "Home");
-            });
+                endpoints.MapFallbackToFile("index.html", staticFileOptions);            });
     }
 
     private static TokenValidationParameters GetTokenValidationParameters(JwtSettings jwtSettings) => new()
