@@ -1,0 +1,138 @@
+.headerTop {
+    width: 100%;
+    padding: 20px 40px;
+    flex-shrink: 0;
+    background-color: var(--color-bg);
+}
+
+.headerContent {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    /*padding: 0 10px;*/
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+    /*margin: 0;*/
+}
+
+.headerRight {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md, 20px);
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.authButtons {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.userProfileLink {
+    display: block;
+    padding: 6px 12px;
+    border-radius: 50px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+    max-width: 100%;
+}
+
+.userProfileLink:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--color-primary, #ffcc00);
+}
+
+.userInfo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.userName {
+    font-weight: 500;
+    color: #fff;
+    font-size: 0.95rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 160px;
+}
+
+.userAvatar {
+    width: 36px;
+    height: 36px;
+    background: var(--color-primary, #ffcc00);
+    color: #000;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+    .headerTop {
+        padding: 16px 20px;
+    }
+
+    .headerRight {
+        gap: 10px;
+    }
+
+    .authButtons {
+        gap: 8px;
+    }
+
+    .userName {
+        max-width: 120px;
+        font-size: 0.9rem;
+    }
+
+    .userAvatar {
+        width: 32px;
+        height: 32px;
+        font-size: 0.9rem;
+    }
+    .userProfileLink {
+        padding: 5px 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .headerTop {
+        padding: 12px 16px;
+    }
+    .headerContent {
+        align-items: flex-start;
+        padding: 0;
+    }
+
+    .headerRight {
+        gap: 8px;
+        width: auto;
+    }
+
+    .authButtons {
+        gap: 6px;
+        flex-wrap: nowrap;
+    }
+
+    .userName {
+        max-width: 90px;
+        font-size: 0.85rem;
+    }
+
+    .userProfileLink {
+        padding: 5px 10px;
+    }
+
+    .userAvatar {
+        width: 30px;
+        height: 30px;
+        font-size: 0.85rem;
+    }
+}

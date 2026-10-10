@@ -1,0 +1,70 @@
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 25px;
+    font-size: 1rem;
+    font-weight: 600;
+    min-width: 40px;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn:active {
+    transform: scale(0.96);
+}
+
+.btnPrimary {
+    background-color: var(--color-primary);
+    color: white;
+}
+.btnPrimary:hover {
+    background-color: var(--color-primary-hover);
+}
+
+.btnSecondary {
+    background-color: var(--color-secondary);
+    color: white;
+}
+.btnSecondary:hover {
+    background-color: var(--color-secondary-hover);
+}
+
+.btnOutline {
+    background-color: transparent;
+    color: white;
+    border: 1px solid var(--color-text-muted);
+}
+.btnOutline:hover {
+    border-color: white;
+}
+
+.btnSpinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    border-top: 2px solid white;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    display: none;
+}
+
+.loading .btnSpinner { display: inline-block; }
+.loading .btnText { display: none; }
+.loading { pointer-events: none; opacity: 0.7; }
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+@media (max-width: 768px) {
+    .btn { padding: 10px 18px; font-size: 0.95rem; }
+}
+
+@media (max-width: 480px) {
+    .btn { padding: 9px 14px; font-size: 0.9rem; }
+}
