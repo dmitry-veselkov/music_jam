@@ -1,0 +1,14 @@
+.questionItem {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+
+    width: 200px;
+    height: 200px;
+
+    font-size: 24px;
+    text-align: center;
+
+    border: 2px solid white;
+    border-radius: 8px;
+}

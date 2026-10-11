@@ -9,6 +9,7 @@ type ButtonProps = {
   type?: 'submit' | 'button';
   variant?: ButtonType;
   loading?: boolean;
+  disabled?: boolean;
   extraClass?: string;
   onClick?: () => void;
 }
@@ -24,6 +25,7 @@ export const Button = ({
   id = '',
   type = 'button',
   variant = 'primary',
+  disabled = false,
   loading = false,
   extraClass = '',
   onClick = () => {}
@@ -33,7 +35,9 @@ export const Button = ({
       id={id}
       type={type}
       className={clsx(styles.btn, variantClass[variant], loading && styles.loading, extraClass)}
-      onClick={onClick}>
+      onClick={onClick}
+      disabled={disabled || loading}
+    >
       <span className={styles.btnText}>{text}</span>
       <span className={styles.btnSpinner} />
     </button>

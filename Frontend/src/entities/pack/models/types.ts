@@ -1,3 +1,5 @@
+import type { QuestionDto } from "@/entities/question/model/types.ts";
+
 export type PackCardDto = {
   packId : number;
   name : string;
@@ -16,10 +18,4 @@ export type PackDto = PackCardDto & {
 
 export type RoundDto = {
   questions : QuestionDto[]
-}
-
-export type QuestionDto = {
-  questionId : number;
-  category_id : number;
-  cost_id : number;
 }

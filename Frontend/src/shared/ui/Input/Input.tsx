@@ -5,7 +5,7 @@ type InputProps = ComponentPropsWithRef<'input'>
 
 const Input = ({
   type = 'text',
-  maxLength = 10,
+  maxLength = 100,
   ...props
 } : InputProps) => {
   return (
