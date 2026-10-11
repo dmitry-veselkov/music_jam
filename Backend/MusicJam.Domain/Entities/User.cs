@@ -1,4 +1,5 @@
-﻿namespace MusicJam.Domain.Models;
+﻿
+namespace MusicJam.Domain.Entities;
 
 public class User
 {
