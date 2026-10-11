@@ -7,7 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Data\Configurations\Services\" />
       <Folder Include="Data\Services\" />
       <Folder Include="Models\Errors\" />
     </ItemGroup>

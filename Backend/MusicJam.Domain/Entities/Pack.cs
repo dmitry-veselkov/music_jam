@@ -7,5 +7,5 @@ public class Pack
     
     public Guid UserId { get; set; }
     public String Title { get; set; } = string.Empty;
-    public List<Round> Rounds { get; set; } = [];
+    public List<RoundQuestion> Rounds { get; set; } = [];
 }

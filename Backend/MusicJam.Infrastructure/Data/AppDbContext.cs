@@ -11,10 +11,12 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<Game> Games => Set<Game>();
     public DbSet<Pack> Packs => Set<Pack>();
     public DbSet<Question> Questions => Set<Question>();
-    public DbSet<Round> Rounds => Set<Round>();
     public DbSet<Track> Tracks => Set<Track>();
     public DbSet<User> Users => Set<User>();
-
+    public DbSet<PackRound> PackRounds => Set<PackRound>();
+    public DbSet<QuestionUsage> QuestionUsages => Set<QuestionUsage>();
+    public DbSet<RoundQuestion> RoundQuestions => Set<RoundQuestion>();
+    
     protected override void OnModelCreating(ModelBuilder b) =>
         b.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
 
