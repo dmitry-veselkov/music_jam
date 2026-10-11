@@ -10,6 +10,30 @@ internal sealed class RoundConfiguration : IEntityTypeConfiguration<Round>
     {
         builder.ToTable("rounds");
         builder.HasKey(x => x.Id);
-        builder.Property(x => x.Questions).IsRequired();
+        builder.Property(x => x.RoundOrder).IsRequired();
+        builder.HasMany(x => x.Cells)
+            .WithOne(x => x.Round);
+    }
+}
+
+internal sealed class RoundQuestionConfiguration : IEntityTypeConfiguration<RoundQuestion>
+{
+    public void Configure(EntityTypeBuilder<RoundQuestion> builder)
+    {
+        builder.ToTable("round_question");
+        builder.HasKey(x => new
+        {
+            x.RoundId,
+            x.CategoryId,
+            x.Cost
+        });
+
+        builder.HasOne(x => x.Category)
+            .WithMany()
+            .HasForeignKey(x => x.CategoryId);
+
+        builder.HasOne(x => x.Question)
+            .WithMany()
+            .HasForeignKey(x => x.QuestionId);
     }
 }

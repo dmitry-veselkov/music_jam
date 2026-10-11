@@ -10,6 +10,26 @@ internal sealed class PackConfiguration : IEntityTypeConfiguration<Pack>
     {
         builder.ToTable("packs");
         builder.HasKey(x => x.Id);
+        builder.Property(x => x.UserId);
         builder.Property(x => x.Title).HasMaxLength(255).IsRequired();
+    }
+}
+
+internal sealed class PackRoundConfiguration : IEntityTypeConfiguration<PackRound>
+{
+    public void Configure(EntityTypeBuilder<PackRound> builder)
+    {
+        builder.ToTable("pack_round");
+        builder.HasKey(x => new
+        {
+            x.PackId,
+            x.RoundId
+        });
+        builder.HasOne(x => x.Round)
+            .WithMany()
+            .HasForeignKey(x => x.RoundId);
+        builder.HasOne(x => x.Pack)
+            .WithMany()
+            .HasForeignKey(x => x.PackId);
     }
 }
