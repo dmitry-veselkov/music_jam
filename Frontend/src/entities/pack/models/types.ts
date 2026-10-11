@@ -1,4 +1,4 @@
-import type { QuestionDto } from "@/entities/question/model/types.ts";
+import type { QuestionDto } from "@/entities/question-form/model/types.ts";
 
 export type PackCardDto = {
   packId : number;

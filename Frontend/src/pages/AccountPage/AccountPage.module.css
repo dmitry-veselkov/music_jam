@@ -1,0 +1,19 @@
+.title {
+    width: 100%;
+    text-align: center;
+}
+
+.myPacks {
+    width: 200px;
+    margin-left: 20px;
+
+    font-size: 32px;
+
+    display: flex;
+    justify-content: center;
+    border-radius: 8px;
+    border: 2px solid green;
+
+    background-color: green;
+}
+

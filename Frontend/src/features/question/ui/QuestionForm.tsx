@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Input from "@/shared/ui/Input/Input.tsx";
 import { Button } from "@/shared/ui/Button/Button.tsx";
 import styles from "./QuestionForm.module.css";
-import type { QuestionDto } from "@/entities/question/model/types.ts";
+import type { QuestionDto } from "@/entities/question-form/model/types.ts";
 import { useCreateQuestion } from "@/features/question/api/useCreateQuestion.ts";
 import { useUpdateQuestion } from "@/features/question/api/useUpdateQuestion.ts";
 import { useDeleteQuestion } from "@/features/question/api/useDeleteQuestion.ts";

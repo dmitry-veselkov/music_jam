@@ -1,4 +1,4 @@
-import type { QuestionDto } from "@/entities/question";
+import type { QuestionDto } from "@/entities/question-form";
 import { useEffect, useState } from "react";
 import { Button } from "@/shared/ui/Button/Button.tsx";
 import Modal from "@/shared/ui/Modal/Modal.tsx";

@@ -1,5 +1,5 @@
 import { http } from "@/shared/api/axios.ts";
-import type { QuestionDto } from "@/entities/question";
+import type { QuestionDto } from "@/entities/question-form";
 
 export const questionApi = {
   getAll: async () => {

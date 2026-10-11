@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { questionApi } from "@/entities/question/api/question.api.ts";
+import { questionApi } from "@/entities/question-form/api/question.api.ts";
 
 export const questionKeys = {
   all: ['questions'] as const,

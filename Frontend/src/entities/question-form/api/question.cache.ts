@@ -1,6 +1,6 @@
 import type { QueryClient } from "@tanstack/react-query";
-import type { QuestionDto } from "@/entities/question";
-import { questionKeys } from "@/entities/question/api/question.queries.ts";
+import type { QuestionDto } from "@/entities/question-form";
+import { questionKeys } from "@/entities/question-form/api/question.queries.ts";
 
 export const questionCache = {
   replace: (qc: QueryClient, updated: QuestionDto) => {
