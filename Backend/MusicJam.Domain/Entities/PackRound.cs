@@ -1,6 +1,8 @@
-﻿namespace MusicJam.Domain.Entities;
+﻿using MusicJam.Domain.Common;
 
-public class PackRound
+namespace MusicJam.Domain.Entities;
+
+public class PackRound : Entity
 {
     public Guid PackId { get; set; }
     public Guid RoundId { get; set; }

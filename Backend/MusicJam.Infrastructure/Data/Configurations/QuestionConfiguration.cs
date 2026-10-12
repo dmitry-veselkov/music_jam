@@ -12,8 +12,8 @@ internal sealed class QuestionConfiguration : IEntityTypeConfiguration<Question>
         builder.HasKey(x => x.Id);
         builder.Property(x => x.QuestionTrackId).IsRequired();
         builder.Property(x => x.AnswerTrackId).IsRequired();
-        builder.Property(x => x.Description).IsRequired();
-        builder.Property(x => x.AnswerStr).IsRequired();
+        builder.Property(x => x.Requested).IsRequired();
+        builder.Property(x => x.CorrectAnswer).IsRequired();
         builder.Property(x => x.UserId).IsRequired();
 
         builder.HasOne(x => x.User)
@@ -28,9 +28,9 @@ internal sealed class QuestionConfiguration : IEntityTypeConfiguration<Question>
     }
 }
 
-internal sealed class QuestionUsageConfiguration : IEntityTypeConfiguration<QuestionUsage>
+internal sealed class QuestionUsageConfiguration : IEntityTypeConfiguration<QuestionUsages>
 {
-    public void Configure(EntityTypeBuilder<QuestionUsage> builder)
+    public void Configure(EntityTypeBuilder<QuestionUsages> builder)
     {
         builder.ToTable("question_usage");
         builder.HasKey(x => new

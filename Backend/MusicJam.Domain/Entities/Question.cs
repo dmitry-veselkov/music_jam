@@ -1,14 +1,15 @@
-﻿namespace MusicJam.Domain.Entities;
+﻿using MusicJam.Domain.Common;
 
-public class Question
+namespace MusicJam.Domain.Entities;
+
+public class Question : Entity
 {
-    public Guid Id { get; set; }
     
     public Guid UserId { get; set; }
     public Guid QuestionTrackId { get; set; }
     public Guid AnswerTrackId { get; set; }
-    public string Description { get; set; } = String.Empty;
-    public string AnswerStr { get; set; } = String.Empty;
+    public string Requested { get; set; } = String.Empty;
+    public string CorrectAnswer { get; set; } = String.Empty;
     
     public User User { get; set; } = null!;
     public Track QuestionTrack { get; set; } = null!;

@@ -1,6 +1,8 @@
-﻿namespace MusicJam.Domain.Entities;
+﻿using MusicJam.Domain.Common;
 
-public class RoundQuestion
+namespace MusicJam.Domain.Entities;
+
+public class RoundQuestion : Entity
 {
     public Guid RoundId { get; set; }
     public Guid CategoryId { get; set; }

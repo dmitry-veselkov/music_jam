@@ -1,9 +1,10 @@
 ﻿
+using MusicJam.Domain.Common;
+
 namespace MusicJam.Domain.Entities;
 
-public class User
-{
-    public Guid Id { get; set; }
+public class User : Entity
+{ 
     public String Username { get; set; }
     public string Email { get; set; }
     public string PasswordHash { get; set; }

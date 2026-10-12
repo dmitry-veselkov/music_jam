@@ -14,7 +14,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<Track> Tracks => Set<Track>();
     public DbSet<User> Users => Set<User>();
     public DbSet<PackRound> PackRounds => Set<PackRound>();
-    public DbSet<QuestionUsage> QuestionUsages => Set<QuestionUsage>();
+    public DbSet<QuestionUsages> QuestionUsages => Set<QuestionUsages>();
     public DbSet<RoundQuestion> RoundQuestions => Set<RoundQuestion>();
     
     protected override void OnModelCreating(ModelBuilder b) =>

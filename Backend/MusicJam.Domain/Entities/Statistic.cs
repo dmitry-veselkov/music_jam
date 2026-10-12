@@ -1,13 +1,14 @@
 ﻿
+using MusicJam.Domain.Common;
+
 namespace MusicJam.Domain.Entities;
 
-public class Statistic
+public class Statistic : Entity
 {
-    public Guid Id { get; set; }
     public Guid UserId { get; set; }
-    public int AmountWins { get; set; }
-    public int AmountLosses { get; set; }
-    public int HowManyGamesPlayed { get; set; }
+    public int WinsCount { get; set; }
+    public int LossesCount { get; set; }
+    public int TotalCount  { get; set; }
     
     public User User { get; set; }
 }

@@ -10,8 +10,8 @@ internal sealed class CategoryConfiguration : IEntityTypeConfiguration<Category>
     {
         builder.ToTable("categories");
         builder.HasKey(x => x.Id);
-        builder.Property(x => x.CategoryOrder).IsRequired();
-        builder.Property(x => x.CategoryName).HasMaxLength(120).IsRequired();
+        builder.Property(x => x.Order).IsRequired();
+        builder.Property(x => x.Name).HasMaxLength(120).IsRequired();
     }
 }
 

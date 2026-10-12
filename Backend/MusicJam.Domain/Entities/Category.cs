@@ -1,8 +1,9 @@
-﻿namespace MusicJam.Domain.Entities;
+﻿using MusicJam.Domain.Common;
 
-public class Category
+namespace MusicJam.Domain.Entities;
+
+public class Category : Entity
 {
-    public Guid Id { get; set; }
-    public int CategoryOrder { get; set; }
-    public string CategoryName { get; set; }
+    public int Order { get; set; }
+    public string Name { get; set; }
 }

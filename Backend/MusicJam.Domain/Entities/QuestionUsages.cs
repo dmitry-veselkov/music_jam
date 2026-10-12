@@ -1,6 +1,8 @@
-﻿namespace MusicJam.Domain.Entities;
+﻿using MusicJam.Domain.Common;
 
-public class QuestionUsage
+namespace MusicJam.Domain.Entities;
+
+public class QuestionUsages : Entity
 {
     public Guid QuestionId { get; set; }
     public Guid PackId { get; set; }

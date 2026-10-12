@@ -15,9 +15,9 @@ internal sealed class StatisticsConfiguration : IEntityTypeConfiguration<Statist
             x.UserId
         });
         builder.Property(x => x.UserId);
-        builder.Property(x => x.AmountLosses);
-        builder.Property(x => x.AmountWins);
-        builder.Property(x => x.HowManyGamesPlayed);
+        builder.Property(x => x.LossesCount);
+        builder.Property(x => x.WinsCount);
+        builder.Property(x => x.TotalCount );
 
         builder.HasOne(x => x.User)
             .WithOne();

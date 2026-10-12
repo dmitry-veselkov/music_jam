@@ -1,13 +1,14 @@
 ﻿
+using MusicJam.Domain.Common;
+
 namespace MusicJam.Domain.Entities;
 
-public class Game
+public class Game : Entity
 {
-    public Guid Id { get; set; }
     public Guid PackId { get; set; }
     public Guid UserId { get; set; }
-    public String Title { get; set; }
-    public String Description { get; set; }
+    public string Title { get; set; }
+    public string Description { get; set; }
     public DateTime GameTime { get; set; }
     public Mode Mode { get; set; }
     public State State { get; set; }
