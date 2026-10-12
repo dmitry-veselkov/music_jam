@@ -10,7 +10,6 @@
     <Folder Include="Frontend\" />
     <Folder Include="Middlewares\" />
     <Folder Include="Models\Errors\" />
-    <Folder Include="Models\Requests\" />
     <Folder Include="Models\Responses\" />
   </ItemGroup>
 
@@ -20,6 +19,12 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MusicJam.Domain\MusicJam.Domain.csproj" />
+    <ProjectReference Include="..\MusicJam.Infrastructure\MusicJam.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
