@@ -1,7 +1,7 @@
 import type { QuestionDto } from "@/entities/question-form/model/types.ts";
 
 export type PackCardDto = {
-  packId : number;
+  packId : string;
   name : string;
   creationDate : Date;
   lastUpdateDate : Date;
@@ -9,7 +9,6 @@ export type PackCardDto = {
 
 export type PackCardListDto = {
   packs : PackCardDto[];
-  totalCount : number;
 }
 
 export type PackDto = PackCardDto & {
@@ -17,5 +16,17 @@ export type PackDto = PackCardDto & {
 }
 
 export type RoundDto = {
-  questions : QuestionDto[]
+  name: string
+  order : number
+  categories : string[]
+  costs : number[]
+  questions : (CellDto | null)[][]
 }
+
+export type CellDto = {
+  cost: number
+  category : string
+  question : QuestionDto
+}
+
+export type PackRequest = Omit<PackDto, 'packId' | 'creationDate' | 'lastUpdateDate'>;

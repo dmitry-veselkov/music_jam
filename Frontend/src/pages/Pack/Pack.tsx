@@ -1,19 +1,11 @@
-// import { useParams } from "react-router-dom";
-import { useState } from "react";
-import TabsNav from "@/widgets/Pack/TabsNav";
-import TabContent from "@/widgets/Pack/TabContent";
-import type { Tab } from "@/widgets/Pack/types.ts";
+import { usePack } from "@/entities/pack/api/pack.queries.ts";
+import { useParams } from "react-router-dom";
+import PackEditor from "@/widgets/Pack/ui/PackEditor/PackEditor.tsx";
 
 const Pack = () => {
-  // const { id } = useParams<{id : string}>();
-  const [activeTab, setActiveTab] = useState<Tab>('questions');
-
-  return (
-    <div>
-      <TabsNav active={activeTab} onChange={setActiveTab} />
-      <TabContent active={activeTab} />
-    </div>
-  );
+  const { id } = useParams<{id : string}>();
+  const { data } = usePack(id);
+  return <PackEditor packId={id} initial={data} />;
 };
 
 export default Pack;

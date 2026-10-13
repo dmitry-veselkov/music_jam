@@ -1,4 +1,4 @@
-import type { Tab } from "@/widgets/Pack/types.ts";
+import type { Tab } from "@/widgets/Pack/model/types.ts";
 
 const TabsNav = ({ active, onChange }: { active: Tab; onChange: (t: Tab) => void }) => {
   return (

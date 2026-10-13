@@ -1,7 +1,7 @@
-import styles from "./PackQuestions.module.css"
+import styles from "./QuestionCreator.module.css"
 import QuestionForm from "@/features/question/ui/QuestionForm.tsx";
 
-const PackQuestions = () => {
+const QuestionCreator = () => {
   return (
     <div className={styles.createForm}>
       <div className={styles.name}>Создание вопроса</div>
@@ -12,4 +12,4 @@ const PackQuestions = () => {
   );
 };
 
-export default PackQuestions;
+export default QuestionCreator;
