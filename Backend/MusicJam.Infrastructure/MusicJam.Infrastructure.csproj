@@ -7,11 +7,13 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <Folder Include="Data\Services\" />
       <Folder Include="Models\Errors\" />
     </ItemGroup>
 
     <ItemGroup>
       <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.31" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.11" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="11.0.0-rc.1.26425.128" />
     </ItemGroup>
 
