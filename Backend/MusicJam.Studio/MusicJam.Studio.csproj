@@ -5,6 +5,7 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <RootNamespace>MusicJam.Studio</RootNamespace>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     </PropertyGroup>
 
     <ItemGroup>
@@ -17,6 +18,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\MusicJam.Music\MusicJam.Music.csproj" />
         <ProjectReference Include="..\MusicJam.Shared\MusicJam.Shared.csproj" />
     </ItemGroup>
 

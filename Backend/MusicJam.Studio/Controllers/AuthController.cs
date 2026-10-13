@@ -45,14 +45,17 @@ public class AuthController(IAuthService authService) : ControllerBase
 
         Response.Cookies.Append(AuthConstants.AccessToken, token, GetTokenCookieOptions());
 
-        return Ok();
+        return Created();
     }
 
     [HttpGet("me")]
     [Authorize(AuthenticationSchemes = AuthConstants.DefaultAuthorizationScheme)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public IActionResult Me() => Ok();
+    public IActionResult Me()
+    {
+        return Ok();
+    }
 
     private IActionResult ErrorResponse(IAuthService.AuthError error)
     {
