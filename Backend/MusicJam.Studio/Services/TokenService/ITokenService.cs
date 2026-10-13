@@ -1,4 +1,4 @@
-﻿using MusicJam.Studio.Entities;
+﻿using MusicJam.Studio.Models.Users;
 
 namespace MusicJam.Studio.Services.TokenService;
 

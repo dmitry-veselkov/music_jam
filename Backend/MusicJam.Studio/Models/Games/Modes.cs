@@ -1,5 +1,4 @@
-﻿
-namespace MusicJam.Domain.Entities;
+﻿namespace MusicJam.Studio.Models.Games;
 
 public enum Mode
 {

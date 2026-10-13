@@ -1,5 +1,6 @@
 ﻿
 using MusicJam.Domain.Common;
+using MusicJam.Studio.Models.Games;
 
 namespace MusicJam.Domain.Entities;
 

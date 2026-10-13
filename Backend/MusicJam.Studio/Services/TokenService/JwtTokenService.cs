@@ -5,7 +5,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using MusicJam.Studio.Configurations;
 using MusicJam.Studio.Constants;
-using MusicJam.Studio.Entities;
+using MusicJam.Studio.Models.Users;
 
 namespace MusicJam.Studio.Services.TokenService;
 

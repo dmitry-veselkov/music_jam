@@ -1,5 +1,5 @@
-﻿using MusicJam.Studio.Entities;
-using MusicJam.Studio.Helpers;
+﻿using MusicJam.Studio.Helpers;
+using MusicJam.Studio.Models.Users;
 using MusicJam.Studio.Requests;
 using MusicJam.Studio.Services.TokenService;
 using MusicJam.Studio.Storages.UsersStorage;
