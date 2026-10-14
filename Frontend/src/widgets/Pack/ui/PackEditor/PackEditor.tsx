@@ -32,11 +32,11 @@ const PackEditor = ({ packId, initial } : { packId? : string, initial? : PackDto
   return (
     <PackDraftProvider draft={draft}>
       <div className={styles.page}>
-        <div className={styles.title}>
-          <Input value={draft.pack.name} onChange={(e) => draft.setName(e.target.value)} />
-        </div>
         <div className={styles.options}>
           <TabsNav active={activeTab} onChange={setActiveTab} />
+          <div className={styles.title}>
+            <Input value={draft.pack.name} onChange={(e) => draft.setName(e.target.value)} />
+          </div>
           <div className={styles.packSave}>
             <Button text={initial ? 'Сохранить' : 'Создать'} onClick={onSave} disabled={create.isPending || update.isPending} />
           </div>

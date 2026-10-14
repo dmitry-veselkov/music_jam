@@ -13,7 +13,7 @@
 }
 
 .createForm {
-    min-height: 90vh;
+    min-height: 80vh;
     max-height: 100vh;
 
     display: flex;

@@ -1,15 +1,15 @@
 import type { QuestionDto } from "@/entities/question-form/model/types.ts";
 
-export type PackCardDto = {
+export type PackShort = {
   packId : string;
   name : string;
+}
+
+export type PackCardDto = PackShort & {
   creationDate : Date;
   lastUpdateDate : Date;
 }
 
-export type PackCardListDto = {
-  packs : PackCardDto[];
-}
 
 export type PackDto = PackCardDto & {
   rounds : RoundDto[]

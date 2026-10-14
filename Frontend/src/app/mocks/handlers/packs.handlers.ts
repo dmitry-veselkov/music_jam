@@ -1,8 +1,9 @@
 import { http, HttpResponse, delay } from 'msw';
-import type { PackCardDto, PackCardListDto } from "@/entities/pack";
+import type { PackCardDto } from "@/entities/pack";
 import { packsCards } from "@/app/mocks/data/packsCards.ts";
 import type { PackDto, PackRequest } from "@/entities/pack/models/types.ts";
 import { packs } from "@/app/mocks/data/packs.ts";
+import { paginate } from "@/app/mocks/paginate.ts";
 
 const toCard = (pack : PackDto) : PackCardDto => ({
   packId :  pack.packId,
@@ -12,17 +13,17 @@ const toCard = (pack : PackDto) : PackCardDto => ({
 })
 
 const syncCard = (pack: PackDto) => {
-  const idx = packsCards.packs.findIndex((c) => c.packId === pack.packId);
-  if (idx === -1) packsCards.packs.push(toCard(pack));
-  else packsCards.packs[idx] = { ...packsCards.packs[idx], ...toCard(pack) };
+  const idx = packsCards.findIndex((c) => c.packId === pack.packId);
+  if (idx === -1) packsCards.push(toCard(pack));
+  else packsCards[idx] = { ...packsCards[idx], ...toCard(pack) };
 };
 
 export const packsHandlers = [
-  http.get('/api/packs', async () => {
+  http.get('/api/packs/cards', async ({ request }) => {
     await delay(100);
-    return HttpResponse.json<PackCardListDto>(packsCards)
+    return HttpResponse.json<PackCardDto[]>(paginate(request, packsCards))
   }),
-  http.get('/api/packs/:id', async ({ params }) => {
+  http.get('/api/packs/:id/edit', async ({ params }) => {
     await delay(100);
     const q = packs.find((pack) => pack.packId === params.id)
     return HttpResponse.json<PackDto>(q)
@@ -60,8 +61,8 @@ export const packsHandlers = [
     if (idx === -1) return new HttpResponse(null, { status: 404 });
 
     packs.splice(idx, 1);
-    const cardIdx = packsCards.packs.findIndex((c) => c.packId === params.id);
-    if (cardIdx !== -1) packsCards.packs.splice(cardIdx, 1);
+    const cardIdx = packsCards.findIndex((c) => c.packId === params.id);
+    if (cardIdx !== -1) packsCards.splice(cardIdx, 1);
 
     await delay(300);
     return new HttpResponse(null, { status: 204 });

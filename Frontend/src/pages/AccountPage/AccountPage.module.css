@@ -3,6 +3,11 @@
     text-align: center;
 }
 
+.info {
+    display: flex;
+    gap: 20px;
+}
+
 .myPacks {
     width: 200px;
     margin-left: 20px;
@@ -12,8 +17,21 @@
     display: flex;
     justify-content: center;
     border-radius: 8px;
-    border: 2px solid green;
+    border: 2px solid;
 
     background-color: green;
 }
 
+.myGames {
+    width: 200px;
+    margin-left: 20px;
+
+    font-size: 32px;
+
+    display: flex;
+    justify-content: center;
+    border-radius: 8px;
+    border: 2px solid;
+
+    background-color: blue;
+}

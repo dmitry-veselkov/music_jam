@@ -1,10 +1,11 @@
 import { delay, http, HttpResponse } from "msw";
 import { questions } from "@/app/mocks/data/questions.ts";
+import { paginate } from "@/app/mocks/paginate.ts";
 
 export const questionsHandlers = [
-  http.get('/api/questions', async () => {
+  http.get('/api/questions', async ( { request } ) => {
     await delay(1000);
-    return HttpResponse.json(questions);
+    return HttpResponse.json(paginate(request, questions));
   }),
   http.post('/api/questions', async ({ request }) => {
     const form = await request.formData();

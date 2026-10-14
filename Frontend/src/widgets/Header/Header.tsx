@@ -10,7 +10,7 @@ type HeaderProps = {
 const Header = ({ showAuthButtons = true } : HeaderProps) => {
   const navigate = useNavigate();
 
-  const loginBtnSettings = {text: 'Вход', id: 'login-btn', variant: 'outline'} as const;
+  const loginBtnSettings = {text: 'Вход', id: 'login-btn', variant: 'outline', onClick : () => navigate("/login")} as const;
   const registerBtnSettings = {text: 'Регистрация', id: 'register-btn', variant: 'secondary', onClick : () => navigate("/register")} as const;
 
   return (

@@ -4,10 +4,7 @@ import QuestionItem from "@/widgets/QuestionItem/QuestionItem.tsx";
 
 const PackQuestionsSection = () => {
   const { data } = useQuestions();
-  if (!Array.isArray(data) && data !== undefined) {
-    console.error('questions is not array:', data);
-  }
-  const items = Array.isArray(data) ? data : [];
+  const items = data?.pages.flat() ?? [];
 
   return (
     <div>

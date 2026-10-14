@@ -1,5 +1,5 @@
 .page {
-    height: 100dvh;
+    height: 100%;
 }
 
 .packSave {
@@ -16,5 +16,5 @@
 
 .title {
     width: 30%;
-    margin: 0 auto;
+    margin-right: 80px;
 }

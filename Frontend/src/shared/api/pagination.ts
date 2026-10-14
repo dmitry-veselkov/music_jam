@@ -1,0 +1,1 @@
+export type PageParams = { skip?: number; take?: number };

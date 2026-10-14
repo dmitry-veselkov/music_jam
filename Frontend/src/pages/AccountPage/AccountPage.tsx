@@ -9,11 +9,19 @@ const AccountPage = () => {
     <div>
       <Header showAuthButtons={false}/>
       <h1 className={styles.title}>Мой аккаунт</h1>
-      <div
-        className={styles.myPacks}
-        onClick={() => navigate('/packs')}
-      >
-        Паки
+      <div className={styles.info}>
+        <div
+          className={styles.myPacks}
+          onClick={() => navigate('/packs')}
+        >
+          Паки
+        </div>
+        <div
+          className={styles.myGames}
+          onClick={() => navigate('/games')}
+        >
+          Игры
+        </div>
       </div>
     </div>
   );

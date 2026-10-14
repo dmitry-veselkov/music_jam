@@ -1,10 +1,19 @@
-import { PackCard, usePacks } from "@/entities/pack";
+import { PackCard, usePackCardList } from "@/entities/pack";
 import styles from "./PackCardList.module.css";
+import { useEffect, useState } from "react";
+
+const PAGE_SIZE = 12;
 
 const PackCardList = () => {
-  const { data } = usePacks();
-  const items = data?.packs ?? [];
-  console.log(items.length > 0 ? typeof items[0].creationDate : "рендер епта");
+  const [page, setPage] = useState(0);
+  const { data } = usePackCardList({ skip: page * PAGE_SIZE, take: PAGE_SIZE });
+
+  useEffect(() => {
+    if (data && data.length === 0 && page > 0) setPage((p) => p - 1);
+  }, [data, page]);
+
+  const items = data ?? []
+
   return (
     <div>
       <ul className={styles.packList}>
