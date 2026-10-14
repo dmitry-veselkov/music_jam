@@ -1,6 +1,6 @@
 ﻿using MusicJam.Studio.Helpers;
+using MusicJam.Studio.Models.Requests;
 using MusicJam.Studio.Models.Users;
-using MusicJam.Studio.Requests;
 using MusicJam.Studio.Services.TokenService;
 using MusicJam.Studio.Storages.UsersStorage;
 using Shared;

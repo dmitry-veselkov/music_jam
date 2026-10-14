@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MusicJam.Studio.Constants;
-using MusicJam.Studio.Requests;
+using MusicJam.Studio.Models.Requests;
 using MusicJam.Studio.Services.AuthService;
 
 namespace MusicJam.Studio.Controllers;

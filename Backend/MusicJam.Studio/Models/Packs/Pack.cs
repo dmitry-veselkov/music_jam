@@ -1,4 +1,6 @@
-﻿namespace MusicJam.Studio.Models.Packs;
+﻿using MusicJam.Studio.Models.Games;
+
+namespace MusicJam.Studio.Models.Packs;
 
 public class Pack
 {
@@ -7,4 +9,5 @@ public class Pack
     public List<Round> Rounds { get; set; }
     public DateTime CreatedAtUtc { get; set; }
     public DateTime UpdatedAtUtc { get; set; }
+    public List<Game> Usages { get; set; }
 }
