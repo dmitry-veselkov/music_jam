@@ -17,7 +17,6 @@ export type PackDto = PackCardDto & {
 
 export type RoundDto = {
   name: string
-  order : number
   categories : string[]
   costs : number[]
   questions : (CellDto | null)[][]

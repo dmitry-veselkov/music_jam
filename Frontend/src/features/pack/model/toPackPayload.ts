@@ -7,7 +7,6 @@ export const toPackPayload = (data: PackFormData): PackPayload => ({
   name: data.name,
   rounds: data.rounds.map((r) => ({
     name: r.name,
-    order: r.order,
     categories: r.categories,
     costs: [...r.costs].sort((a, b) => a - b),
     questions: r.questions,

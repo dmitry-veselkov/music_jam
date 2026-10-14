@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
 import type { CellDto, PackDto, PackRequest, RoundDto } from "@/entities/pack/models/types.ts";
 
-const emptyRound = (name: string, order? : number): RoundDto => ({
+const emptyRound = (name: string): RoundDto => ({
   name: name,
-  order : order ?? 1,
   categories: ['Первая'],
   costs: [100],
   questions: [
@@ -16,7 +15,7 @@ const emptyRound = (name: string, order? : number): RoundDto => ({
 const toDraft = (pack?: PackDto): PackRequest =>
   pack !== undefined
     ? { name: pack.name, rounds: pack.rounds }
-    : { name: '', rounds: [emptyRound("Тур 1", 1)] };
+    : { name: '', rounds: [emptyRound("Тур 1")] };
 
 export const usePackDraft = (initial? : PackDto) => {
   const [pack, setPack] = useState<PackRequest>(() => toDraft(initial));
@@ -62,9 +61,9 @@ export const usePackDraft = (initial? : PackDto) => {
     setName: (name: string) => setPack((p) => ({ ...p, name })),
     addRound: (name : string) =>
       setPack((p) => {
-          const order = (pack.rounds.at(-1)?.order ?? 0) + 1;
+          // const order = (pack.rounds.at(-1)?.order ?? 0) + 1;
           setRoundIndex(p.rounds.length);
-          return { ...p, rounds: [...p.rounds, emptyRound(name, order)] };
+          return { ...p, rounds: [...p.rounds, emptyRound(name)] };
         }),
 
     addCost: (cost: number) =>

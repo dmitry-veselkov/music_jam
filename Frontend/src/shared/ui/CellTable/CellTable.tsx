@@ -48,12 +48,12 @@ const CellTable = ({cell, cost, category, onCellDrop} : CellTableProps) => {
   return (
     <div
       className={clsx(style.cell, cell && style.filled, isDragOver && style.dragOver)}
-      title={cell?.question.answerTrack ?? "Ячейка"}
+      title={cell?.question.correctAnswer ?? "Ячейка"}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
     >
-      <span className={style.text}>{cell?.question?.answerTrack ?? EMPTY_TEXT}</span>
+      <span className={style.text}>{cell?.question?.correctAnswer ?? EMPTY_TEXT}</span>
     </div>
   );
 };

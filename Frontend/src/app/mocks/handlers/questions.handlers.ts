@@ -1,9 +1,6 @@
 import { delay, http, HttpResponse } from "msw";
 import { questions } from "@/app/mocks/data/questions.ts";
 
-const fileName = (value: FormDataEntryValue | null) =>
-  value instanceof File ? value.name : '';
-
 export const questionsHandlers = [
   http.get('/api/questions', async () => {
     await delay(1000);
@@ -16,8 +13,8 @@ export const questionsHandlers = [
       questionId: crypto.randomUUID(),
       requested: String(form.get('requested')),
       correctAnswer: String(form.get('correctAnswer')),
-      questionTrack: fileName(form.get('questionTrack')),
-      answerTrack: fileName(form.get('answerTrack')),
+      questionTrack: form.get('questionTrack') as File | null,
+      answerTrack: form.get('answerTrack') as File | null,
     };
     questions.push(created);
 
@@ -28,14 +25,12 @@ export const questionsHandlers = [
     const q = questions.find((q) => q.questionId === params.id);
     if (!q) return new HttpResponse(null, { status: 404 });
     const form = await request.formData();
+
     q.requested = String(form.get('requested'));
     q.correctAnswer = String(form.get('correctAnswer'));
+    q.questionTrack = form.get('questionTrack') as File | null
+    q.answerTrack = form.get('answerTrack') as File | null
 
-    const qName = fileName(form.get('questionTrack'));
-    const aName = fileName(form.get('answerTrack'));
-    if (qName) q.questionTrack = qName;
-    if (aName) q.answerTrack = aName;
-    console.log(q)
     return HttpResponse.json(q);
   }),
   http.get('/api/questions/:id', ({ params }) => {

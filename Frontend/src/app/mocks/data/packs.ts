@@ -9,7 +9,6 @@ export const packs : PackDto[] = [
     rounds : [
       {
         name: "Первый",
-        order : 1,
         categories: ["Первая"],
         costs: [100],
         questions : [

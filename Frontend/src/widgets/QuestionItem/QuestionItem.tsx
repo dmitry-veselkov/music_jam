@@ -14,7 +14,6 @@ const QuestionItem = ({ question } : QuestionItemProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleDragStart = (e: DragEvent<HTMLDivElement>) => {
-    if (!question.answerTrack) return;
     e.dataTransfer.setData(
       "application/json", JSON.stringify(question));
     e.dataTransfer.effectAllowed = 'copy';

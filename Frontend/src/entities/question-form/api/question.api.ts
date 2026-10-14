@@ -7,7 +7,7 @@ export const questionApi = {
     return data ?? [];
   },
   getById: async (id: string) => {
-    const { data } = await http.get(`/questions/${id}`);
+    const { data } = await http.get<QuestionDto>(`/questions/${id}`);
     return data ?? [];
   }
 }
