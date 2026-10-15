@@ -17,12 +17,6 @@ internal class PacksStorage : IPacksStorage
         throw new NotImplementedException();
     }
 
-    public async Task<PackEdit?> GetPackEdit(Guid userId, Guid packId)
-    {
-        await Task.CompletedTask;
-        throw new NotImplementedException();
-    }
-
     // Пока сделал так для простоты. По идее, нужно получать инфу о том, где именно используется пак
     public async Task<bool> IsPackInUse(Guid userId, Guid packId)
     {
@@ -36,7 +30,7 @@ internal class PacksStorage : IPacksStorage
         throw new NotImplementedException();
     }
 
-    public async Task CreatePack(Guid userId, Pack pack)
+    public async Task SavePack(Guid userId, Pack pack)
     {
         await Task.CompletedTask;
         throw new NotImplementedException();

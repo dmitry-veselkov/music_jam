@@ -2,6 +2,7 @@
 using MusicJam.Studio.Services.PacksService;
 using MusicJam.Studio.Services.TokenService;
 using MusicJam.Studio.Storages.PacksStorage;
+using MusicJam.Studio.Storages.QuestionsStorage;
 using MusicJam.Studio.Storages.UsersStorage;
 
 namespace MusicJam.Studio.Extensions;
@@ -23,7 +24,8 @@ public static class ServiceCollectionExtensions
     {
         services
             .AddScoped<IUsersStorage, UsersStorage>()
-            .AddScoped<IPacksStorage, PacksStorage>();
+            .AddScoped<IPacksStorage, PacksStorage>()
+            .AddScoped<IQuestionsStorage, QuestionsStorage>();
 
         return services;
     }

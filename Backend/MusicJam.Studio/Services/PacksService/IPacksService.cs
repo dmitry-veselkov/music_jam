@@ -18,5 +18,9 @@ public interface IPacksService
 
     Task<Result<PackEdit, PacksError>> GetPackForEdit(Guid userId, Guid packId);
 
+    Task<Result<PacksError>> CreatePack(Guid userId, LoadPackRequest request);
+
     Task<Result<PacksError>> DeletePack(Guid userId, Guid packId);
+
+    Task<Result<PacksError>> UpdatePack(Guid userId, Guid packId, LoadPackRequest request);
 }

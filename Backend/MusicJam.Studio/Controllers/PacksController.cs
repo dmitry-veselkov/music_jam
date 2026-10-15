@@ -58,13 +58,31 @@ public class PacksController(IPacksService packsService) : ControllerBase
     {
         var userId = User.GetUserId();
 
-        var packEditResult = await packsService.GetPackForEdit(userId, packId);
-        if (packEditResult.TryGetFault(out var error, out var packEdit))
+        var packForEditResult = await packsService.GetPackForEdit(userId, packId);
+        if (packForEditResult.TryGetFault(out var error, out var packEdit))
         {
             return ErrorResponse(error);
         }
 
         return Ok(packEdit);
+    }
+
+    [HttpPost]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PackEdit))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> CreatePack([FromBody] LoadPackRequest request)
+    {
+        var userId = User.GetUserId();
+
+        var createPackResult = await packsService.CreatePack(userId, request);
+        if (createPackResult.TryGetFault(out var error))
+        {
+            return ErrorResponse(error);
+        }
+
+        return Created();
     }
 
     [HttpDelete("{packId:guid}")]
@@ -85,12 +103,32 @@ public class PacksController(IPacksService packsService) : ControllerBase
         return NoContent();
     }
 
+    [HttpPatch("{packId:guid}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> UpdatePack([FromRoute] Guid packId, [FromBody] LoadPackRequest request)
+    {
+        var userId = User.GetUserId();
+
+        var patchPackResult = await packsService.UpdatePack(userId, packId, request);
+        if (patchPackResult.TryGetFault(out var error))
+        {
+            return ErrorResponse(error);
+        }
+
+        return Ok();
+    }
+
     private IActionResult ErrorResponse(IPacksService.PacksError error)
     {
         return error switch
         {
-            IPacksService.PacksError.PackNotFound => NotFound(),
-            IPacksService.PacksError.PackIsInUse => BadRequest(),
+            IPacksService.PacksError.PackNotFound => NotFound("Pack not found"),
+            IPacksService.PacksError.PackIsInUse => BadRequest(
+                "The pack cannot be deleted because it is used in at least one game"),
             _ => throw new ArgumentOutOfRangeException(error.ToString()),
         };
     }
