@@ -1,6 +1,6 @@
 ﻿namespace MusicJam.Studio.Models.Responses;
 
-public class QuestionEditCell
+public class QuestionTableCell
 {
     public int Cost { get; set; }
     public string Category { get; set; }

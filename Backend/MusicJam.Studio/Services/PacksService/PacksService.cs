@@ -26,9 +26,7 @@ internal class PacksService(
         return await packsStorage.GetPacksShort(userId, request.Skip, request.Take);
     }
 
-    public async Task<Result<PackEdit, IPacksService.PacksError>> GetPackForEdit(
-        Guid userId,
-        Guid packId)
+    public async Task<Result<PackForTable, IPacksService.PacksError>> GetPackForTable(Guid userId, Guid packId)
     {
         var pack = await packsStorage.GetPackById(userId, packId);
         if (pack is null)
@@ -36,38 +34,10 @@ internal class PacksService(
             return IPacksService.PacksError.PackNotFound;
         }
 
-        return await ConvertPackToEdit(pack);
+        return await ConvertPackToTableFormat(pack);
     }
 
-    public async Task<Result<IPacksService.PacksError>> CreatePack(
-        Guid userId,
-        LoadPackRequest request)
-    {
-        // todo veselkov.d добавить валидацию входных данных
-
-        var now = DateTime.UtcNow;
-        var rounds = request.Rounds
-            .Select(ConvertRoundRequestToRound)
-            .ToList();
-
-        var pack = new Pack
-        {
-            Id = Guid.NewGuid(),
-            Name = request.Name,
-            CreatedAtUtc = now,
-            UpdatedAtUtc = now,
-            Rounds = rounds,
-            Usages = []
-        };
-
-        await packsStorage.SavePack(userId, pack);
-
-        return Result<IPacksService.PacksError>.Success();
-    }
-
-    public async Task<Result<IPacksService.PacksError>> DeletePack(
-        Guid userId,
-        Guid packId)
+    public async Task<Result<IPacksService.PacksError>> DeletePack(Guid userId, Guid packId)
     {
         var isPackInUse = await packsStorage.IsPackInUse(userId, packId);
         if (isPackInUse)
@@ -80,14 +50,115 @@ internal class PacksService(
         return Result<IPacksService.PacksError>.Success();
     }
 
-    public async Task<Result<IPacksService.PacksError>> UpdatePack(Guid userId, Guid packId, LoadPackRequest request)
+    public async Task<Result<IPacksService.PacksError>> UpsertPack(Guid userId, Guid packId, LoadPackRequest request)
     {
-        // todo veselkov.d реализовать обновление существующего пака
-        await Task.CompletedTask;
-        throw new NotImplementedException();
+        var validatePackResult = ValidatePackRequest(request);
+        if (validatePackResult.TryGetFault(out var error))
+        {
+            return error;
+        }
+
+        var rounds = request.Rounds
+            .Select(ConvertRoundRequestToRound)
+            .ToList();
+
+        var pack = await packsStorage.GetPackById(userId, packId);
+
+        var updatedPack = pack is null
+            ? CreateNewPack(request.Name, rounds)
+            : UpdateExistPack(pack, request.Name, rounds);
+
+        await packsStorage.SavePack(userId, updatedPack);
+
+        return Result<IPacksService.PacksError>.Success();
     }
 
-    private async Task<PackEdit> ConvertPackToEdit(Pack pack)
+    private static Pack CreateNewPack(string name, List<Round> rounds)
+    {
+        var now = DateTime.UtcNow;
+
+        return new Pack
+        {
+            Id = Guid.NewGuid(),
+            Name = name,
+            CreatedAtUtc = now,
+            UpdatedAtUtc = now,
+            Rounds = rounds,
+            Usages = []
+        };
+    }
+
+    private static Pack UpdateExistPack(Pack pack, string updatedName, List<Round> updatedRounds)
+    {
+        return new Pack
+        {
+            Id = pack.Id,
+            Name = updatedName,
+            CreatedAtUtc = pack.CreatedAtUtc,
+            UpdatedAtUtc = DateTime.UtcNow,
+            Rounds = updatedRounds,
+            Usages = pack.Usages
+        };
+    }
+
+    private static Result<IPacksService.PacksError> ValidatePackRequest(LoadPackRequest? request)
+    {
+        if (request is null)
+        {
+            return IPacksService.PacksError.EmptyRequest;
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Name))
+        {
+            return IPacksService.PacksError.EmptyPackName;
+        }
+
+        if (request.Rounds.Count == 0)
+        {
+            return IPacksService.PacksError.EmptyRounds;
+        }
+
+        foreach (var validateRoundResult in request.Rounds.Select(ValidateRoundRequest))
+        {
+            if (validateRoundResult.TryGetFault(out var roundError))
+            {
+                return roundError;
+            }
+        }
+
+        return Result<IPacksService.PacksError>.Success();
+    }
+
+    private static Result<IPacksService.PacksError> ValidateRoundRequest(RoundRequest? round)
+    {
+        if (round is null)
+        {
+            return IPacksService.PacksError.InvalidRound;
+        }
+
+        if (string.IsNullOrWhiteSpace(round.Name))
+        {
+            return IPacksService.PacksError.EmptyRoundName;
+        }
+
+        var rowsCount = round.Questions.Count;
+
+        if (rowsCount == 0)
+        {
+            return IPacksService.PacksError.EmptyQuestions;
+        }
+
+        var columnsCount = round.Questions.First().Count;
+
+        if (round.Questions.Skip(1).Any(column => columnsCount != column.Count))
+        {
+            return IPacksService.PacksError.InvalidTableFormat;
+        }
+
+        return Result<IPacksService.PacksError>.Success();
+    }
+
+    private async Task<PackForTable> ConvertPackToTableFormat(Pack pack)
     {
         var allQuestionIds = pack.Rounds
             .SelectMany(round => FlattenQuestionIds(round.QuestionIds))
@@ -103,7 +174,7 @@ internal class PacksService(
             .Select(round => ConvertRoundToEdit(round, correctAnswers))
             .ToList();
 
-        return new PackEdit
+        return new PackForTable
         {
             Id = pack.Id,
             Name = pack.Name,
@@ -111,7 +182,7 @@ internal class PacksService(
         };
     }
 
-    private static RoundEdit ConvertRoundToEdit(Round round, Dictionary<Guid, string> correctAnswers)
+    private static RoundForTable ConvertRoundToEdit(Round round, Dictionary<Guid, string> correctAnswers)
     {
         var categories = round.QuestionIds.Keys.ToList();
 
@@ -121,7 +192,7 @@ internal class PacksService(
                 .OrderBy(cost => cost)
                 .ToList();
 
-        return new RoundEdit
+        return new RoundForTable
         {
             Name = round.Name,
             Categories = categories,
@@ -155,7 +226,7 @@ internal class PacksService(
         };
     }
 
-    private static QuestionEditCell GetQuestionEditCell(
+    private static QuestionTableCell GetQuestionEditCell(
         string category,
         int cost,
         Guid questionId,
@@ -167,7 +238,7 @@ internal class PacksService(
                 $"Correct answer for question '{questionId}' was not found.");
         }
 
-        return new QuestionEditCell
+        return new QuestionTableCell
         {
             Category = category,
             Cost = cost,

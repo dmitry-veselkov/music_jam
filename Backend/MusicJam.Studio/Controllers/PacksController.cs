@@ -49,16 +49,16 @@ public class PacksController(IPacksService packsService) : ControllerBase
         return Ok(packsShort);
     }
 
-    [HttpGet("{packId:guid}/edit")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PackEdit))]
+    [HttpGet("{packId:guid}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PackForTable))]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetPackForEdit([FromRoute] Guid packId)
+    public async Task<IActionResult> GetPackForTable([FromRoute] Guid packId)
     {
         var userId = User.GetUserId();
 
-        var packForEditResult = await packsService.GetPackForEdit(userId, packId);
+        var packForEditResult = await packsService.GetPackForTable(userId, packId);
         if (packForEditResult.TryGetFault(out var error, out var packEdit))
         {
             return ErrorResponse(error);
@@ -67,22 +67,23 @@ public class PacksController(IPacksService packsService) : ControllerBase
         return Ok(packEdit);
     }
 
-    [HttpPost]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PackEdit))]
+    [HttpPatch("{packId:guid}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> CreatePack([FromBody] LoadPackRequest request)
+    public async Task<IActionResult> UpsertPack([FromRoute] Guid packId, [FromBody] LoadPackRequest request)
     {
         var userId = User.GetUserId();
 
-        var createPackResult = await packsService.CreatePack(userId, request);
-        if (createPackResult.TryGetFault(out var error))
+        var patchPackResult = await packsService.UpsertPack(userId, packId, request);
+        if (patchPackResult.TryGetFault(out var error))
         {
             return ErrorResponse(error);
         }
 
-        return Created();
+        return Ok();
     }
 
     [HttpDelete("{packId:guid}")]
@@ -101,25 +102,6 @@ public class PacksController(IPacksService packsService) : ControllerBase
         }
 
         return NoContent();
-    }
-
-    [HttpPatch("{packId:guid}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> UpdatePack([FromRoute] Guid packId, [FromBody] LoadPackRequest request)
-    {
-        var userId = User.GetUserId();
-
-        var patchPackResult = await packsService.UpdatePack(userId, packId, request);
-        if (patchPackResult.TryGetFault(out var error))
-        {
-            return ErrorResponse(error);
-        }
-
-        return Ok();
     }
 
     private IActionResult ErrorResponse(IPacksService.PacksError error)
