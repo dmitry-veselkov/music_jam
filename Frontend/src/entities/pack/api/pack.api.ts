@@ -11,8 +11,8 @@ export const packApi = {
     const { data } = await http.get<PackDto>(`/packs/${id}/edit`);
     return data;
   },
-  getByInfo: async () => {
-    const { data } = await http.get<PackShort>(`/packs/short`);
+  getAllInfo: async ({ skip = 0, take = 20 }: PageParams = {}) => {
+    const { data } = await http.get<PackShort[]>(`/packs/short?skip=${skip}&take=${take}`);
     return data;
   }
 }

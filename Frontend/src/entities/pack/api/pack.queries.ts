@@ -25,10 +25,12 @@ export const usePack = (id? : string) => {
   })
 }
 
-export const usePackInfo = (id? : string) => {
+export const usePackShorts = (params: PageParams) => {
   return useQuery({
-    queryKey: packKeys.detail(id!),
-    queryFn: () => packApi.getById(id!),
-    enabled: !!id,
+    queryKey: ['packsShort', 'list'],
+    queryFn: () => packApi.getAllInfo(params),
+    placeholderData: keepPreviousData,
+    select: (data) =>
+      data.map(({ packId, name }) => ({packId, name})),
   })
 }

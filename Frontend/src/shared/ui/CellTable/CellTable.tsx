@@ -2,20 +2,23 @@ import style from "./CellTable.module.css"
 import { useState } from "react";
 import type { DragEvent } from 'react';
 import clsx from "clsx";
-import type { CellDto } from "@/entities/pack/models/types.ts";
-import type { QuestionDto } from "@/entities/question-form";
+import type { QuestionDtoCard } from "@/entities/question";
+import type { CellDraft } from "@/entities/pack/models/draft.ts";
 
 const EMPTY_TEXT = '-';
 
 type CellTableProps = {
-  cell : CellDto | null,
-  cost: number;
-  category: string;
-  onCellDrop: (cell: CellDto) => void,
+  cost : number
+  category : string
+  cell: CellDraft | null;
+  onCellDrop: (cell: CellDraft) => void,
 }
 
-const CellTable = ({cell, cost, category, onCellDrop} : CellTableProps) => {
+const CellTable = ({cost, category, cell, onCellDrop} : CellTableProps) => {
   const [isDragOver, setIsDragOver] = useState(false);
+
+  const isFilled = !!cell?.questionId;
+  const answer = cell?.correctAnswer ?? null;
 
   const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -36,24 +39,25 @@ const CellTable = ({cell, cost, category, onCellDrop} : CellTableProps) => {
     const data = e.dataTransfer.getData('application/json');
     if (!data) return;
 
-    const question = JSON.parse(data) as QuestionDto;
+    const dropped = JSON.parse(data) as QuestionDtoCard;
 
     onCellDrop({
       cost,
       category,
-      question,
+      questionId: dropped.questionId,
+      correctAnswer: dropped.correctAnswer ?? null,
     });
   };
 
   return (
     <div
-      className={clsx(style.cell, cell && style.filled, isDragOver && style.dragOver)}
-      title={cell?.question.correctAnswer ?? "Ячейка"}
+      className={clsx(style.cell, isFilled && style.filled, isDragOver && style.dragOver)}
+      title={answer ?? "Ячейка"}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
     >
-      <span className={style.text}>{cell?.question?.correctAnswer ?? EMPTY_TEXT}</span>
+      <span className={style.text}>{answer ?? EMPTY_TEXT}</span>
     </div>
   );
 };

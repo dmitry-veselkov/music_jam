@@ -1,5 +1,5 @@
 import styles from "./PackQuestionsSection.module.css"
-import { useQuestions } from "@/entities/question-form";
+import { useQuestions } from "@/entities/question";
 import QuestionItem from "@/widgets/QuestionItem/QuestionItem.tsx";
 
 const PackQuestionsSection = () => {

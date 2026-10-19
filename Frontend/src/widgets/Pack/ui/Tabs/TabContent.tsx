@@ -1,4 +1,4 @@
-import QuestionCreator from "@/widgets/Pack/ui/QuestionCreator/QuestionCreator.tsx";
+import QuestionCreator from "@/widgets/QuestionCreator/QuestionCreator.tsx";
 import PackField from "@/widgets/Pack/ui/PackField/PackField.tsx";
 import type { Tab } from "@/widgets/Pack/model/types.ts";
 

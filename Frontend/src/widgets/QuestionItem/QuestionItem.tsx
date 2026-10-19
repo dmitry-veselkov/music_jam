@@ -1,13 +1,13 @@
-import type { QuestionDto } from "@/entities/question-form";
 import { useState } from "react";
 import { Button } from "@/shared/ui/Button/Button.tsx";
 import Modal from "@/shared/ui/Modal/Modal.tsx";
-import QuestionForm from "@/features/question/ui/QuestionForm.tsx";
+import QuestionForm from "@/features/question-form/ui/QuestionForm.tsx";
 import styles from "./QuestionItem.module.css"
 import type { DragEvent } from 'react';
+import type { QuestionDtoCard } from "@/entities/question/model/dto.ts";
 
 type QuestionItemProps = {
-  question: QuestionDto;
+  question: QuestionDtoCard;
 }
 
 const QuestionItem = ({ question } : QuestionItemProps) => {
@@ -26,8 +26,8 @@ const QuestionItem = ({ question } : QuestionItemProps) => {
         draggable
         onDragStart={handleDragStart}
       >
-        {question.requested}
-        <Button onClick={() => { console.log('click'); setIsOpen(true)}} text="Редактировать"/>
+        {question.correctAnswer}
+        <Button onClick={() => setIsOpen(true)} text="Редактировать"/>
       </div>
 
       <Modal isOpen={isOpen} onClose={() => {setIsOpen(false)}} title="Редактирование вопроса">

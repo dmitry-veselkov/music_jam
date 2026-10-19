@@ -1,7 +1,6 @@
 import type { PackDto } from "@/entities/pack/models/types.ts";
 import { usePackDraft } from "@/widgets/Pack/model/usePackDraft.ts";
-import { useUpdatePack } from "@/features/pack/api/useUpdatePack.ts";
-import { useCreatePack } from "@/features/pack/api/useCreatePack.ts";
+import { useUpsertPack } from "@/features/pack/api/useUpsertPack.ts";
 import { useState } from "react";
 import type { Tab } from "@/widgets/Pack/model/types.ts";
 import { PackDraftProvider } from "@/widgets/Pack/model/PackDraftContext.tsx";
@@ -11,38 +10,52 @@ import TabContent from "@/widgets/Pack/ui/Tabs/TabContent.tsx";
 import styles from "./PackEditor.module.css"
 import { Button } from "@/shared/ui/Button/Button.tsx";
 import { usePack } from "@/entities/pack/api/pack.queries.ts";
+import { packSchema } from "@/features/pack/model/schema.ts";
 
 const PackEditor = ({ packId, initial } : { packId? : string, initial? : PackDto}) => {
-  const { data } = usePack(packId);
+  const { data, isError } = usePack(packId);
   const source = initial ?? data;
-  const draft = usePackDraft(source);
 
+  if (isError) return <div>Не удалось загрузить пак</div>;
+
+  return <PackEditorForm key={source?.packId ?? 'new'} initial={source} />;
+};
+
+const PackEditorForm = ({ initial }: { initial?: PackDto }) => {
+  const draft = usePackDraft(initial);
   const [activeTab, setActiveTab] = useState<Tab>('questions');
-  const [nameError, setNameError] = useState('');
+  const [error, setError] = useState('');
 
-  const create = useCreatePack();
-  const update = useUpdatePack();
+  const upsert = useUpsertPack();
+  console.log(error);
 
   const onSave = () => {
-    if (!draft.pack.name.trim()) return setNameError('Введите название пака');
-    if (initial) update.mutate({ id: initial.packId, ...draft.pack });
-    else create.mutate(draft.pack);
+    const parsed = packSchema.safeParse(draft.pack);
+    if (!parsed.success) return setError(parsed.error.issues[0].message);
+
+    setError('');
+    upsert.mutate({ id: draft.packId, ...parsed.data });
   };
 
+  const isNew = !initial;
   return (
     <PackDraftProvider draft={draft}>
       <div className={styles.page}>
         <div className={styles.options}>
           <TabsNav active={activeTab} onChange={setActiveTab} />
           <div className={styles.title}>
-            <Input value={draft.pack.name} onChange={(e) => draft.setName(e.target.value)} />
+            <Input
+              value={draft.pack.name}
+              onChange={(e) => {
+                draft.setName(e.target.value);
+              }}
+            />
           </div>
           <div className={styles.packSave}>
-            <Button text={initial ? 'Сохранить' : 'Создать'} onClick={onSave} disabled={create.isPending || update.isPending} />
+            <Button text={isNew ? 'Создать' : 'Сохранить'} onClick={onSave} disabled={upsert.isPending} />
           </div>
         </div>
         <TabContent active={activeTab} />
-        {nameError && <span>{nameError}</span>}
       </div>
     </PackDraftProvider>
   );

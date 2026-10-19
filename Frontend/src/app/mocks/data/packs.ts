@@ -4,8 +4,6 @@ export const packs : PackDto[] = [
   {
     packId: "1",
     name: "Первый",
-    creationDate: new Date('2026-04-15'),
-    lastUpdateDate: new Date('2026-06-19'),
     rounds : [
       {
         name: "Первый",
@@ -13,18 +11,12 @@ export const packs : PackDto[] = [
         costs: [100],
         questions : [
           [
-            null
-            // {
-            //   cost: 100,
-            //   category : "Первая",
-            //   question :   {
-            //     questionId: "1",
-            //     requested: 'Название песни',
-            //     correctAnswer: 'Смешарики песня',
-            //     questionTrack: '',
-            //     answerTrack: '',
-            //   },
-            // }
+            {
+              cost: 100,
+              category : "Первая",
+              correctAnswer: 'Смешарики песня',
+              questionId: "1",
+            }
           ]
         ]
       },

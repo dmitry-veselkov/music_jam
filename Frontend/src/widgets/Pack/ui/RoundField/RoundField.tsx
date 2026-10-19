@@ -5,6 +5,7 @@ import { usePackDraftContext } from "@/widgets/Pack/model/PackDraftContext.tsx";
 
 const RoundField = ( { idx } : { idx : number }) => {
   const draft = usePackDraftContext();
+  const round = draft.pack.rounds[idx];
 
   return (
       <div className={styles.field}>
@@ -12,7 +13,7 @@ const RoundField = ( { idx } : { idx : number }) => {
           <thead>
             <tr>
               <th className={styles.cornerCell}>Категория / Цена</th>
-              {draft.pack.rounds[idx].costs.map((cost, cIdx) => (
+              {round.costs.map((cost, cIdx) => (
                 <th key={cIdx} className={styles.costTh}>
                   <div className={styles.thContent}>
                     <span>{cost}</span>
@@ -25,7 +26,7 @@ const RoundField = ( { idx } : { idx : number }) => {
             </tr>
           </thead>
           <tbody>
-          {draft.pack.rounds[idx].categories.map((category, row) => (
+          {round.categories.map((category, row) => (
             <tr key={row}>
               <td className={styles.catTd}>
                 <div className={styles.tdContent}>
@@ -33,13 +34,13 @@ const RoundField = ( { idx } : { idx : number }) => {
                 </div>
               </td>
 
-              {draft.pack.rounds[idx].costs.map((_, col) => {
+              {round.costs.map((cost, col) => {
                 return (
                   <td key={col}>
                     <CellTable
                       cell={draft.pack.rounds[idx].questions[row]?.[col] ?? null}
-                      cost={draft.pack.rounds[idx].costs[col]}
-                      category={draft.pack.rounds[idx].categories[row]}
+                      cost={cost}
+                      category={category}
                       onCellDrop={(cell) => draft.setCell(row, col, cell)}
                     />
                   </td>
