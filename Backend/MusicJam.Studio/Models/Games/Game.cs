@@ -1,4 +1,6 @@
-﻿namespace MusicJam.Studio.Models.Games;
+﻿using MusicJam.Studio.Models.Packs;
+
+namespace MusicJam.Studio.Models.Games;
 
 public class Game
 {
@@ -8,4 +10,5 @@ public class Game
     public DateTime PlannedStart { get; set; }
     public Mode Mode { get; set; }
     public State State { get; set; }
+    public Pack Pack { get; set; }
 }

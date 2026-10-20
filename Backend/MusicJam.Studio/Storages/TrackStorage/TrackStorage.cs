@@ -2,11 +2,11 @@
 using MusicJam.Studio.Infrustructure.Data.Configurations;
 using DbTrack = MusicJam.Studio.Infrustructure.Entities.Track;
 using Track = MusicJam.Music.Track;
-namespace MusicJam.Studio.Storages.TrackStorage;
+namespace MusicJam.Studio.Storages;
 
-internal class TrackStorage(AppDbContext db) : ITrackStorage
+public class TrackStorage(AppDbContext db) : ITrackStorage
 {
-    public static Track ToModel(DbTrack e) => new()
+    public Track ToModel(DbTrack e) => new()
     {
         Link = e.Link,
     };

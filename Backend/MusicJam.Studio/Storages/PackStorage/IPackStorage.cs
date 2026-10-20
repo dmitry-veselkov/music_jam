@@ -2,7 +2,7 @@
 using MusicJam.Studio.Models.Users;
 
 
-namespace MusicJam.Studio.Storages.PackStorage;
+namespace MusicJam.Studio.Storages;
 
 public interface IPackStorage
 {

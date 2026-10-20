@@ -1,12 +1,7 @@
 ﻿using MusicJam.Music;
-using MusicJam.Studio.Helpers;
 using MusicJam.Studio.Models.Packs;
-using MusicJam.Studio.Models.Users;
 using MusicJam.Studio.Requests;
-using MusicJam.Studio.Services.TokenService;
-using MusicJam.Studio.Storages.QuestionStorage;
-using MusicJam.Studio.Storages.TrackStorage;
-using MusicJam.Studio.Storages.UsersStorage;
+using MusicJam.Studio.Storages;
 using Shared;
 
 namespace MusicJam.Studio.Services.QuestionService;
@@ -16,7 +11,7 @@ internal class QuestionService(
     ITrackStorage trackStorage)
     : IQuestionService
 {
-    public async Task<Result<List<Question>, IQuestionService.QuestionError>> GetQuestions(Guid userId, GetQuestionsQuery query, CancellationToken ct)
+    public async Task<Result<List<Question>, IQuestionService.QuestionError>> GetQuestions(Guid userId, GetQuestionsQuery query)
     {
         var questions = await questionStorage.TryGetAllUserQuestions(userId);
         return questions
@@ -25,7 +20,7 @@ internal class QuestionService(
             .ToList();
     }
 
-    public async Task<Result<Question, IQuestionService.QuestionError>> Create(Guid userId, CreateQuestionRequest request, CancellationToken ct)
+    public async Task<Result<Question, IQuestionService.QuestionError>> Create(Guid userId, CreateQuestionRequest request)
     {
         var question = new Question()
         {
@@ -44,7 +39,7 @@ internal class QuestionService(
         return question;
     }
 
-    public async Task<Result<Question, IQuestionService.QuestionError>> Get(Guid userId, Guid questionId, CancellationToken ct)
+    public async Task<Result<Question, IQuestionService.QuestionError>> Get(Guid userId, Guid questionId)
     {
         var question = await questionStorage.TryGetQuestion(userId, questionId);
         if (question is null)
@@ -52,7 +47,7 @@ internal class QuestionService(
         return question;
     }
 
-    public async Task<Result<Guid, IQuestionService.QuestionError>> Delete(Guid userId, Guid questionId, CancellationToken ct)
+    public async Task<Result<Guid, IQuestionService.QuestionError>> Delete(Guid userId, Guid questionId)
     {
         var question = await questionStorage.TryGetQuestion(userId, questionId);
         if (question is null)
@@ -61,12 +56,12 @@ internal class QuestionService(
         return questionId;
     }
 
-    public Task<Result<Question, IQuestionService.QuestionError>> Update(Guid userId, Guid questionId, PatchMode mode, UpdateQuestionRequest request, CancellationToken ct)
+    public Task<Result<Question, IQuestionService.QuestionError>> Update(Guid userId, Guid questionId, PatchMode mode, UpdateQuestionRequest request)
     {
         throw new NotImplementedException();
     }
 
-    public async Task<Result<string, IQuestionService.QuestionError>> GetQuestionTrack(Guid userId, Guid questionId, CancellationToken ct)
+    public async Task<Result<string, IQuestionService.QuestionError>> GetQuestionTrack(Guid userId, Guid questionId)
     {
         var question = await questionStorage.TryGetQuestion(userId, questionId);
         if (question is null)
@@ -74,7 +69,7 @@ internal class QuestionService(
         return question.QuestionTrack.Link;
     }
 
-    public async Task<Result<string, IQuestionService.QuestionError>> GetAnswerTrack(Guid userId, Guid questionId, CancellationToken ct)
+    public async Task<Result<string, IQuestionService.QuestionError>> GetAnswerTrack(Guid userId, Guid questionId)
     {
         var question = await questionStorage.TryGetQuestion(userId, questionId);
         if (question is null)

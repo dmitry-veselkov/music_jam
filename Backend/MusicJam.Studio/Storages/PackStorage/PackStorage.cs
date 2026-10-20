@@ -1,13 +1,12 @@
 ﻿using MusicJam.Studio.Infrustructure.Data.Configurations;
 using MusicJam.Studio.Models.Users;
-using MusicJam.Studio.Storages.PackStorage;
 
 using DbPack = MusicJam.Studio.Infrustructure.Entities.Pack;
 using Pack = MusicJam.Studio.Models.Packs.Pack;
 
-namespace MusicJam.Studio.Controllers;
+namespace MusicJam.Studio.Storages;
 
-public class PackStorage(AppDbContext db) : IPackStorage
+public class PackStorage(AppDbContext db, RoundStorage roundStorage) : IPackStorage
 {
     public async Task<List<Pack>> TryGetPacksByUser(User user)
     {
@@ -27,10 +26,18 @@ public class PackStorage(AppDbContext db) : IPackStorage
         throw new NotImplementedException();
     }
     
-    private static Pack ToModel(DbPack e) => new()
+    public static Pack ToModel(DbPack e) => new()
     {
         Id = e.Id, 
         Name = e.Title, 
+        Rounds = roundStorage.ToModel(e.Rounds), 
+        CreatedAtUtc = e.CreatedAtUtc, 
+        UpdatedAtUtc = e.UpdatedAtUtc
+    };
+    
+    public static DbPack ToDbModel(Pack e) => new()
+    {
+        Title = e.Name, 
         Rounds = e.Rounds, 
         CreatedAtUtc = e.CreatedAtUtc, 
         UpdatedAtUtc = e.UpdatedAtUtc
