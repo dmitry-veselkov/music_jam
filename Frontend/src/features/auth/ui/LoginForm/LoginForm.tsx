@@ -53,7 +53,7 @@ const LoginForm = () => {
 
           <p className={`${styles.textCenter} ${styles.textMuted} ${styles.mt3}`}>
             Нет аккаунта?
-            <a href="/register" className={styles.textAccent} data-link> Зарегестрироваться</a>
+            <a href="/register" className={styles.textAccent} data-link> Зарегистрироваться</a>
           </p>
         </form>
       </div>
