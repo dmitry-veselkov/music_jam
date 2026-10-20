@@ -10,7 +10,7 @@ import GamesPage from "@/pages/GamesPage/GamesPage.tsx";
 export const routes = createBrowserRouter([
   { path: '/', element : <StartPage />},
   { path: '/register', element : <RegistrationPage />},
-  { path: 'login', element : <LoginPage />},
+  { path: '/login', element : <LoginPage />},
   { path: '/account', element : <AccountPage />},
   { path: '/packs', element: <Packs />},
   { path: '/packs/:id', element: <Pack />},

@@ -55,7 +55,7 @@ const RegisterForm = () => {
               id="reg-btn"
               text="Создать аккаунт"
               variant="primary"
-              type="submit"  // потом будет submit
+              type="submit"
             />
           </div>
 

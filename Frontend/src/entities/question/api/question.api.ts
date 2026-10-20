@@ -1,6 +1,6 @@
 import { http } from "@/shared/api/axios.ts";
 import type { PageParams } from "@/shared/api/pagination.ts";
-import type { QuestionDtoCard, QuestionDtoWithTracks } from "@/entities/question";
+import type { QuestionDtoCard } from "@/entities/question";
 
 export const questionApi = {
   getAll: async ({ skip = 0, take = 20 }: PageParams = {}) => {
@@ -8,7 +8,7 @@ export const questionApi = {
     return data ?? [];
   },
   getById: async (id: string) => {
-    const { data } = await http.get<QuestionDtoWithTracks>(`/questions/${id}`);
+    const { data } = await http.get<QuestionDtoCard>(`/questions/${id}`);
     return data ?? [];
   }
 }
