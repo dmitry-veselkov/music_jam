@@ -1,0 +1,29 @@
+.uiInput {
+    width: 100%;
+    padding: 15px;
+    border-radius: 8px;
+    border: 2px solid var(--color-border);
+    background-color: #1a1a1a;
+    color: white;
+    font-size: 1.2rem;
+    text-align: center;
+    outline: none;
+    transition: border-color var(--transition-fast);
+}
+.uiInput:focus {
+    border-color: var(--color-primary);
+}
+
+@media (max-width: 768px) {
+    .uiInput {
+        padding: 13px;
+        font-size: 1.05rem;
+    }
+}
+@media (max-width: 480px) {
+    .uiInput {
+        padding: 12px;
+        font-size: 1rem;
+        border-width: 1px;
+    }
+}

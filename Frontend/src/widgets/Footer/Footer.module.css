@@ -1,0 +1,23 @@
+.startFooter {
+    padding: var(--spacing-lg);
+    text-align: center;
+    color: var(--color-text-muted);
+}
+
+.creators {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.creators p {
+    margin: 0;
+}
+
+@media (max-width: 480px) {
+    .startFooter {
+        padding: var(--spacing-md);
+        font-size: 0.85rem;
+    }
+}

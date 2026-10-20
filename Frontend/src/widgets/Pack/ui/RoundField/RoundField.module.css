@@ -1,0 +1,43 @@
+.scrollContainer {
+    overflow: auto;
+    background: var(--color-surface);
+    border-radius: 1rem;
+    border: 1px solid var(--color-border);
+    padding: 1rem;
+    -webkit-overflow-scrolling: touch;
+    max-width: 100%;
+}
+
+.gameTable {
+    width: max-content;
+    min-width: 100%;
+    border-collapse: separate;
+    border-spacing: 0.5rem;
+    table-layout: fixed;
+}
+
+.gameTable :where(th, td) {
+    min-width: 120px;
+    max-width: 160px;
+    padding: 0;
+}
+
+.cornerCell,
+.headerCell,
+.categoryCell {
+    box-sizing: border-box;
+    padding: 0.5rem;
+    background: #252525;
+    border: 1px solid transparent;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: left;
+}
+
+.headerCell {
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.1rem;
+}

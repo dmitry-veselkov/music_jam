@@ -1,0 +1,21 @@
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.modal {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    background: black;
+    border: 1px solid green;
+    padding: 24px;
+    border-radius: 12px;
+    max-height: 90vh;
+    overflow-y: auto;
+}

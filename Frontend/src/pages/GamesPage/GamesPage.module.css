@@ -1,0 +1,11 @@
+.gamesContent {
+    width: 100%;
+    padding: 0 50px;
+}
+
+.gameOptions {
+    width: 100%;
+    height: 50px;
+    display: flex;
+    justify-content: space-between;
+}

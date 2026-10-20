@@ -21,6 +21,7 @@ public class Startup(IConfiguration configuration)
         };
 
         app
+            .UseHttpsRedirection()
             .UseRouting()
             .UseDefaultFiles(new DefaultFilesOptions { FileProvider = staticFileOptions.FileProvider })
             .UseStaticFiles(staticFileOptions)
