@@ -70,11 +70,22 @@ public class RoundStorage(AppDbContext db, QuestionStorage questionStorage) : IR
 
     public async Task<Round> Save(Guid packId, Round round)
     {
-        db.PackRounds.Add(new PackRound()
+        var entity = new DbRound
+        {
+            Title = round.Name,
+            
+            Questions = await (round,)
+        };
+ 
+        db.PackRounds.Add(new PackRound
         {
             PackId = packId,
-            Round = round
+            Round = entity,
+            Order = order
         });
+        await db.SaveChangesAsync(ct);
+ 
+        round.Id = entity.Id;
         return round;
     }
 

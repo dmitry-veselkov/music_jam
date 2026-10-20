@@ -3,5 +3,6 @@
 public class Round
 {
     public string Name { get; set; }
+    public int Order { get; set; }
     public Dictionary<string, Dictionary<int, Question>> Field { get; set; }
 }

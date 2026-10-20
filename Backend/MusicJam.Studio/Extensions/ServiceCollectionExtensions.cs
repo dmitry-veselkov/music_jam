@@ -24,7 +24,8 @@ public static class ServiceCollectionExtensions
         services
             .AddScoped<IUsersStorage, UsersStorage>()
             .AddScoped<ITrackStorage, TrackStorage>()
-            .AddScoped<IQuestionStorage, QuestionStorage>();
+            .AddScoped<IQuestionStorage, QuestionStorage>()
+            .AddScoped<IGameStorage, GameStorage>();
         return services;
     }
 }

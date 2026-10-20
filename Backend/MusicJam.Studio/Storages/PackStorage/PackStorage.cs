@@ -1,4 +1,5 @@
 ﻿using MusicJam.Studio.Infrustructure.Data.Configurations;
+using MusicJam.Studio.Models.Packs;
 using MusicJam.Studio.Models.Users;
 
 using DbPack = MusicJam.Studio.Infrustructure.Entities.Pack;
@@ -10,9 +11,15 @@ public class PackStorage(AppDbContext db, RoundStorage roundStorage) : IPackStor
 {
     public async Task<List<Pack>> TryGetPacksByUser(User user)
     {
-        return db.Packs
+        var packs = db.Packs
             .Where(x => x.UserId == user.Id)
-            .Select(x => ToModel(x))
+            .OrderBy(x => x.CreatedAtUtc)
+            .ToList();
+ 
+        var rounds = await roundStorage.TryGetByPackId(packs.Select(x => x.Id).ToList());
+ 
+        return packs
+            .Select(p => ToModel(p, rounds.TryGetValue(p.Id, out var r) ? r : new List<Round>()))
             .ToList();
     }
 
@@ -26,20 +33,12 @@ public class PackStorage(AppDbContext db, RoundStorage roundStorage) : IPackStor
         throw new NotImplementedException();
     }
     
-    public static Pack ToModel(DbPack e) => new()
+    public static Pack ToModel(DbPack e, List<Round> rounds) => new()
     {
-        Id = e.Id, 
-        Name = e.Title, 
-        Rounds = roundStorage.ToModel(e.Rounds), 
-        CreatedAtUtc = e.CreatedAtUtc, 
-        UpdatedAtUtc = e.UpdatedAtUtc
-    };
-    
-    public static DbPack ToDbModel(Pack e) => new()
-    {
-        Title = e.Name, 
-        Rounds = e.Rounds, 
-        CreatedAtUtc = e.CreatedAtUtc, 
+        Id = e.Id,
+        Name = e.Title,
+        Rounds = rounds,
+        CreatedAtUtc = e.CreatedAtUtc,
         UpdatedAtUtc = e.UpdatedAtUtc
     };
 }
