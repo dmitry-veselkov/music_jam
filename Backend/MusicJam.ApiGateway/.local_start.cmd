@@ -1,4 +1,4 @@
-﻿@echo off
+@echo off
 cd /d "%~dp0"
 
 pushd ..\..\Frontend
@@ -21,4 +21,4 @@ start dotnet run -c=Release
 
 timeout 3
 
-start https://localhost.musicjam.fun:5000
+start https://localhost:5000

@@ -13,7 +13,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://localhost.musicjam.fun:5555',
+        target: 'https://localhost:5000',
         secure: false,
         changeOrigin: true,
       },
