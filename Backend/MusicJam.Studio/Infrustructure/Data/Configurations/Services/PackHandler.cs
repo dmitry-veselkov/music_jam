@@ -1,0 +1,18 @@
+﻿using MusicJam.Studio.Infrustructure.Entities;
+
+namespace MusicJam.Studio.Infrustructure.Data.Configurations.Services;
+
+public class PackHandler
+{
+    private readonly AppDbContext _dataContext;
+    
+    public PackHandler(AppDbContext dataContext)
+        {
+            _dataContext = dataContext;
+        }
+
+        public Task<Pack?> Build(Guid packId)
+        {
+            throw new NotImplementedException();
+        } 
+}

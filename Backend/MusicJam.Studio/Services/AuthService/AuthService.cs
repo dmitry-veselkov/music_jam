@@ -20,7 +20,7 @@ internal class AuthService(
             return IAuthService.AuthError.UserNotFound;
         }
 
-        if (!PasswordHelper.Verify(request.Password, user.PasswordHash))
+        if (!PasswordHelper.Verify(request.Password, user.Password))
         {
             return IAuthService.AuthError.InvalidCredentials;
         }

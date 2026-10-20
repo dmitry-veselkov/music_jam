@@ -1,9 +1,11 @@
 ﻿using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using MusicJam.Studio.Configurations;
 using MusicJam.Studio.Constants;
 using MusicJam.Studio.Extensions;
+using MusicJam.Studio.Infrustructure.Data.Configurations;
 
 namespace MusicJam.Studio;
 
@@ -41,6 +43,9 @@ public class Startup(IConfiguration configuration)
                     };
                 });
         services.AddAuthorization();
+        services.AddDbContext<AppDbContext>(options =>
+            options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"))
+                .UseSnakeCaseNamingConvention());
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
