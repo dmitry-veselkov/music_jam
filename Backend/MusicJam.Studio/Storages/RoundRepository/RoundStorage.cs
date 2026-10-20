@@ -14,12 +14,6 @@ public class RoundStorage(AppDbContext db, QuestionStorage questionStorage) : IR
         Name = e.Title, 
         Field = TryGetRound(e.Id).Result
     };
-    
-    public Round ToModel(DbRound e) => new()
-    {
-        Name = e.Title, 
-        Field = TryGetRound(e.Id).Result
-    };
 
     public async Task<List<Round>> TryGetByPackId(Guid packId)
     {
@@ -93,4 +87,6 @@ public class RoundStorage(AppDbContext db, QuestionStorage questionStorage) : IR
     {
         throw new NotImplementedException();
     }
+    
+    private async 
 }

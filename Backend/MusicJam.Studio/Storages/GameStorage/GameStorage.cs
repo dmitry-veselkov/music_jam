@@ -1,4 +1,5 @@
-﻿using MusicJam.Studio.Infrustructure.Data.Configurations;
+﻿using Microsoft.EntityFrameworkCore;
+using MusicJam.Studio.Infrustructure.Data.Configurations;
 using DbGame = MusicJam.Studio.Infrustructure.Entities.Game;
 using Game = MusicJam.Studio.Models.Games.Game;
 
@@ -17,22 +18,44 @@ public class GameStorage(AppDbContext db) : IGameStorage
 
     public async Task<Game> SaveGame(Guid userId, Game game)
     {
-        return await db.Games.Add(ToDbModel(game, userId));
+        var entity = ToDbModel(game, userId);
+        db.Games.Add(entity);
+        await db.SaveChangesAsync();
+        return ToModel(entity);
     }
 
-    public Task Delete(Guid gameId)
+    public async Task Delete(Guid userId, Guid gameId)
     {
-        return _gameStorageImplementation.Delete(gameId);
+        var deleted =  await db.Games
+            .Where(x => x.UserId == userId && x.Id == gameId)
+            .FirstOrDefaultAsync();
+        db.Games.Remove(deleted);
+        await db.SaveChangesAsync();
     }
 
-    public Task GetGame(Guid userId, Guid gameId)
+    public async Task<Game?> GetGame(Guid userId, Guid gameId)
     {
-        return _gameStorageImplementation.GetGame(userId, gameId);
+        var game = db.Games
+            .FirstOrDefault(x => x.Id == gameId && x.UserId == userId);
+        return game is null ? null : ToModel(game);
     }
 
-    public Task UpdateGame(Guid userId, Game game)
+    public async Task<Game> UpdateGame(Guid userId, Game game)
     {
-        return _gameStorageImplementation.UpdateGame(userId, game);
+        var entity = await db.Games
+            .FirstOrDefaultAsync(x => x.UserId == userId && x.Id == game.Id);
+        if (entity is null)
+            return null;
+ 
+        entity.Title = game.Name;
+        entity.Description = game.Description;
+        entity.GameTime = ToUtc(game.PlannedStart);
+        entity.Mode = game.Mode;
+        entity.State = game.State;
+        entity.PackId = game.Pack.Id;
+ 
+        await db.SaveChangesAsync();
+        return ToModel(entity);
     }
     
     private static Game ToModel(DbGame e) => new()
@@ -46,13 +69,19 @@ public class GameStorage(AppDbContext db) : IGameStorage
     
     private static DbGame ToDbModel(Game e, Guid userId) => new()
     {
-        Description = e.Description,
-        PackId = PackStorage.e.Pack,
-        Mode = e.Mode,
-        State = e.State,
         UserId = userId,
-        Pack = e.Pack,
+        PackId = e.Pack.Id,
         Title = e.Name,
-        GameTime = e.PlannedStart
+        Description = e.Description,
+        GameTime = ToUtc(e.PlannedStart),
+        Mode = e.Mode,
+        State = e.State
+    };
+    
+    private static DateTime ToUtc(DateTime d) => d.Kind switch
+    {
+        DateTimeKind.Utc => d,
+        DateTimeKind.Local => d.ToUniversalTime(),
+        _ => DateTime.SpecifyKind(d, DateTimeKind.Utc)
     };
 }

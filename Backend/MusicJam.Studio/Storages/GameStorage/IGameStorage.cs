@@ -11,10 +11,10 @@ public interface IGameStorage
 
     Task<Game> SaveGame(Guid userId, Game game);
     
-    Task Delete(Guid gameId);
+    Task Delete(Guid userId, Guid gameId);
 
-    Task GetGame(Guid userId, Guid gameId);
+    Task<Game?> GetGame(Guid userId, Guid gameId);
     
-    Task UpdateGame(Guid userId, Game game);
+    Task<Game> UpdateGame(Guid userId, Game game);
 
 }
