@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MusicJam.Studio.Constants;
@@ -11,7 +12,7 @@ namespace MusicJam.Studio.Controllers;
 [ApiController]
 [Route("api/packs")]
 [Authorize(AuthenticationSchemes = AuthConstants.DefaultAuthorizationScheme)]
-public class PackController(IPackService packService) : ControllerBase
+public class PackController(IPackService packService, IMapper mapper) : ControllerBase
 {
    
     [HttpGet("short")]
@@ -19,18 +20,29 @@ public class PackController(IPackService packService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetShortPack([FromQuery] GetQuestionsQuery query)
+    public async Task<IActionResult> GetShortPack([FromQuery] GetPackRequest query)
     {
         if (!TryGetUserId(out var userId))
             return Unauthorized();
-        var result = await packService.GetShort(userId, new GetPackRequest()
-        {
-            Skip = query.Skip,
-            Take = query.Take
-        });
-        if (result.TryGetFault(out var error, out var packsShort))
-            return NotFound(error);
-        return Ok(new { packsShort });
+        var result = await packService.GetShort(userId, query);
+        return Ok(new { result });
+    }
+    
+    [HttpGet("cards")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [Produces("application/json")]
+    public async Task<IActionResult> GetCardPacks([FromQuery] GetPackRequest query)
+    {
+        if (!TryGetUserId(out var userId))
+            return Unauthorized();
+        var result = await packService.GetPacks(userId, query);
+        var packDTO = result
+            .Select(x => mapper.Map<GetPackResponse>(x))
+            .ToList();
+        return Ok(packDTO);
     }
     
 
@@ -39,7 +51,7 @@ public class PackController(IPackService packService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> CreatePack([FromForm] CreatePackRequest request)
+    public async Task<IActionResult> CreatePack([FromBody] CreatePackRequest request)
     {
         if (!TryGetUserId(out var userId))
             return Unauthorized();
@@ -66,17 +78,17 @@ public class PackController(IPackService packService) : ControllerBase
         return Ok(track);
     }
 
-    [HttpGet("{questionId:guid}/edit")]
+    [HttpGet("{packId:guid}/edit")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetPack(Guid questionId)
+    public async Task<IActionResult> GetPack(Guid packId)
     {
         if (!TryGetUserId(out var userId))
             return Unauthorized();
 
-        var result = await packService.GetPack(userId, questionId);
+        var result = await packService.GetPack(userId, packId);
         if (result.TryGetFault(out var error, out var pack))
             return NotFound(error);
         return Ok(pack);

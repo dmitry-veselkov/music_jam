@@ -39,8 +39,8 @@ internal class AuthService(
         var passwordHash = PasswordHelper.Hash(request.Password);
 
         user = new User(request.Email, passwordHash, request.Username);
-        await usersStorage.SaveUser(user);
+        var saved = await usersStorage.SaveUser(user);
 
-        return tokenService.GenerateToken(user);
+        return tokenService.GenerateToken(saved);
     }
 }

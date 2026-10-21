@@ -12,6 +12,9 @@ public interface IRoundStorage
 
 
     Task<(Round, Guid)> Save(Guid packId, int order, Round round);
-    Task<Round> Delete(Guid roundId, Round round);
+    
+    Task<(Round, Guid)> Update(Guid packId, int order, Round round);
+
+    Task Delete(Guid roundId);
     
 }

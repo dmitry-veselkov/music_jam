@@ -1,14 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MusicJam.Studio.Infrustructure.Data.Configurations;
 using MusicJam.Studio.Models.Packs;
-using MusicJam.Studio.Models.Users;
 
 using DbPack = MusicJam.Studio.Infrustructure.Entities.Pack;
 using Pack = MusicJam.Studio.Models.Packs.Pack;
 
 namespace MusicJam.Studio.Storages;
 
-public class PackStorage(AppDbContext db, RoundStorage roundStorage) : IPackStorage
+public class PackStorage(AppDbContext db, IRoundStorage roundStorage) : IPackStorage
 {
     public async Task<List<Pack>> TryGetPacksByUser(Guid userId)
     {
@@ -67,7 +66,8 @@ public class PackStorage(AppDbContext db, RoundStorage roundStorage) : IPackStor
         var order = 0;
         foreach (var round in pack.Rounds)
         {
-            rounds.Add(roundStorage.Save(packDb.Id, order, round).Result.Item1);
+            var (saved, _) = await roundStorage.Save(packDb.Id, order, round);
+            rounds.Add(saved);
             order++;
         }
         
@@ -96,34 +96,32 @@ public class PackStorage(AppDbContext db, RoundStorage roundStorage) : IPackStor
 
     public async Task<Pack> Update(Guid userId, Pack pack)
     {
-        if (await TryGetPackByUser(userId, pack.Id) is null)
+        var packDb = await TryGetPackByUser(userId, pack.Id);
+        if (packDb is null)
             return await SavePack(userId, pack);
-        else
+        packDb.Name = pack.Name;
+        packDb.UpdatedAtUtc = DateTime.UtcNow;
+        await db.SaveChangesAsync(); 
+        await using var tx = await db.Database.BeginTransactionAsync();
+            
+        var roundIds = await db.PackRounds
+            .Where(x => x.PackId == packDb.Id)
+            .Select(x => x.RoundId)
+            .ToListAsync();
+        foreach (var roundId in roundIds)
+            await roundStorage.Delete(roundId);
+ 
+        var rounds = new List<Round>();
+        var order = 0;
+        foreach (var round in pack.Rounds)
         {
-            var now = DateTime.UtcNow;
-            var packDb = new DbPack
-            {
-                UserId = userId,
-                Title = pack.Name,
-                CreatedAtUtc = pack.CreatedAtUtc,
-                UpdatedAtUtc = now,
-            };
-        
-            await using var tx = await db.Database.BeginTransactionAsync();
-            db.Packs.Add(packDb);
-            await db.SaveChangesAsync();
-        
-            var rounds = new List<Round>();
-            var order = 0;
-            foreach (var round in pack.Rounds)
-            {
-                rounds.Add(roundStorage.Save(packDb.Id, order, round).Result.Item1);
-                order++;
-            }
-        
-            await tx.CommitAsync();
-            return ToModel(packDb, rounds);
+            var (saved, _) = await roundStorage.Save(packDb.Id, order, round);
+            rounds.Add(saved);
+            order++;
         }
+        packDb.Rounds = rounds;
+        await tx.CommitAsync();
+        return packDb;
     }
 
     public static Pack ToModel(DbPack e, List<Round> rounds) => new()

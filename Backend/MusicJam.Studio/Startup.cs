@@ -1,11 +1,17 @@
-﻿using System.Text;
+﻿using System.Buffers;
+using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using MusicJam.Studio.Configurations;
 using MusicJam.Studio.Constants;
 using MusicJam.Studio.Extensions;
 using MusicJam.Studio.Infrustructure.Data.Configurations;
+using MusicJam.Studio.Models.Packs;
+using MusicJam.Studio.Requests;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace MusicJam.Studio;
 
@@ -17,7 +23,21 @@ public class Startup(IConfiguration configuration)
     {
         services.AddServices();
         services.AddStorages();
-        services.AddControllers();
+        services.AddControllers(options =>
+        {
+            options.OutputFormatters.Insert(0, new
+                NewtonsoftJsonOutputFormatter(new JsonSerializerSettings
+                {
+                    ContractResolver = new CamelCasePropertyNamesContractResolver()
+                }, ArrayPool<char>.Shared, options));
+            options.ReturnHttpNotAcceptable = true;
+            options.RespectBrowserAcceptHeader = true;
+        });
+
+        services.AddAutoMapper(cfg =>
+        {
+            cfg.CreateMap<Pack, GetPackResponse>();
+        }, new System.Reflection.Assembly[0]);
 
         var jwtSettings = new JwtSettings();
         Configuration.GetSection(nameof(JwtSettings)).Bind(jwtSettings);
@@ -45,7 +65,8 @@ public class Startup(IConfiguration configuration)
         services.AddAuthorization();
         services.AddDbContext<AppDbContext>(options =>
             options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"))
-                .UseSnakeCaseNamingConvention());
+                .UseSnakeCaseNamingConvention()
+                .EnableSensitiveDataLogging());
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

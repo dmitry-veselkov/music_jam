@@ -1,6 +1,6 @@
 ﻿namespace MusicJam.Studio.Infrustructure.Entities;
 
-public class RoundQuestion : Entity
+public class RoundQuestion
 {
     public Guid RoundId { get; set; }
     public Guid CategoryId { get; set; }

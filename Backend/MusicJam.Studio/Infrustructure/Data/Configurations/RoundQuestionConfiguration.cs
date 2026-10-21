@@ -8,7 +8,7 @@ internal sealed class RoundQuestionConfiguration : IEntityTypeConfiguration<Roun
     public void Configure(EntityTypeBuilder<RoundQuestion> builder)
     {
         builder.ToTable("round_question");
-        builder.HasKey(x => x.Id);
+        builder.HasKey(x => new {x.RoundId, x.QuestionId});
 
         builder.HasOne(x => x.Round)
             .WithMany(x => x.Questions)

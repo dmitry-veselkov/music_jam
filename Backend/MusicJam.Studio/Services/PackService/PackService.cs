@@ -1,11 +1,10 @@
 ﻿using MusicJam.Studio.Models.Games;
 using MusicJam.Studio.Models.Packs;
 using MusicJam.Studio.Requests;
-using MusicJam.Studio.Services.PackService;
 using MusicJam.Studio.Storages;
 using Shared;
 
-namespace MusicJam.Studio.Services.GameService;
+namespace MusicJam.Studio.Services.PackService;
 
 public class PackService(
     IPackStorage packStorage)
@@ -13,7 +12,7 @@ public class PackService(
 {
     private IPackService _packServiceImplementation;
 
-    public async Task<Result<List<(Guid, string)>, IPackService.PackError>> GetShort(Guid userId, GetPackRequest query)
+    public async Task<List<(Guid, string)>> GetShort(Guid userId, GetPackRequest query)
     {
         var packs = await packStorage.TryGetPacksByUser(userId);
         return packs.Select(x => (x.Id, x.Name))
@@ -35,6 +34,7 @@ public class PackService(
     {
         var pack = await packStorage.Update(userId, new Pack()
         {
+            Id = packId,
             Rounds = request.Rounds,
             Name = request.Name,
         });
@@ -55,5 +55,14 @@ public class PackService(
         if (pack is null)
             return IPackService.PackError.NotFound;
         return pack;
+    }
+    
+    public async Task<List<Pack>> GetPacks(Guid userId, GetPackRequest query)
+    {
+        var packIds = await packStorage.TryGetPacksByUser(userId);
+        return packIds
+            .Skip(query.Skip)
+            .Take(query.Take)
+            .ToList();
     }
 }

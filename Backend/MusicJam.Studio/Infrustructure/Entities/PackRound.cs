@@ -1,5 +1,5 @@
 ﻿namespace MusicJam.Studio.Infrustructure.Entities;
-public class PackRound : Entity
+public class PackRound
 {
     public Guid PackId { get; set; }
     public Guid RoundId { get; set; }

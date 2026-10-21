@@ -7,7 +7,7 @@ using Round = MusicJam.Studio.Models.Packs.Round;
 
 namespace MusicJam.Studio.Storages;
 
-public class RoundStorage(AppDbContext db, QuestionStorage questionStorage) : IRoundStorage
+public class RoundStorage(AppDbContext db) : IRoundStorage
 {
     public Round ToModel(DbRound e) => new()
     {
@@ -37,7 +37,7 @@ public class RoundStorage(AppDbContext db, QuestionStorage questionStorage) : IR
                     .ToDictionary(
                         g => g.First().Category.Name,
                         g => g.OrderBy(rq => rq.Cost)
-                            .ToDictionary(rq => rq.Cost, rq => questionStorage.ToModel(rq.Question)))
+                            .ToDictionary(rq => rq.Cost, rq => QuestionStorage.ToModel(rq.Question)))
             })
             .ToList();
     }
@@ -62,7 +62,7 @@ public class RoundStorage(AppDbContext db, QuestionStorage questionStorage) : IR
                 field[categoryName] = costs;
             }
 
-            costs[rq.Cost] = questionStorage.ToModel(rq.Question);
+            costs[rq.Cost] = QuestionStorage.ToModel(rq.Question);
         }
 
         return field;
@@ -102,7 +102,12 @@ public class RoundStorage(AppDbContext db, QuestionStorage questionStorage) : IR
         await db.SaveChangesAsync();
         return (round, dbRound.Id);
     }
-    
+
+    public Task<(Round, Guid)> Update(Guid packId, int order, Round round)
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task<Dictionary<string, Guid>> GetOrCreateCategories(IEnumerable<string> names)
     {
         var wanted = names.Distinct().ToList();
@@ -125,31 +130,6 @@ public class RoundStorage(AppDbContext db, QuestionStorage questionStorage) : IR
         var wanted = ids.Distinct().ToList();
         db.Categories.RemoveRange(
             db.Categories.Where(x => wanted.Contains(x.Id)));
-    }
-
-    public async Task<Round> Delete(Guid roundId, Round round)
-    {
-        
-        foreach (var (categoryName, costs) in round.Field)
-        {
-            db.RoundQuestions.RemoveRange(
-                db.RoundQuestions
-                    .Where(x => x.RoundId == roundId));
-        }
-        
-        db.PackRounds.RemoveRange(
-            db.PackRounds
-                .Where(x => x.RoundId == roundId));
-        
-        var categoryIds = await db.RoundQuestions
-            .Where(x => x.RoundId == roundId)
-            .Select(x => x.CategoryId)
-            .Distinct()
-            .ToListAsync();
-        
-        RemoveCategoriesByIds(categoryIds);
-        await db.SaveChangesAsync();
-        return round;
     }
     
     public async Task Delete(Guid roundId)

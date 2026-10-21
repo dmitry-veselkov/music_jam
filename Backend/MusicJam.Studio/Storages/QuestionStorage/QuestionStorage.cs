@@ -1,18 +1,25 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using MusicJam.Music;
 using MusicJam.Studio.Infrustructure.Data.Configurations;
 using DbQuestion = MusicJam.Studio.Infrustructure.Entities.Question;
 using Question = MusicJam.Studio.Models.Packs.Question;
 
 namespace MusicJam.Studio.Storages;
 
-public class QuestionStorage(AppDbContext db, TrackStorage trackStorage) : IQuestionStorage
+public class QuestionStorage(AppDbContext db) : IQuestionStorage
 {
-    public Question ToModel(DbQuestion e) => new()
+    public static Question ToModel(DbQuestion e) => new()
     {
         Requested = e.Requested,
         CorrectAnswer = e.CorrectAnswer,
-        AnswerTrack = trackStorage.ToModel(e.AnswerTrack),
-        QuestionTrack = trackStorage.ToModel(e.QuestionTrack)
+        AnswerTrack = new Track()
+        {
+            Link = e.AnswerTrack.Link
+        },
+        QuestionTrack = new Track()
+        {
+            Link = e.QuestionTrack.Link
+        },
     };
 
 

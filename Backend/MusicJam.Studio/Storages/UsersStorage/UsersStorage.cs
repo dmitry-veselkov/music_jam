@@ -17,17 +17,20 @@ internal class UsersStorage(AppDbContext db) : IUsersStorage
 
     public async Task<User> SaveUser(User user)
     {
-
-        await db.Users.AddAsync(new DbUser()
+        var saved = new DbUser()
         {
             Username = user.Username,
             Email = user.Email,
             Password = user.Password
-        });
+        };
+        await db.Users.AddAsync(saved);
         await db.SaveChangesAsync();
-        return new User(user.Email, user.Password, user.Username);
+        return ToModel(saved);
     }
     
-    private static User ToModel(DbUser e) => new(e.Email, e.Password, e.Username);
+    private static User ToModel(DbUser e) => new(e.Email, e.Password, e.Username)
+    {
+        Id = e.Id
+    };
 
 }

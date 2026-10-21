@@ -30,7 +30,7 @@ internal sealed class PackConfiguration : IEntityTypeConfiguration<Pack>
         public void Configure(EntityTypeBuilder<PackRound> builder)
         {
             builder.ToTable("pack_round");
-            builder.HasKey(x => x.Id);
+            builder.HasKey(x => new { x.PackId, x.RoundId });
             builder.Property(x => x.Order).IsRequired();
             
             builder.HasOne(x => x.Round)
@@ -38,7 +38,7 @@ internal sealed class PackConfiguration : IEntityTypeConfiguration<Pack>
                 .HasForeignKey(x => x.RoundId);
             
             builder.HasOne(x => x.Pack)
-                .WithMany()
+                .WithMany(x => x.Rounds)
                 .HasForeignKey(x => x.PackId);
         }
     }

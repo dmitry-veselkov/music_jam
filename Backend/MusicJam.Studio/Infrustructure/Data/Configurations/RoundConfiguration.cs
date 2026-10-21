@@ -8,7 +8,7 @@ internal sealed class RoundConfiguration : IEntityTypeConfiguration<Round>
 {
     public void Configure(EntityTypeBuilder<Round> builder)
     {
-        builder.ToTable("round");
+        builder.ToTable("rounds");
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Title).HasMaxLength(255).IsRequired();
     }
