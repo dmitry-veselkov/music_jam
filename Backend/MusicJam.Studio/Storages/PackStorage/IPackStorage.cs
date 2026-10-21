@@ -6,10 +6,11 @@ namespace MusicJam.Studio.Storages;
 
 public interface IPackStorage
 {
-    Task<List<Pack>> TryGetPacksByUser(User user);
+    Task<List<Pack>> TryGetPacksByUser(Guid userId);
 
-    Task<Pack> SavePack(Pack user);
+    Task<Pack> SavePack(Guid userId, Pack pack);
     
-    Task<Pack> CreatePack(Pack user);
-    Task<Pack> DeletePack(Pack user);
+    Task DeletePack(Guid userId, Pack pack);
+    
+    Task<Pack> Update(Guid userId, Pack pack);
 }
