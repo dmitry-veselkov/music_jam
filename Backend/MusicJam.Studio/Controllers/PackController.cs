@@ -89,15 +89,23 @@ public class PackController(IPackService packService, IMapper mapper) : Controll
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
-    public async Task<IActionResult> GetPack(Guid packId)
+    public async Task<IActionResult?> GetPack(Guid packId)
     {
+        EditPackResponse dto;
         if (!TryGetUserId(out var userId))
             return Unauthorized();
 
         var result = await packService.GetPack(userId, packId);
         if (result.TryGetFault(out var error, out var pack))
-            return NotFound(error);
-        var dto = new EditPackResponse
+        {
+            dto = new EditPackResponse()
+            {
+                PackId = packId,
+                Name = string.Empty,
+                Rounds = []
+            };
+        }
+        dto = new EditPackResponse
         {
             PackId = packId,
             Name = pack.Name,

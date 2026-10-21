@@ -52,6 +52,7 @@ public class PackStorage(AppDbContext db, IRoundStorage roundStorage) : IPackSto
         var now = DateTime.UtcNow;
         var packDb = new DbPack
         {
+            Id = pack.Id,
             UserId = userId,
             Title = pack.Name,
             CreatedAtUtc = now,
