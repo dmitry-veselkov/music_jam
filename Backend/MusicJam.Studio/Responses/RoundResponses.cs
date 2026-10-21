@@ -7,9 +7,13 @@ public class RoundResponse
     [Required]
     public string Name { get; set; }
 
-    [Required] public List<string> Categories { get; set; } = [];
-    [Required] public List<int> Costs { get; set; }  = [];
-    public List<QuestionResponse> Questions { get; set; } = [];
+    [Required]
+    public List<string> Categories { get; set; } = [];
+
+    [Required]
+    public List<int> Costs { get; set; } = [];
+
+    public List<List<QuestionResponse>> Questions { get; set; } = [];
 }
 
 public class QuestionResponse

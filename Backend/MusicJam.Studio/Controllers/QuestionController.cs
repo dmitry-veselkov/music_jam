@@ -30,19 +30,18 @@ public class QuestionController(IQuestionService questionService) : ControllerBa
     }
 
     [HttpPost]
-    [Consumes("multipart/form-data")]
     [ProducesResponseType(typeof(Question), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> CreateQuestion([FromForm] CreateQuestionRequest request)
+    public async Task<IActionResult> CreateQuestion([FromBody] CreateQuestionRequest request)
     {
         if (!TryGetUserId(out var userId))
             return Unauthorized();
         var result = await questionService.Create(userId, request);
         if (result.TryGetFault(out var error, out var question))
             return BadRequest(error);
-        return CreatedAtAction(nameof(GetQuestion), new { questionId = question.Id }, question);
+        return CreatedAtAction(nameof(GetQuestion), question);
     }
 
     [HttpGet("{questionId:guid}")]

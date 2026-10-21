@@ -12,6 +12,9 @@ public class GetQuestionsQuery
 
 public class CreateQuestionRequest
 {
+    [Required]
+    public Guid QuestionId { get; set; }
+    
     [Required, StringLength(512, MinimumLength = 1)]
     public string Requested { get; set; } = string.Empty;
  
@@ -19,10 +22,10 @@ public class CreateQuestionRequest
     public string CorrectAnswer { get; set; } = string.Empty;
  
     [Required]
-    public IFormFile QuestionTrackFile { get; set; } = null!;
+    public string QuestionTrack { get; set; } = null!;
  
     [Required]
-    public IFormFile AnswerTrackFile { get; set; } = null!;
+    public string AnswerTrack { get; set; } = null!;
 }
 
 public class UpdateQuestionRequest

@@ -13,6 +13,7 @@ public class GetPackRequest
 
 public class CreatePackRequest
 {
+    [Required] public Guid PackId;
     [Required, StringLength(255, MinimumLength = 1)]
     public string Name { get; set; } = string.Empty;
 

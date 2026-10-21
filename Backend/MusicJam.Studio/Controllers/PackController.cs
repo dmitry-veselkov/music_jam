@@ -47,19 +47,23 @@ public class PackController(IPackService packService, IMapper mapper) : Controll
     }
     
 
-    [HttpPost]
-    [ProducesResponseType(typeof(Pack), StatusCodes.Status201Created)]
+    [HttpPatch("{packId:guid}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> CreatePack([FromBody] CreatePackRequest request)
+    public async Task<IActionResult> UpdatePack(
+        Guid packId,
+        [FromBody] UpdatePackRequest request)
     {
         if (!TryGetUserId(out var userId))
             return Unauthorized();
-        var result = await packService.Create(userId, request);
+
+        var result = await packService.Update(userId, packId, request);
+
         if (result.TryGetFault(out var error, out var pack))
             return BadRequest(error);
-        return CreatedAtAction(nameof(GetPack), new { packId = pack.Id }, pack);
+        return Ok(pack);
     }
 
     
@@ -93,30 +97,39 @@ public class PackController(IPackService packService, IMapper mapper) : Controll
         var result = await packService.GetPack(userId, packId);
         if (result.TryGetFault(out var error, out var pack))
             return NotFound(error);
-        var dto = new EditPackResponse()
+        var dto = new EditPackResponse
         {
             PackId = packId,
             Name = pack.Name,
-            Rounds = pack.Rounds.Select(round => new RoundResponse()
+
+            Rounds = pack.Rounds.Select(round => new RoundResponse
             {
                 Name = round.Name,
+
                 Categories = round.Field.Keys.ToList(),
-                Costs = round.Field.Values
-                    .SelectMany(x => x.Keys)
-                    .Distinct()
-                    .ToList(),
-                Questions = round.Field.SelectMany(category =>
-                    category.Value.Select(question => new QuestionResponse
-                    {
-                        QuestionId = question.Value.Id,
-                        Category = category.Key,
-                        Cost = question.Key,
-                        CorrectAnswer = question.Value.CorrectAnswer,
-                        Requested = question.Value.Requested
-                    })
+
+                Costs = round.Field.Count > 0
+                    ? round.Field.First().Value.Keys
+                        .OrderBy(cost => cost)
+                        .ToList()
+                    : [],
+
+                Questions = round.Field.Select(category =>
+                    category.Value
+                        .OrderBy(question => question.Key)
+                        .Select(question => new QuestionResponse
+                        {
+                            QuestionId = question.Value.Id,
+                            Category = category.Key,
+                            Cost = question.Key,
+                            CorrectAnswer = question.Value.CorrectAnswer,
+                            Requested = question.Value.Requested
+                        })
+                        .ToList()
                 ).ToList()
             }).ToList()
         };
+
         return Ok(dto);
     }
 

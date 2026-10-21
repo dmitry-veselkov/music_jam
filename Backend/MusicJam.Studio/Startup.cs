@@ -31,7 +31,6 @@ public class Startup(IConfiguration configuration)
                 {
                     ContractResolver = new CamelCasePropertyNamesContractResolver()
                 }, ArrayPool<char>.Shared, options));
-            options.ReturnHttpNotAcceptable = true;
             options.RespectBrowserAcceptHeader = true;
         });
 
