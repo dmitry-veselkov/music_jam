@@ -1,5 +1,7 @@
 ﻿using MusicJam.Studio.Models.Games;
+using MusicJam.Studio.Models.Packs;
 using MusicJam.Studio.Requests;
+using MusicJam.Studio.Services.PackService;
 using MusicJam.Studio.Storages;
 using Shared;
 
@@ -7,30 +9,41 @@ namespace MusicJam.Studio.Services.GameService;
 
 public class PackService(
     IPackStorage packStorage)
-    : IGameService
+    : IPackService
 {
-    public Task<Result<List<Game>, IGameService.GameError>> GetQuestions(Guid userId, GetGameRequests query)
+    public async Task<Result<List<(Guid, string)>, IPackService.PackError>> GetShort(Guid userId, GetPackRequest query)
     {
-        throw new NotImplementedException();
+        var packs = await packStorage.TryGetPacksByUser(userId);
+        return packs.Select(x => (x.Id, x.Name))
+            .Skip(query.Skip)
+            .Take(query.Take)
+            .ToList();
+    }
+    public async Task<Result<Pack, IPackService.PackError>> Create(Guid userId, CreatePackRequest request)
+    {
+        var pack = await packStorage.SavePack(userId, new Pack()
+        {
+            Rounds = request.Rounds,
+            Name = request.Name,
+        });
+        return pack;
     }
 
-    public Task<Result<Game, IGameService.GameError>> Create(Guid userId, CreateGameRequests query)
+    public async Task<Result<Pack, IPackService.PackError>> Update(Guid userId, Guid packId, UpdatePackRequest request)
     {
-        throw new NotImplementedException();
+        var pack = await packStorage.Update(userId, new Pack()
+        {
+            Rounds = request.Rounds,
+            Name = request.Name,
+        });
+        return pack;
     }
 
-    public Task<Result<Game, IGameService.GameError>> Get(Guid gameId)
+    public async Task<Result<bool, IPackService.PackError>> Delete(Guid userId, Guid packId)
     {
-        throw new NotImplementedException();
-    }
-
-    public Task<Result<Guid, IGameService.GameError>> Delete(Guid userId, Guid gameId)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<Result<Game, IGameService.GameError>> Update(Guid userId, Guid gameId, UpdateGameRequests request)
-    {
-        throw new NotImplementedException();
+        var deleted = await packStorage.DeletePack(userId, packId);
+        if (!deleted)
+            return IPackService.PackError.NotFound;
+        return true;
     }
 }

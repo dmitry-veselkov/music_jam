@@ -120,14 +120,6 @@ public class RoundStorage(AppDbContext db, QuestionStorage questionStorage) : IR
         }
         return ids;
     }
-    
-    public void RemoveCategories(IEnumerable<string> names)
-    {
-        var wanted = names.Distinct().ToList();
-        db.Categories.RemoveRange(
-            db.Categories.Where(x => wanted.Contains(x.Name)));
-    }
-    
     public void RemoveCategoriesByIds(IEnumerable<Guid> ids)
     {
         var wanted = ids.Distinct().ToList();
@@ -137,7 +129,6 @@ public class RoundStorage(AppDbContext db, QuestionStorage questionStorage) : IR
 
     public async Task<Round> Delete(Guid roundId, Round round)
     {
-        RemoveCategories(round.Field.Keys);
         
         foreach (var (categoryName, costs) in round.Field)
         {
@@ -150,6 +141,13 @@ public class RoundStorage(AppDbContext db, QuestionStorage questionStorage) : IR
             db.PackRounds
                 .Where(x => x.RoundId == roundId));
         
+        var categoryIds = await db.RoundQuestions
+            .Where(x => x.RoundId == roundId)
+            .Select(x => x.CategoryId)
+            .Distinct()
+            .ToListAsync();
+        
+        RemoveCategoriesByIds(categoryIds);
         await db.SaveChangesAsync();
         return round;
     }
@@ -159,8 +157,6 @@ public class RoundStorage(AppDbContext db, QuestionStorage questionStorage) : IR
         var categoryIds = db.RoundQuestions
             .Where(x => x.RoundId == roundId)
             .Select(x => x.CategoryId);
-
-        RemoveCategoriesByIds(categoryIds);
         
         db.RoundQuestions.RemoveRange(
             db.RoundQuestions
@@ -169,7 +165,7 @@ public class RoundStorage(AppDbContext db, QuestionStorage questionStorage) : IR
         db.PackRounds.RemoveRange(
             db.PackRounds
                 .Where(x => x.RoundId == roundId));
-        
+        RemoveCategoriesByIds(categoryIds);
         await db.SaveChangesAsync();
     }
 }
