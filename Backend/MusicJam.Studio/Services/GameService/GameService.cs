@@ -9,7 +9,7 @@ public class GameService(
     IGameStorage gameStorage)
     : IGameService
 {
-    public Task<Result<List<Game>, IGameService.GameError>> GetQuestions(Guid userId, GetGameRequests query)
+    public Task<Result<List<Game>, IGameService.GameError>> GetGames(Guid userId, GetGameRequests query)
     {
         throw new NotImplementedException();
     }

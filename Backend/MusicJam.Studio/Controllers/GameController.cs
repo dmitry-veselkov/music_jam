@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MusicJam.Studio.Constants;
+using MusicJam.Studio.Models.Games;
 using MusicJam.Studio.Models.Packs;
 using MusicJam.Studio.Requests;
 using MusicJam.Studio.Services.GameService;
@@ -20,74 +21,78 @@ public class GameController(IGameService gameService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetQuestions([FromQuery] GetQuestionsQuery query, CancellationToken ct)
+    public async Task<IActionResult> GetGames([FromQuery] GetQuestionsQuery query)
     {
         if (!TryGetUserId(out var userId))
             return Unauthorized();
-        var result = await questionService.GetQuestions(userId, query, ct);
-        if (result.TryGetFault(out var error, out var questions))
+        var result = await gameService.GetGames(userId, new GetGameRequests()
+        {
+            Skip = query.Skip,
+            Take = query.Take
+        });
+        if (result.TryGetFault(out var error, out var games))
             return NotFound(error);
-        return Ok(new { questions });
+        return Ok(new { games });
     }
 
     [HttpPost]
-    [ProducesResponseType(typeof(Question), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(Game), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> CreateQuestion([FromForm] CreateQuestionRequest request, CancellationToken ct)
+    public async Task<IActionResult> CreateQuestion([FromForm] CreateGameRequests request)
     {
         if (!TryGetUserId(out var userId))
             return Unauthorized();
-        var result = await questionService.Create(userId, request, ct);
-        if (result.TryGetFault(out var error, out var question))
+        var result = await gameService.Create(userId, request);
+        if (result.TryGetFault(out var error, out var game))
             return BadRequest(error);
-        return CreatedAtAction(nameof(GetQuestion), new { questionId = question.Id }, question);
+        return CreatedAtAction(nameof(GetGame), new { packId = game.Id }, game);
     }
 
-    [HttpGet("{questionId:guid}")]
+    [HttpGet("{gameId:guid}")]
     [ProducesResponseType(typeof(Question), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetQuestion(Guid questionId, CancellationToken ct)
+    public async Task<IActionResult> GetGame(Guid gameId)
     {
         if (!TryGetUserId(out var userId))
             return Unauthorized();
-        var result = await questionService.Get(userId, questionId, ct);
-        if (result.TryGetFault(out var error, out var question))
+        var result = await gameService.Get(gameId);
+        if (result.TryGetFault(out var error, out var game))
             return NotFound(error);
-        return Ok(question);
+        return Ok(game);
     }
 
     
-    [HttpGet("{questionId:guid}/answer-track")]
+    [HttpPatch("{gameId:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetAnswerTrack(Guid questionId, CancellationToken ct)
+    public async Task<IActionResult> GetAnswerTrack(Guid gameId, UpdateGameRequests requests)
     {
         if (!TryGetUserId(out var userId))
             return Unauthorized();
 
-        var result = await questionService.GetAnswerTrack(userId, questionId, ct);
+        var result = await gameService.Update(userId, gameId, requests);
         if (result.TryGetFault(out var error, out var track))
             return NotFound(error);
         return Ok(track);
     }
 
-    [HttpGet("{questionId:guid}/question-track")]
+    [HttpDelete("{gameId:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetQuestionTrack(Guid questionId, CancellationToken ct)
+    public async Task<IActionResult> GetQuestionTrack(Guid gameId)
     {
         if (!TryGetUserId(out var userId))
             return Unauthorized();
 
-        var result = await questionService.GetQuestionTrack(userId, questionId, ct);
+        var result = await gameService.Delete(userId, gameId);
         if (result.TryGetFault(out var error, out var track))
             return NotFound(error);
         return Ok(track);

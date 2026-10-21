@@ -17,4 +17,7 @@ public interface IPackService
     Task<Result<Pack, PackError>> Update(Guid userId, Guid packId, UpdatePackRequest request);
     Task<Result<bool, IPackService.PackError>> Delete(Guid userId, Guid packId);
     
+    Task<Result<Pack, IPackService.PackError>> GetPack(Guid userId, Guid packId);
+
+    
 }

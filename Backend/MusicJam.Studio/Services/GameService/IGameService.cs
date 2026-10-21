@@ -12,7 +12,7 @@ public interface IGameService
         InvalidRequest,
     }
     
-    Task<Result<List<Game>, GameError>> GetQuestions(Guid userId, GetGameRequests query);
+    Task<Result<List<Game>, GameError>> GetGames(Guid userId, GetGameRequests query);
 
     Task<Result<Game, GameError>> Create(Guid userId, CreateGameRequests query);
 

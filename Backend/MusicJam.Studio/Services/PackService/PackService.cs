@@ -11,6 +11,8 @@ public class PackService(
     IPackStorage packStorage)
     : IPackService
 {
+    private IPackService _packServiceImplementation;
+
     public async Task<Result<List<(Guid, string)>, IPackService.PackError>> GetShort(Guid userId, GetPackRequest query)
     {
         var packs = await packStorage.TryGetPacksByUser(userId);
@@ -45,5 +47,13 @@ public class PackService(
         if (!deleted)
             return IPackService.PackError.NotFound;
         return true;
+    }
+
+    public async Task<Result<Pack, IPackService.PackError>> GetPack(Guid userId, Guid packId)
+    {
+        var pack = await packStorage.TryGetPackByUser(userId, packId);
+        if (pack is null)
+            return IPackService.PackError.NotFound;
+        return pack;
     }
 }
