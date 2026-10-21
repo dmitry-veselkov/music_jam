@@ -1,6 +1,6 @@
 import type { QueryClient } from "@tanstack/react-query";
 import type { QuestionDtoCard } from "@/entities/question";
-import { questionKeys } from "@/entities/question/api/question.queries.ts";
+import { questionKeys } from "@/entities/question";
 
 export const questionCache = {
   replace: (qc: QueryClient, updated: QuestionDtoCard) => {

@@ -1,5 +1,5 @@
 import type { PageParams } from "@/shared/api/pagination.ts";
-import type { GameDto } from "@/entities/game/model/types.ts";
+import type { GameDto } from "@/entities/game";
 import { http } from "@/shared/api/axios.ts";
 
 export const gameApi = {

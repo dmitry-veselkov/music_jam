@@ -1,10 +1,10 @@
 import { http, HttpResponse, delay } from 'msw';
 import type { PackCardDto } from "@/entities/pack";
 import { packsCards } from "@/app/mocks/data/packsCards.ts";
-import type { PackDto, PackShort, RoundDto } from "@/entities/pack/models/types.ts";
+import type { PackDto, PackShort, RoundDto } from "@/entities/pack";
 import { packs } from "@/app/mocks/data/packs.ts";
 import { paginate } from "@/app/mocks/paginate.ts";
-import type { PackRequest, RoundRequest } from "@/features/pack/model/schema.ts";
+import type { PackRequest, RoundRequest } from "@/features/pack";
 import { questionsDb } from "@/app/mocks/data/questionsDb.ts";
 
 const toCard = (pack: PackDto, creationDate = new Date().toISOString()): PackCardDto => ({

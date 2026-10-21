@@ -1,5 +1,5 @@
 import { http } from "@/shared/api/axios.ts";
-import type { PackCardDto, PackDto, PackShort } from "@/entities/pack/models/types.ts";
+import type { PackCardDto, PackDto, PackShort } from "@/entities/pack";
 import type { PageParams } from "@/shared/api/pagination.ts";
 
 export const packApi = {

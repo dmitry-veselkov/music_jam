@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { authApi } from "@/features/auth/api/auth.api.ts";
+import { authApi } from "@/features/auth";
 import { useNavigate } from "react-router";
 
 export const useRegister = () => {

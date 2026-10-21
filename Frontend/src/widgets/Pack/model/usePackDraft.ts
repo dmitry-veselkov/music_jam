@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import type { PackDto } from "@/entities/pack/models/types.ts";
-import { emptyCell, emptyRound, toDraft } from "@/entities/pack/models/mappers.ts";
-import type { CellDraft, PackDraftState, RoundDraft } from "@/entities/pack/models/draft.ts";
+import type { PackDto } from "@/entities/pack";
+import type { CellDraft, PackDraftState, RoundDraft } from "@/widgets/Pack/model/draft.ts";
+import { emptyCell, emptyRound, toDraft } from "@/widgets/Pack/model/mappers.ts";
 
 export const usePackDraft = (initial? : PackDto) => {
   const [packId] = useState(() => initial?.packId ?? crypto.randomUUID());
