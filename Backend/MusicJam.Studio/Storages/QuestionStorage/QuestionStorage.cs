@@ -26,6 +26,8 @@ public class QuestionStorage(AppDbContext db) : IQuestionStorage
     public async Task<List<Question>> TryGetAllUserQuestions(Guid id)
     {
         return db.Questions
+            .Include(q => q.QuestionTrack)
+            .Include(q => q.AnswerTrack)
             .Where(x => x.UserId == id)
             .Select(x => ToModel(x))
             .ToList();

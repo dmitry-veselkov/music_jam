@@ -89,7 +89,7 @@ public class PackController(IPackService packService, IMapper mapper) : Controll
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
-    public async Task<IActionResult?> GetPack(Guid packId)
+    public async Task<IActionResult> GetPack(Guid packId)
     {
         EditPackResponse dto;
         if (!TryGetUserId(out var userId))
@@ -98,46 +98,43 @@ public class PackController(IPackService packService, IMapper mapper) : Controll
         var result = await packService.GetPack(userId, packId);
         if (result.TryGetFault(out var error, out var pack))
         {
-            dto = new EditPackResponse()
+            return Ok(null);
+        }
+        else
+        {
+            dto = new EditPackResponse
             {
                 PackId = packId,
-                Name = string.Empty,
-                Rounds = []
+                Name = pack.Name,
+
+                Rounds = pack.Rounds.Select(round => new RoundResponse
+                {
+                    Name = round.Name,
+
+                    Categories = round.Field.Keys.ToList(),
+
+                    Costs = round.Field.Count > 0
+                        ? round.Field.First().Value.Keys
+                            .OrderBy(cost => cost)
+                            .ToList()
+                        : [],
+
+                    Questions = round.Field.Select(category =>
+                        category.Value
+                            .OrderBy(question => question.Key)
+                            .Select(question => new QuestionResponse
+                            {
+                                QuestionId = question.Value.Id,
+                                Category = category.Key,
+                                Cost = question.Key,
+                                CorrectAnswer = question.Value.CorrectAnswer,
+                                Requested = question.Value.Requested
+                            })
+                            .ToList()
+                    ).ToList()
+                }).ToList()
             };
         }
-        dto = new EditPackResponse
-        {
-            PackId = packId,
-            Name = pack.Name,
-
-            Rounds = pack.Rounds.Select(round => new RoundResponse
-            {
-                Name = round.Name,
-
-                Categories = round.Field.Keys.ToList(),
-
-                Costs = round.Field.Count > 0
-                    ? round.Field.First().Value.Keys
-                        .OrderBy(cost => cost)
-                        .ToList()
-                    : [],
-
-                Questions = round.Field.Select(category =>
-                    category.Value
-                        .OrderBy(question => question.Key)
-                        .Select(question => new QuestionResponse
-                        {
-                            QuestionId = question.Value.Id,
-                            Category = category.Key,
-                            Cost = question.Key,
-                            CorrectAnswer = question.Value.CorrectAnswer,
-                            Requested = question.Value.Requested
-                        })
-                        .ToList()
-                ).ToList()
-            }).ToList()
-        };
-
         return Ok(dto);
     }
 
