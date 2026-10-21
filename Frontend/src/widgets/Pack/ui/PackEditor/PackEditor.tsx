@@ -12,18 +12,19 @@ import { Button } from "@/shared/ui/Button/Button.tsx";
 import { usePack } from "@/entities/pack/api/pack.queries.ts";
 import { packSchema } from "@/features/pack/model/schema.ts";
 
-const PackEditor = ({ packId, initial } : { packId? : string, initial? : PackDto}) => {
+const PackEditor = ({ packId, initial } : { packId : string, initial? : PackDto}) => {
   const { data, isError } = usePack(packId);
   const source = initial ?? data;
 
   if (isError) return <div>Не удалось загрузить пак</div>;
 
-  return <PackEditorForm key={source?.packId ?? 'new'} initial={source} />;
+  return <PackEditorForm key={source?.packId ?? 'new'} packId={packId} initial={source} />;
 };
 
-const PackEditorForm = ({ initial }: { initial?: PackDto }) => {
-  const draft = usePackDraft(initial);
+export const PackEditorForm = ({ packId, initial }: { packId: string; initial?: PackDto }) => {
+  const draft = usePackDraft(packId, initial);
   const [activeTab, setActiveTab] = useState<Tab>('questions');
+
   const [error, setError] = useState('');
 
   const upsert = useUpsertPack();

@@ -3,8 +3,8 @@ import type { PackDto } from "@/entities/pack/models/types.ts";
 import { emptyCell, emptyRound, toDraft } from "@/entities/pack/models/mappers.ts";
 import type { CellDraft, PackDraftState, RoundDraft } from "@/entities/pack/models/draft.ts";
 
-export const usePackDraft = (initial? : PackDto) => {
-  const [packId] = useState(() => initial?.packId ?? crypto.randomUUID());
+export const usePackDraft = (packId: string, initial? : PackDto) => {
+  // const [packId] = useState(() => initial?.packId ?? crypto.randomUUID());
   const [pack, setPack] = useState<PackDraftState>(() => toDraft(initial));
   const [roundIndex, setRoundIndex] = useState(0);
 
