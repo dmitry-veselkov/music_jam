@@ -11,4 +11,5 @@ public interface IPackStorage
     Task<Pack> SavePack(Pack user);
     
     Task<Pack> CreatePack(Pack user);
+    Task<Pack> DeletePack(Pack user);
 }

@@ -5,6 +5,7 @@
     value character varying(512) COLLATE pg_catalog."default" NOT NULL,
     CONSTRAINT categories_pkey PRIMARY KEY (id_category)
     );
+
 CREATE TABLE IF NOT EXISTS public.games
 (
     id uuid NOT NULL,
@@ -25,6 +26,7 @@ CREATE TABLE IF NOT EXISTS public.games
                    ON UPDATE NO ACTION
                    ON DELETE NO ACTION
     );
+
 CREATE TABLE IF NOT EXISTS public.pack_round
 (
     id_pack uuid NOT NULL,
@@ -39,8 +41,9 @@ CREATE TABLE IF NOT EXISTS public.pack_round
     CONSTRAINT pack_round_id_round_fkey FOREIGN KEY (id_round)
     REFERENCES public.rounds (id) MATCH SIMPLE
     ON UPDATE NO ACTION
-    ON DELETE NO ACTION
+    ON DELETE CASCADE
     );
+
 CREATE TABLE IF NOT EXISTS public.packs
 (
     id_pack uuid NOT NULL,
@@ -68,6 +71,7 @@ CREATE TABLE IF NOT EXISTS public.question_usages
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     );
+
 CREATE TABLE IF NOT EXISTS public.questions
 (
     id uuid NOT NULL,
@@ -90,6 +94,7 @@ CREATE TABLE IF NOT EXISTS public.questions
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     );
+
 CREATE TABLE IF NOT EXISTS public.round_question
 (
     id_round uuid NOT NULL,

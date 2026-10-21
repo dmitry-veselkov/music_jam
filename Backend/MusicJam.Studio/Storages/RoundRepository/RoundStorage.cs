@@ -68,36 +68,81 @@ public class RoundStorage(AppDbContext db, QuestionStorage questionStorage) : IR
         return field;
     }
 
-    public async Task<Round> Save(Guid packId, Round round)
+    public async Task<(Round, Guid)> Save(Guid packId, int order, Round round)
     {
-        var entity = new DbRound
+        var categoryIds = await GetOrCreateCategories(round.Field.Keys);
+        
+        var slots = new List<RoundQuestion>();
+        foreach (var (categoryName, costs) in round.Field)
+        {
+            foreach (var (cost, question) in costs)
+            {
+                slots.Add(new RoundQuestion
+                {
+                    CategoryId = categoryIds[categoryName],
+                    Cost = cost,
+                    QuestionId = question.Id
+                });
+            }
+        }
+        
+        var dbRound = new DbRound
         {
             Title = round.Name,
-            
-            Questions = await (round,)
+            Questions = slots
         };
- 
+        
         db.PackRounds.Add(new PackRound
         {
             PackId = packId,
-            Round = entity,
+            Round = dbRound,
             Order = order
         });
-        await db.SaveChangesAsync(ct);
- 
-        round.Id = entity.Id;
-        return round;
+        
+        await db.SaveChangesAsync();
+        return (round, dbRound.Id);
     }
-
-    public Task<Round> Delete(Round round)
+    public async Task<Dictionary<string, Guid>> GetOrCreateCategories(IEnumerable<string> names)
     {
-        throw new NotImplementedException();
-    }
+        var wanted = names.Distinct().ToList();
 
-    public Task<Round> Update(Round round)
-    {
-        throw new NotImplementedException();
+        var ids = await db.Categories
+            .Where(c => wanted.Contains(c.Name))
+            .ToDictionaryAsync(c => c.Name, c => c.Id);
+
+        var nextOrder = (await db.Categories.MaxAsync(c => (int?)c.Order) ?? 0) + 1;
+        foreach (var name in wanted.Where(n => !ids.ContainsKey(n)))
+        {
+            var category = new Category { Name = name, Order = nextOrder++ };
+            db.Categories.Add(category);
+            ids[name] = category.Id;
+        }
+        return ids;
     }
     
-    private async 
+    public void RemoveCategories(IEnumerable<string> names)
+    {
+        var wanted = names.Distinct().ToList();
+        db.Categories.RemoveRange(
+            db.Categories.Where(x => wanted.Contains(x.Name)));
+    }
+
+    public async Task<Round> Delete(Guid roundId, Round round)
+    {
+        RemoveCategories(round.Field.Keys);
+        
+        foreach (var (categoryName, costs) in round.Field)
+        {
+            db.RoundQuestions.RemoveRange(
+                db.RoundQuestions
+                    .Where(x => x.RoundId == roundId));
+        }
+        
+        db.PackRounds.RemoveRange(
+            db.PackRounds
+                .Where(x => x.RoundId == roundId));
+        
+        await db.SaveChangesAsync();
+        return round;
+    }
 }

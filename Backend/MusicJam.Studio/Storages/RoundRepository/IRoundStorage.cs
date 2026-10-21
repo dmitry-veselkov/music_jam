@@ -11,7 +11,7 @@ public interface IRoundStorage
     Task<Dictionary<string, Dictionary<int, Question>>> TryGetRound(Guid roundId);
 
 
-    Task<Round> Save(Guid packId, Round round);
-    Task<Round> Delete(Round round);
-    Task<Round> Update(Round round);
+    Task<(Round, Guid)> Save(Guid packId, int order, Round round);
+    Task<Round> Delete(Guid roundId, Round round);
+    
 }
