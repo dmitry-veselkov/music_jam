@@ -1,4 +1,7 @@
-﻿using MusicJam.Studio.Services.AuthService;
+﻿using MusicJam.Studio.Models.Packs;
+using MusicJam.Studio.Services.AuthService;
+using MusicJam.Studio.Services.GameService;
+using MusicJam.Studio.Services.PackService;
 using MusicJam.Studio.Services.QuestionService;
 using MusicJam.Studio.Services.TokenService;
 using MusicJam.Studio.Storages;
@@ -14,7 +17,9 @@ public static class ServiceCollectionExtensions
             .AddScoped<IAuthService, AuthService>()
             .Decorate<IAuthService, AuthServiceLoggingDecorator>()
             .AddScoped<ITokenService, JwtTokenService>()
-            .AddScoped<IQuestionService, QuestionService>();
+            .AddScoped<IQuestionService, QuestionService>()
+            .AddScoped<IPackService, PackService>()
+            .AddScoped<IGameService, GameService>();
 
         return services;
     }
@@ -25,6 +30,8 @@ public static class ServiceCollectionExtensions
             .AddScoped<IUsersStorage, UsersStorage>()
             .AddScoped<ITrackStorage, TrackStorage>()
             .AddScoped<IQuestionStorage, QuestionStorage>()
+            .AddScoped<IRoundStorage, RoundStorage>()
+            .AddScoped<IPackStorage, PackStorage>()
             .AddScoped<IGameStorage, GameStorage>();
         return services;
     }
