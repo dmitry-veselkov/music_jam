@@ -19,11 +19,11 @@ public class QuestionController(IQuestionService questionService) : ControllerBa
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetQuestions([FromQuery] GetQuestionsQuery query, CancellationToken ct)
+    public async Task<IActionResult> GetQuestions([FromQuery] GetQuestionsQuery query)
     {
         if (!TryGetUserId(out var userId))
             return Unauthorized();
-        var result = await questionService.GetQuestions(userId, query, ct);
+        var result = await questionService.GetQuestions(userId, query);
         if (result.TryGetFault(out var error, out var questions))
             return NotFound(error);
         return Ok(new { questions });
@@ -34,11 +34,11 @@ public class QuestionController(IQuestionService questionService) : ControllerBa
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> CreateQuestion([FromForm] CreateQuestionRequest request, CancellationToken ct)
+    public async Task<IActionResult> CreateQuestion([FromForm] CreateQuestionRequest request)
     {
         if (!TryGetUserId(out var userId))
             return Unauthorized();
-        var result = await questionService.Create(userId, request, ct);
+        var result = await questionService.Create(userId, request);
         if (result.TryGetFault(out var error, out var question))
             return BadRequest(error);
         return CreatedAtAction(nameof(GetQuestion), new { questionId = question.Id }, question);
@@ -49,11 +49,11 @@ public class QuestionController(IQuestionService questionService) : ControllerBa
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetQuestion(Guid questionId, CancellationToken ct)
+    public async Task<IActionResult> GetQuestion(Guid questionId)
     {
         if (!TryGetUserId(out var userId))
             return Unauthorized();
-        var result = await questionService.Get(userId, questionId, ct);
+        var result = await questionService.Get(userId, questionId);
         if (result.TryGetFault(out var error, out var question))
             return NotFound(error);
         return Ok(question);
@@ -65,12 +65,12 @@ public class QuestionController(IQuestionService questionService) : ControllerBa
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetAnswerTrack(Guid questionId, CancellationToken ct)
+    public async Task<IActionResult> GetAnswerTrack(Guid questionId)
     {
         if (!TryGetUserId(out var userId))
             return Unauthorized();
 
-        var result = await questionService.GetAnswerTrack(userId, questionId, ct);
+        var result = await questionService.GetAnswerTrack(userId, questionId);
         if (result.TryGetFault(out var error, out var track))
             return NotFound(error);
         return Ok(track);
@@ -81,12 +81,12 @@ public class QuestionController(IQuestionService questionService) : ControllerBa
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetQuestionTrack(Guid questionId, CancellationToken ct)
+    public async Task<IActionResult> GetQuestionTrack(Guid questionId)
     {
         if (!TryGetUserId(out var userId))
             return Unauthorized();
 
-        var result = await questionService.GetQuestionTrack(userId, questionId, ct);
+        var result = await questionService.GetQuestionTrack(userId, questionId);
         if (result.TryGetFault(out var error, out var track))
             return NotFound(error);
         return Ok(track);
