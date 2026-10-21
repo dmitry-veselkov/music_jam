@@ -19,10 +19,10 @@ public class CreateQuestionRequest
     public string CorrectAnswer { get; set; } = string.Empty;
  
     [Required]
-    public string QuestionTrackFile { get; set; } = null!;
+    public IFormFile QuestionTrackFile { get; set; } = null!;
  
     [Required]
-    public string AnswerTrackFile { get; set; } = null!;
+    public IFormFile AnswerTrackFile { get; set; } = null!;
 }
 
 public class UpdateQuestionRequest

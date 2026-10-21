@@ -26,11 +26,11 @@ internal class QuestionService(
         {
             AnswerTrack = new Track()
             {
-                Link = request.AnswerTrackFile
+                Link = "answer"
             },
             QuestionTrack = new Track()
             {
-                Link = request.QuestionTrackFile
+                Link = "question"
             },
             Requested = request.Requested,
             CorrectAnswer = request.CorrectAnswer,

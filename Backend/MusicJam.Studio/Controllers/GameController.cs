@@ -11,7 +11,7 @@ using MusicJam.Studio.Services.QuestionService;
 namespace MusicJam.Studio.Controllers;
 
 [ApiController]
-[Route("api/questions")]
+[Route("api/games")]
 [Authorize(AuthenticationSchemes = AuthConstants.DefaultAuthorizationScheme)]
 public class GameController(IGameService gameService) : ControllerBase
 {

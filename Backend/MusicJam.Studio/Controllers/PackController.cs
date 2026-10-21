@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using MusicJam.Studio.Constants;
 using MusicJam.Studio.Models.Packs;
 using MusicJam.Studio.Requests;
+using MusicJam.Studio.Responses;
 using MusicJam.Studio.Services.PackService;
 
 namespace MusicJam.Studio.Controllers;
@@ -39,10 +40,10 @@ public class PackController(IPackService packService, IMapper mapper) : Controll
         if (!TryGetUserId(out var userId))
             return Unauthorized();
         var result = await packService.GetPacks(userId, query);
-        var packDTO = result
-            .Select(x => mapper.Map<GetPackResponse>(x))
+        var packDto = result
+            .Select(mapper.Map<GetPackResponse>)
             .ToList();
-        return Ok(packDTO);
+        return Ok(packDto);
     }
     
 
@@ -83,6 +84,7 @@ public class PackController(IPackService packService, IMapper mapper) : Controll
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [Produces("application/json")]
     public async Task<IActionResult> GetPack(Guid packId)
     {
         if (!TryGetUserId(out var userId))
@@ -91,7 +93,31 @@ public class PackController(IPackService packService, IMapper mapper) : Controll
         var result = await packService.GetPack(userId, packId);
         if (result.TryGetFault(out var error, out var pack))
             return NotFound(error);
-        return Ok(pack);
+        var dto = new EditPackResponse()
+        {
+            PackId = packId,
+            Name = pack.Name,
+            Rounds = pack.Rounds.Select(round => new RoundResponse()
+            {
+                Name = round.Name,
+                Categories = round.Field.Keys.ToList(),
+                Costs = round.Field.Values
+                    .SelectMany(x => x.Keys)
+                    .Distinct()
+                    .ToList(),
+                Questions = round.Field.SelectMany(category =>
+                    category.Value.Select(question => new QuestionResponse
+                    {
+                        QuestionId = question.Value.Id,
+                        Category = category.Key,
+                        Cost = question.Key,
+                        CorrectAnswer = question.Value.CorrectAnswer,
+                        Requested = question.Value.Requested
+                    })
+                ).ToList()
+            }).ToList()
+        };
+        return Ok(dto);
     }
 
     private bool TryGetUserId(out Guid userId)

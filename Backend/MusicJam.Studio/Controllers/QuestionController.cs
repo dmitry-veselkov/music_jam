@@ -30,6 +30,7 @@ public class QuestionController(IQuestionService questionService) : ControllerBa
     }
 
     [HttpPost]
+    [Consumes("multipart/form-data")]
     [ProducesResponseType(typeof(Question), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

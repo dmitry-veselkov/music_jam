@@ -10,6 +10,7 @@ using MusicJam.Studio.Extensions;
 using MusicJam.Studio.Infrustructure.Data.Configurations;
 using MusicJam.Studio.Models.Packs;
 using MusicJam.Studio.Requests;
+using MusicJam.Studio.Responses;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
@@ -36,7 +37,8 @@ public class Startup(IConfiguration configuration)
 
         services.AddAutoMapper(cfg =>
         {
-            cfg.CreateMap<Pack, GetPackResponse>();
+            cfg.CreateMap<Pack, GetPackResponse>()
+                .ForMember(d => d.PackId, o => o.MapFrom(s => s.Id));
         }, new System.Reflection.Assembly[0]);
 
         var jwtSettings = new JwtSettings();
