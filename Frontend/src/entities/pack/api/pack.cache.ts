@@ -1,6 +1,6 @@
 import type { QueryClient } from "@tanstack/react-query";
-import { packKeys } from "@/entities/pack/api/pack.queries.ts";
-import type { PackDto } from "@/entities/pack/models/types.ts";
+import { packKeys } from "@/entities/pack";
+import type { PackDto } from "@/entities/pack";
 
 export const packCache = {
   replace: (qc: QueryClient, updated: PackDto) => {

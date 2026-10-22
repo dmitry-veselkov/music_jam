@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
-import { useGames } from "@/entities/game/api/game.queries.ts";
+import { useGames } from "@/entities/game";
 import styles from "@/widgets/PackCardList/PackCardList.module.css";
-import GameCard from "@/entities/game/ui/GameCard.tsx";
+import { GameCard } from "@/entities/game";
+import { DeleteGameButton } from "@/features/game";
+import { EditGameButton } from "@/features/game";
 
 const PAGE_SIZE = 12;
 
@@ -19,7 +21,12 @@ const GameCardList = () => {
     <div>
       <ul className={styles.packList}>
         {items.map((game) => (
-          <GameCard key={game.gameId} game={game}  />
+          <GameCard
+            key={game.gameId}
+            game={game}
+            cornerActions={<DeleteGameButton game={game} />}
+            mainAction={<EditGameButton gameId={game.gameId} />}
+          />
         ))}
       </ul>
     </div>

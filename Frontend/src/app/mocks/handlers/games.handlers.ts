@@ -1,9 +1,9 @@
 import { delay, http, HttpResponse } from "msw";
 import { paginate } from "@/app/mocks/paginate.ts";
-import type { GameDto } from "@/entities/game/model/types.ts";
+import type { GameDto } from "@/entities/game";
 import { games } from "@/app/mocks/data/games.ts";
 import { packs } from "@/app/mocks/data/packs.ts";
-import { gameRequestSchema } from "@/features/game-form/model/schema.ts";
+import { gameRequestSchema } from "@/features/game";
 
 export const gamesHandlers = [
   http.get('/api/games', async ({ request }) => {
@@ -42,5 +42,14 @@ export const gamesHandlers = [
 
     await delay(300);
     return new HttpResponse(null, { status: existing ? 204 : 201 });
+  }),
+  http.delete('/api/games/:id', async ({ params }) => {
+    const idx = games.findIndex((p) => p.gameId === params.id);
+    if (idx === -1) return new HttpResponse(null, { status: 404 });
+
+    games.splice(idx, 1);
+
+    await delay(300);
+    return new HttpResponse(null, { status: 204 });
   }),
 ]

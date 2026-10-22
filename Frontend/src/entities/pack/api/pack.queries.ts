@@ -1,5 +1,5 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { packApi } from "@/entities/pack/api/pack.api.ts";
+import { packApi } from "@/entities/pack";
 import type { PageParams } from "@/shared/api/pagination.ts";
 
 export const packKeys = {

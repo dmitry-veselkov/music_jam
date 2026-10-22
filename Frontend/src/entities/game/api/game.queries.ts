@@ -1,6 +1,6 @@
 import type { PageParams } from "@/shared/api/pagination.ts";
 import { useQuery } from "@tanstack/react-query";
-import { gameApi } from "@/entities/game/api/game.api.ts";
+import { gameApi } from "@/entities/game";
 
 export const useGames = (params : PageParams) => {
   return useQuery({

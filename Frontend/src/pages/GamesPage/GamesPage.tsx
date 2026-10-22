@@ -4,7 +4,7 @@ import { Button } from "@/shared/ui/Button/Button.tsx";
 import GameCardList from "@/widgets/GameCardList/GameCardList.tsx";
 import { useState } from "react";
 import Modal from "@/shared/ui/Modal/Modal.tsx";
-import GameEditor from "@/features/game-form/ui/GameEditor";
+import { GameEditor } from "@/features/game";
 
 const GamesPage = () => {
   const [isCreateOpen, setIsCreateOpen] = useState(false);

@@ -1,4 +1,4 @@
-import type { PackShort } from "@/entities/pack/models/types.ts";
+import type { PackShort } from "@/entities/pack";
 
 export const MODES = {
   withHost : {value : 'withHost', label : 'С ведущим'},

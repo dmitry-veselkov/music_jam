@@ -1,4 +1,4 @@
-import type { AuthRequest, LoginRequest } from "@/features/auth/model/schema.ts";
+import type { AuthRequest, LoginRequest } from "@/features/auth";
 import { http } from "@/shared/api/axios.ts";
 
 export const authApi = {
