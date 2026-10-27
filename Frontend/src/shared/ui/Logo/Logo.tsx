@@ -14,8 +14,6 @@ const Logo = ({extraClass = ''} : LogoProps) => {
       <img
         src="/Logo.svg"
         alt="Logo"
-        width="150"
-        height="150"
         onClick={() => navigate("/")}
       />
     </div>

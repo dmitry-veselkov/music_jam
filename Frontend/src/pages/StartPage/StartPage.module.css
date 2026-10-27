@@ -1,41 +1,198 @@
-.heroSection {
+.page {
     flex: 1;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: space-evenly;
+    gap: clamp(1rem, 3vh, 3rem);
+    width: 100%;
+    max-width: 90rem;
+    margin-inline: auto;
+    padding-inline: clamp(1rem, 4vw, 2rem);
+}
+
+.hero {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
     align-items: center;
-    text-align: center;
-    padding: var(--spacing-lg) var(--spacing-md);
+    gap: clamp(2rem, 6vw, 8rem);
 }
 
-.heroTitle {
-    font-size: clamp(2rem, 8vw, 3.5rem);
-    margin-bottom: var(--spacing-md);
-    background: linear-gradient(90deg, var(--color-primary), #ffffff);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+.createGame {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(2rem, 4vw, 4.5rem);
+}
+
+.description {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    max-width: 35.25rem;
+}
+
+.title {
+    margin: 0;
+    font-size: clamp(2.25rem, 5vw, 4rem);
+    font-weight: 700;
     line-height: 1.1;
-    word-break: break-word;
+    color: var(--color-primary);
 }
 
-.heroDescription {
+.subtitle {
+    margin: 0;
+    font-family: var(--font-description), sans-serif;
+    font-size: clamp(1rem, 1.5vw, 1.25rem);
     color: var(--color-text-muted);
-    max-width: 480px;
-    margin-bottom: var(--spacing-lg);
 }
 
-
-
-/* ===== Адаптив ===== */
-
-@media (max-width: 768px) {
-    .hero-section {
-        padding: var(--spacing-md);
-    }
+.createButton,
+.joinButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    min-height: 4.2rem;
+    padding: 0.4rem 1.6rem;
+    border: none;
+    border-radius: var(--radius-control);
+    font: inherit;
+    font-size: clamp(1.15rem, 1.5vw, 1.5rem);
+    color: var(--color-text);
+    cursor: pointer;
+    transition: filter var(--transition-fast);
 }
 
-@media (max-width: 480px) {
-    .hero-title {
-        margin-bottom: var(--spacing-xs);
-    }
+.createButton:hover,
+.joinButton:hover {
+    filter: brightness(1.1);
+}
+
+.createButton {
+    align-self: flex-start;
+    width: min(100%, 27.5rem);
+    background: var(--color-surface-muted);
+}
+
+.plus {
+    font-size: 2rem;
+    line-height: 1;
+}
+
+.joinButton {
+    background: var(--color-primary);
+}
+
+.joinCard {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    width: 100%;
+    max-width: 32.25rem;
+    justify-self: end;
+    padding: 2rem clamp(1.25rem, 3vw, 2.4rem);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+}
+
+.joinHeader {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+}
+
+.joinTitle {
+    margin: 0;
+    font-size: clamp(1.5rem, 2.5vw, 2rem);
+    font-weight: 700;
+}
+
+.joinHint {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--color-text-muted);
+}
+
+.codeField {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    padding: 1.4rem 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-control);
+}
+
+.codeLabel {
+    font-size: 1rem;
+}
+
+.codeInput {
+    width: 100%;
+    padding: 0.65rem 1rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 0;
+    font: inherit;
+    font-size: 1.3rem;
+    text-align: center;
+    letter-spacing: 0.1em;
+    color: var(--color-text);
+    transition: border-color var(--transition-fast);
+}
+
+.codeInput::placeholder {
+    color: var(--color-text-muted);
+}
+
+.codeInput:focus-visible {
+    outline: 0.125rem solid var(--color-primary);
+    outline-offset: 0.125rem;
+}
+
+.codeInputError {
+    border-color: var(--color-wrong-text);
+}
+
+.steps {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(1.5rem, 3vw, 2.9rem);
+}
+
+.stepsTitle {
+    margin: 0;
+    font-size: clamp(1.5rem, 2.5vw, 2rem);
+    font-weight: 700;
+}
+
+.stepsList {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+    gap: clamp(1rem, 3vw, 5.75rem);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.step {
+    display: flex;
+    align-items: center;
+    gap: clamp(1rem, 2.5vw, 2.5rem);
+    min-height: 11rem;
+    padding: 1.5rem clamp(1.25rem, 2.5vw, 2.2rem);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+}
+
+.stepNumber {
+    font-size: clamp(3rem, 5vw, 4rem);
+    font-weight: 700;
+    line-height: 1;
+    color: var(--color-primary);
+}
+
+.stepText {
+    flex: 1;
+    font-size: clamp(1.05rem, 1.5vw, 1.25rem);
+    font-weight: 500;
 }

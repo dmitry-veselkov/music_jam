@@ -1,19 +1,35 @@
 ﻿:root {
     --color-bg: #121212;
-    --color-surface: #1e1e1e;
-    --color-primary: #1db954;
-    --color-primary-hover: #1ed760;
-    --color-secondary: #282828;
-    --color-secondary-hover: #3E3E3E;
-    --color-text: #ffffff;
-    --color-text-muted: #a0a0a0;
-    --color-border: #3e3e3e;
+    --color-surface: #282828;
+    --color-surface-muted: #3E3E3E;
+    --color-surface-muted-hover: #4a4a4a;
+
+    /* Текст */
+    --color-text: #FFFFFF;
+    --color-text-muted: #BAB9D6;
+
+    /* Акцент */
+    --color-primary: #32C76A;
+    --color-primary-hover: #2bb05d;
+
+    /* Границы */
+    --color-border: #BAB9D6;
+
     --color-wrong-text: #ae0000;
 
-    --spacing-xs: 8px;
-    --spacing-md: 16px;
-    --spacing-lg: 32px;
-    --spacing-xl: 40px;
+    --font-base: "Montserrat Variable", system-ui;
+    --font-description : "Segoe UI";
+
+    /* Отступы: в rem, чтобы масштабировались */
+    --spacing-xs: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 2rem;
+    --spacing-xl: 2.5rem;
+
+    /* Радиусы: в rem */
+    --radius-card: 1.625rem;
+    --radius-control: 0.625rem;
+    --radius-pill: 999rem;
 
     --transition-fast: 0.2s ease;
     --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.3);

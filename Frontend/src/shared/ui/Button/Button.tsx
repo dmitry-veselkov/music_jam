@@ -1,45 +1,68 @@
-import styles from "./Button.module.css";
+import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from "react";
 import clsx from "clsx";
+import styles from "./Button.module.css";
 
-type ButtonType = 'primary' | 'secondary' | "outline";
+export type ButtonVariant = "primary" | "secondary" | "outline" | "muted";
+export type ButtonSize = "sm" | "md" | "lg";
+export type ButtonShape = "pill" | "rounded";
 
-type ButtonProps = {
-  text: string;
-  id? : string;
-  type?: 'submit' | 'button';
-  variant?: ButtonType;
+export type ButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children"> & {
+  text?: string;
+  children?: ReactNode;
+  variant?: ButtonVariant;
+  size?: ButtonSize;
+  shape?: ButtonShape;
+  fullWidth?: boolean;
   loading?: boolean;
-  disabled?: boolean;
-  extraClass?: string;
-  onClick?: () => void;
-}
-
-const variantClass: Record<ButtonType, string> = {
-  primary: styles.btnPrimary,
-  secondary: styles.btnSecondary,
-  outline: styles.btnOutline,
+  startIcon?: ReactNode;
+  endIcon?: ReactNode;
 };
 
-export const Button = ({
-  text,
-  id = '',
-  type = 'button',
-  variant = 'primary',
-  disabled = false,
-  loading = false,
-  extraClass = '',
-  onClick = () => {}
-} : ButtonProps) => {
-  return (
-    <button
-      id={id}
-      type={type}
-      className={clsx(styles.btn, variantClass[variant], loading && styles.loading, extraClass)}
-      onClick={onClick}
-      disabled={disabled || loading}
-    >
-      <span className={styles.btnText}>{text}</span>
-      <span className={styles.btnSpinner} />
-    </button>
-  );
-};
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+  (
+    {
+      text,
+      children,
+      variant = "primary",
+      size = "md",
+      shape = "pill",
+      fullWidth = false,
+      loading = false,
+      disabled,
+      startIcon,
+      endIcon,
+      type = "button",
+      className,
+      ...rest
+    },
+    ref,
+  ) => {
+    return (
+      <button
+        ref={ref}
+        type={type}
+        className={clsx(
+          styles.btn,
+          styles[variant],
+          styles[size],
+          styles[shape],
+          fullWidth && styles.fullWidth,
+          loading && styles.loading,
+          className,
+        )}
+        disabled={disabled || loading}
+        aria-busy={loading || undefined}
+        {...rest}
+      >
+        <span className={styles.inner}>
+          {startIcon && <span className={styles.icon} aria-hidden="true">{startIcon}</span>}
+          {children ?? text}
+          {endIcon && <span className={styles.icon} aria-hidden="true">{endIcon}</span>}
+        </span>
+        {loading && <span className={styles.spinner} aria-hidden="true" />}
+      </button>
+    );
+  },
+);
+
+Button.displayName = "Button";

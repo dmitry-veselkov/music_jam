@@ -1,3 +1,5 @@
+import type { GameShort } from "@/entities/game";
+
 export type PackShort = {
   packId : string;
   name : string;
@@ -6,7 +8,7 @@ export type PackShort = {
 export type PackCardDto = PackShort & {
   creationDate : string;
   lastUpdateDate : string;
-  // usages : PackShort[]
+  usages : GameShort[]
 }
 
 export type PackDto = PackShort & {

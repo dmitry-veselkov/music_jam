@@ -3,6 +3,7 @@ import styles from "./PackCardList.module.css";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { DeletePackButton } from "@/features/pack/ui/DeletePackButton/DeletePackButton.tsx";
+import Pagination from "@/shared/ui/Pagination/Pagination.tsx";
 
 const PAGE_SIZE = 12;
 
@@ -16,9 +17,10 @@ const PackCardList = () => {
   }, [data, page]);
 
   const items = data ?? []
+  const totalPages = Math.ceil((items.length ?? 0) / PAGE_SIZE);
 
   return (
-    <div>
+    <section className={styles.list}>
       <ul className={styles.packList}>
         {items.map((pack) => (
           <PackCard
@@ -29,7 +31,8 @@ const PackCardList = () => {
           />
         ))}
       </ul>
-    </div>
+      <Pagination page={page + 1} totalPages={totalPages} onChange={(p) => setPage(p - 1)} />
+    </section>
   );
 };
 

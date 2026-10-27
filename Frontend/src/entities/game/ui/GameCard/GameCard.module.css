@@ -1,37 +1,101 @@
 .card {
-    width: 200px;
-    height: 200px;
-
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-    justify-content: space-between;
-    gap: 16px;
-
-    color: var(--color-primary);
-    border: 2px solid var(--color-primary);
-    border-radius: 8px;
-
-    position: relative;
-}
-
-.cornerActions {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-}
-
-.nameAndButton {
-    height: 100%;
-    width: 80%;
-
     display: flex;
     flex-direction: column;
-    justify-content: center;
-
+    gap: 1.25rem;
+    padding: 1.25rem;
+    border: 1px solid var(--color-text);
+    border-radius: var(--radius-card);
+    color: var(--color-text);
 }
 
 .name {
+    margin: 0;
+    font-size: clamp(1.4rem, 2vw, 2rem);
+    font-weight: 700;
     text-align: center;
-    font-size: 25px;
+    color: var(--color-text);
+    overflow-wrap: anywhere;
+}
+
+.when {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.time {
+    font-size: clamp(1.5rem, 2vw, 2rem);
+    color: var(--color-primary);
+}
+
+.date {
+    font-size: 1rem;
+    color: var(--color-text);
+}
+
+.pack {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    margin: 0;
+}
+
+.packLabel {
+    font-size: 0.95rem;
+    color: var(--color-text-muted);
+}
+
+.packName {
+    font-size: 1.25rem;
+    color: var(--color-text);
+}
+
+.facts {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin: 0;
+    font-size: clamp(1rem, 1.3vw, 1.2rem);
+}
+
+.fact {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.fact dt {
+    font-weight: 700;
+}
+
+.fact dd {
+    margin: 0;
+    color: var(--color-primary);
+}
+
+.card {
+    position: relative;
+}
+
+.clickable {
+    cursor: pointer;
+    transition: border-color var(--transition-fast);
+}
+
+.clickable:hover {
+    border-color: var(--color-primary);
+}
+
+.corner {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+}
+
+.name {
+    padding-inline: 1.75rem;
+}
+
+.action {
+    margin-top: auto;
 }

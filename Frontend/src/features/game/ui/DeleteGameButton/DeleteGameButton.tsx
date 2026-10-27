@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { ConfirmDialog } from "@/shared/ui/ConfirmDialog/ConfirmDialog";
 import type { GameDto } from "@/entities/game";
-import styles from "./DeleteGameButton.module.css";
 import { useDeleteGame } from "@/features/game";
 
 export const DeleteGameButton = ({ game }: { game: GameDto }) => {
@@ -10,14 +9,12 @@ export const DeleteGameButton = ({ game }: { game: GameDto }) => {
 
   return (
     <>
-      <button
-        type="button"
-        className={styles.button}
-        aria-label="Удалить игру"
+      <img
+        src="/Garbage.svg"
+        alt="GarbageGame"
         onClick={() => setOpen(true)}
-      >
-        🗑️
-      </button>
+        aria-label="Удалить игру"
+      />
       <ConfirmDialog
         open={open}
         title="Удалить игру?"

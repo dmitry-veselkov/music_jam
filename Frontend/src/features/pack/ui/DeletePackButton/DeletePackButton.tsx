@@ -13,9 +13,12 @@ export const DeletePackButton = ({ pack }: { pack: PackCardDto }) => {
 
   return (
     <>
-      <button type="button" onClick={() => setOpen(true)} aria-label="Удалить пак">
-        🗑️
-      </button>
+      <img
+        src="/Garbage.svg"
+        alt="GarbagePack"
+        onClick={() => setOpen(true)}
+        aria-label="Удалить пак"
+      />
       <ConfirmDialog
         open={open}
         title="Удалить пак?"

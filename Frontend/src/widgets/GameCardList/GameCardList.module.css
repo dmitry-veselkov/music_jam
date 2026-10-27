@@ -1,0 +1,11 @@
+.pager {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.pageNumber {
+    min-width: 2rem;
+    text-align: center;
+}

@@ -1,11 +1,25 @@
 .packsContent {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(1.5rem, 4vh, 3rem);
     width: 100%;
-    padding: 0 50px;
+    max-width: 90rem;
+    margin-inline: auto;
+    padding-inline: clamp(1rem, 4vw, 2rem);
+    padding-bottom: 2rem;
 }
 
 .packOptions {
-    width: 100%;
-    height: 50px;
     display: flex;
+    align-items: center;
     justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.title {
+    margin: 0;
+    font-size: clamp(1.75rem, 3vw, 2.5rem);
+    font-weight: 700;
 }

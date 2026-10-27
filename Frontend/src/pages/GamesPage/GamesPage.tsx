@@ -5,23 +5,23 @@ import GameCardList from "@/widgets/GameCardList/GameCardList.tsx";
 import { useState } from "react";
 import Modal from "@/shared/ui/Modal/Modal.tsx";
 import { GameEditor } from "@/features/game";
+import PageHeader from "@/shared/ui/PageHeader/PageHeader";
+import Layout from "@/shared/ui/Layout/Layout.tsx";
 
 const GamesPage = () => {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   return (
-    <div>
+    <Layout>
       <Header showAuthButtons={false}/>
-      <div className={styles.gamesContent}>
-        <div className={styles.gameOptions}>
-          <h1>Мои игры</h1>
-          <Button
-            text="Создать игру"
-            onClick={() => setIsCreateOpen(true)}
-          />
-        </div>
+      <main className={styles.content}>
+        <PageHeader title="Игры">
+          <Button startIcon="+" onClick={() => setIsCreateOpen(true)}>
+            Создать новую игру
+          </Button>
+        </PageHeader>
         <GameCardList />
-      </div>
+      </main>
       <Modal
         isOpen={isCreateOpen}
         onClose={() => setIsCreateOpen(false)}
@@ -31,7 +31,7 @@ const GamesPage = () => {
           <GameEditor onSaved={() => setIsCreateOpen(false)} />
         )}
       </Modal>
-    </div>
+    </Layout>
   );
 };
 

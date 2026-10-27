@@ -1,63 +1,99 @@
+/* PackCard.module.css */
 .packCard {
-    cursor: pointer;
     position: relative;
-
-    width: 200px;
-    height: 200px;
-
     display: flex;
-    align-items: center;
     flex-direction: column;
-    justify-content: space-between;
-    gap: 16px;
-
-    color: var(--color-primary);
-    border: 1px solid var(--color-primary);
-    border-radius: 8px;
+    align-items: center;
+    gap: clamp(1rem, 2vw, 1.8rem);
+    padding: 1.25rem;
+    border: 1px solid var(--color-text);
+    border-radius: var(--radius-card);
+    cursor: pointer;
+    transition: border-color var(--transition-fast);
 }
 
-.deleteIcon {
-    width: 100%;
-    display: flex;
-    justify-content: flex-end;
+.packCard:hover {
+    border-color: var(--color-primary);
+}
+
+.actions {
+    position: absolute;
+    top: 1.25rem;
+    right: 1.25rem;
 }
 
 .name {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-
-    width: calc(100% - 24px);
     margin: 0;
+    padding-inline: 2rem; /* место под кнопку удаления */
+    font-size: clamp(1.5rem, 2vw, 2rem);
+    font-weight: 700;
     text-align: center;
     overflow-wrap: anywhere;
 }
 
-.dates {
-    position: absolute;
-    bottom: 0;
-    left: 0;
+.info {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     width: 100%;
-    box-sizing: border-box;
+    border: 1px solid var(--color-text);
+    border-radius: var(--radius-control);
+    font-size: clamp(0.75rem, 0.9vw, 0.875rem);
+}
 
+.column {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    min-width: 0;
 }
 
-.date {
+.usedColumn {
+    border-left: 1px solid var(--color-text);
+}
+
+.block:not(:last-child) {
+    border-bottom: 1px solid var(--color-text);
+}
+
+.blockTitle {
+    margin: 0;
+    padding: 0.75rem 0.5rem;
+    border-bottom: 1px solid var(--color-text);
+    font-size: inherit;
+    font-weight: 600;
+    text-align: center;
+}
+
+.value {
+    display: block;
+    padding: 0.75rem 0.5rem;
+    font-weight: 300;
+    text-align: center;
+}
+
+.time {
+    font-weight: 400;
+}
+
+.games {
     display: flex;
-    align-items: flex-end;
-    gap: 4px;
-
-    color: #888;
-    font-size: 14px;
-    line-height: 1.4;
-    white-space: nowrap;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin: 0;
+    padding: 0.75rem 1rem;
+    list-style: none;
 }
 
-.date span {
-    color: #888;
-    font-size: 12px;
+.game {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-weight: 300;
+}
+
+.empty {
+    margin: 0;
+    padding: 0.75rem 1rem;
+    font-weight: 300;
+    color: var(--color-text-muted);
+    text-align: center;
 }
