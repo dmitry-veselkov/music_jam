@@ -10,7 +10,7 @@ export const games : GameDto[] = [
     name : "Первая",
     description : "Первая игра",
     date: '2006-01-01T00:00:00.000Z',
-    mode : "withHost",
+    mode : "Hosted",
     state : "finish"
   }
 ]

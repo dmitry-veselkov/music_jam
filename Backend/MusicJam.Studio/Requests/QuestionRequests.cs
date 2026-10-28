@@ -8,13 +8,15 @@ public class GetQuestionsQuery
     public int Skip { get; set; }
     [Range(1, 100)]
     public int Take { get; set; } = 20;
+    //потом будем SearchQuery
 }
+
+//usages = List<packId, namePackId>
+
+//в DTO отправлять 
 
 public class CreateQuestionRequest
 {
-    [Required]
-    public Guid QuestionId { get; set; }
-    
     [Required, StringLength(512, MinimumLength = 1)]
     public string Requested { get; set; } = string.Empty;
  
@@ -22,10 +24,10 @@ public class CreateQuestionRequest
     public string CorrectAnswer { get; set; } = string.Empty;
  
     [Required]
-    public string QuestionTrack { get; set; } = null!;
+    public IFormFile QuestionTrack { get; set; } = null!;
  
     [Required]
-    public string AnswerTrack { get; set; } = null!;
+    public IFormFile AnswerTrack { get; set; } = null!;
 }
 
 public class UpdateQuestionRequest

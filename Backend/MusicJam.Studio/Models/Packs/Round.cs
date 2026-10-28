@@ -3,5 +3,8 @@
 public class Round
 {
     public string Name { get; set; }
-    public Dictionary<string, Dictionary<int, Question>> Field { get; set; }
+    
+    public List<string> Categories { get; set; }
+    
+    public Dictionary<string, Dictionary<int, Question?>> Field { get; set; } //У тимура questions, это responses пофиксить
 }

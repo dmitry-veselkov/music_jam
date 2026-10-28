@@ -80,7 +80,7 @@ public class PackController(IPackService packService, IMapper mapper) : Controll
         var result = await packService.Delete(userId, packId);
         if (result.TryGetFault(out var error, out var track))
             return NotFound(error);
-        return Ok(track);
+        return NoContent();
     }
 
     [HttpGet("{packId:guid}/edit")]
@@ -91,52 +91,62 @@ public class PackController(IPackService packService, IMapper mapper) : Controll
     [Produces("application/json")]
     public async Task<IActionResult> GetPack(Guid packId)
     {
-        EditPackResponse dto;
         if (!TryGetUserId(out var userId))
             return Unauthorized();
 
         var result = await packService.GetPack(userId, packId);
-        if (result.TryGetFault(out var error, out var pack))
+        if (!result.TryGetFault(out var error, out var pack)) return Ok(ToResponse(packId, pack));
+        var created = await packService.Create(userId, new CreatePackRequest
         {
-            return Ok(null);
-        }
-        else
-        {
-            dto = new EditPackResponse
-            {
-                PackId = packId,
-                Name = pack.Name,
-
-                Rounds = pack.Rounds.Select(round => new RoundResponse
+            PackId = packId,
+            Name = string.Empty,
+            Rounds =
+            [
+                new CreateRoundRequest
                 {
-                    Name = round.Name,
+                    Name = "Тур 1",
+                    Questions =
+                    [
+                        new RoundQuestionRequest
+                        {
+                            Cost = 100,
+                            Category = "Первая",
+                            QuestionId = Guid.Empty
+                        }
+                    ]
+                }
+            ]
+        });
 
-                    Categories = round.Field.Keys.ToList(),
+        if (created.TryGetFault(out var createError, out _))
+            return BadRequest(createError);
 
-                    Costs = round.Field.Count > 0
-                        ? round.Field.First().Value.Keys
-                            .OrderBy(cost => cost)
-                            .ToList()
-                        : [],
+        result = await packService.GetPack(userId, packId);
+        if (result.TryGetFault(out error, out pack))
+            return NotFound(error);
 
-                    Questions = round.Field.Select(category =>
-                        category.Value
-                            .OrderBy(question => question.Key)
-                            .Select(question => new QuestionResponse
-                            {
-                                QuestionId = question.Value.Id,
-                                Category = category.Key,
-                                Cost = question.Key,
-                                CorrectAnswer = question.Value.CorrectAnswer,
-                                Requested = question.Value.Requested
-                            })
-                            .ToList()
-                    ).ToList()
-                }).ToList()
-            };
-        }
-        return Ok(dto);
+        return Ok(ToResponse(packId, pack));
     }
+    
+    private static EditPackResponse ToResponse(Guid packId, Pack pack) => new()
+    {
+        PackId = packId,
+        Name = pack.Name,
+        Rounds = pack.Rounds.Select(round => new RoundResponse
+        {
+            Name = round.Name,
+            Questions = round.Field
+                .SelectMany(category => category.Value
+                    .OrderBy(question => question.Key)
+                    .Select(question => new QuestionResponse
+                    {
+                        QuestionId = question.Value?.Id,
+                        Category = category.Key,
+                        Cost = question.Key,
+                    }))
+                .ToList()
+        }).ToList()
+    };
 
     private bool TryGetUserId(out Guid userId)
     {

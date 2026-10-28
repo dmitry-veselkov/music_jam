@@ -6,7 +6,7 @@ namespace MusicJam.Studio.Storages;
 
 public class TrackStorage(AppDbContext db) : ITrackStorage
 {
-    public Track ToModel(DbTrack e) => new()
+    private static Track ToModel(DbTrack e) => new()
     {
         Link = e.Link,
     };

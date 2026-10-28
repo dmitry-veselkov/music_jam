@@ -12,6 +12,7 @@ public class RoundStorage(AppDbContext db) : IRoundStorage
     public Round ToModel(DbRound e) => new()
     {
         Name = e.Title, 
+        Categories = GetCategories(e.Id),
         Field = TryGetRound(e.Id).Result
     };
 
@@ -37,9 +38,21 @@ public class RoundStorage(AppDbContext db) : IRoundStorage
                     .ToDictionary(
                         g => g.First().Category.Name,
                         g => g.OrderBy(rq => rq.Cost)
-                            .ToDictionary(rq => rq.Cost, rq => QuestionStorage.ToModel(rq.Question)))
+                            .ToDictionary(rq => rq.Cost,  rq => rq.Question is null ? null : QuestionStorage.ToModel(rq.Question)))
             })
             .ToList();
+    }
+    
+    public List<string> GetCategories(Guid roundId)
+    {
+        var roundQuestions = db.RoundQuestions
+            .Where(x => x.RoundId == roundId)
+            .Include(x => x.Category)
+            .Include(roundQuestion => roundQuestion.Question)
+            .OrderBy(x => x.Category.Order)
+            .Select(x => x.Category.Name)
+            .ToList();
+        return roundQuestions;
     }
 
     public async Task<Dictionary<string, Dictionary<int, Question>>> TryGetRound(Guid roundId)
@@ -70,7 +83,7 @@ public class RoundStorage(AppDbContext db) : IRoundStorage
 
     public async Task<(Round, Guid)> Save(Guid packId, int order, Round round)
     {
-        var categoryIds = await GetOrCreateCategories(round.Field.Keys);
+        var categoryIds = await GetOrCreateCategories(round.Categories);
         
         var slots = new List<RoundQuestion>();
         foreach (var (categoryName, costs) in round.Field)
@@ -81,7 +94,9 @@ public class RoundStorage(AppDbContext db) : IRoundStorage
                 {
                     CategoryId = categoryIds[categoryName],
                     Cost = cost,
-                    QuestionId = question.Id
+                    QuestionId = question is null || question.Id == Guid.Empty
+                    ? null
+                    : question.Id
                 });
             }
         }
@@ -103,21 +118,14 @@ public class RoundStorage(AppDbContext db) : IRoundStorage
         return (round, dbRound.Id);
     }
 
-    public Task<(Round, Guid)> Update(Guid packId, int order, Round round)
+    private async Task<Dictionary<string, Guid>> GetOrCreateCategories(List<string> names)
     {
-        throw new NotImplementedException();
-    }
-
-    public async Task<Dictionary<string, Guid>> GetOrCreateCategories(IEnumerable<string> names)
-    {
-        var wanted = names.Distinct().ToList();
-
         var ids = await db.Categories
-            .Where(c => wanted.Contains(c.Name))
+            .Where(c => names.Contains(c.Name))
             .ToDictionaryAsync(c => c.Name, c => c.Id);
 
         var nextOrder = (await db.Categories.MaxAsync(c => (int?)c.Order) ?? 0) + 1;
-        foreach (var name in wanted.Where(n => !ids.ContainsKey(n)))
+        foreach (var name in names.Where(n => !ids.ContainsKey(n)))
         {
             var category = new Category { Name = name, Order = nextOrder++ };
             db.Categories.Add(category);
@@ -125,7 +133,8 @@ public class RoundStorage(AppDbContext db) : IRoundStorage
         }
         return ids;
     }
-    public void RemoveCategoriesByIds(IEnumerable<Guid> ids)
+
+    private void RemoveCategoriesByIds(IEnumerable<Guid> ids)
     {
         var wanted = ids.Distinct().ToList();
         db.Categories.RemoveRange(

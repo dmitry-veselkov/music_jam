@@ -1,5 +1,4 @@
-﻿using MusicJam.Studio.Models.Games;
-using MusicJam.Studio.Models.Packs;
+﻿using MusicJam.Studio.Models.Packs;
 using MusicJam.Studio.Requests;
 using MusicJam.Studio.Storages;
 using Shared;
@@ -7,10 +6,11 @@ using Shared;
 namespace MusicJam.Studio.Services.PackService;
 
 public class PackService(
-    IPackStorage packStorage)
+    IPackStorage packStorage, IQuestionStorage questionStorage)
     : IPackService
 {
     private IPackService _packServiceImplementation;
+    private IQuestionStorage _questionStorage;
 
     public async Task<List<(Guid, string)>> GetShort(Guid userId, GetPackRequest query)
     {
@@ -22,9 +22,11 @@ public class PackService(
     }
     public async Task<Result<Pack, IPackService.PackError>> Create(Guid userId, CreatePackRequest request)
     {
+        var rounds = await GetAllRounds(userId, request);
         var pack = await packStorage.SavePack(userId, new Pack()
         {
-            Rounds = request.Rounds,
+            Id = request.PackId,
+            Rounds = rounds ?? [],
             Name = request.Name,
         });
         return pack;
@@ -32,10 +34,11 @@ public class PackService(
 
     public async Task<Result<Pack, IPackService.PackError>> Update(Guid userId, Guid packId, UpdatePackRequest request)
     {
+        var rounds = await GetAllRounds(userId, request);
         var pack = await packStorage.Update(userId, new Pack()
         {
             Id = packId,
-            Rounds = request.Rounds,
+            Rounds = rounds,
             Name = request.Name,
         });
         return pack;
@@ -64,5 +67,36 @@ public class PackService(
             .Skip(query.Skip)
             .Take(query.Take)
             .ToList();
+    }
+
+    private async Task<List<Round>?> GetAllRounds(Guid userId, CreatePackRequest request)
+    {
+        var ids = request.Rounds
+            .SelectMany(r => r.Questions)
+            .Select(q => q.QuestionId)
+            .Distinct()
+            .ToList();
+
+        var questions = new Dictionary<Guid, Question>();
+        foreach (var id in ids)
+        {
+            var question = await questionStorage.TryGetQuestion(userId, id);
+            questions[id] = question;
+        }
+
+        if (request.Rounds.Any(r =>
+                r.Questions.GroupBy(q => (q.Category, q.Cost)).Any(g => g.Count() > 1)))
+            return null;
+
+        return request.Rounds.Select(r => new Round
+        {
+            Name = r.Name,
+            Categories = r.Questions.Select(q => q.Category).Distinct().ToList(),
+            Field = r.Questions
+                .GroupBy(q => q.Category)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.ToDictionary(q => q.Cost, q => questions[q.QuestionId]))
+        }).ToList();
     }
 }

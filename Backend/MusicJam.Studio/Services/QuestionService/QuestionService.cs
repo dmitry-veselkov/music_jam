@@ -34,7 +34,6 @@ internal class QuestionService(
             },
             Requested = request.Requested,
             CorrectAnswer = request.CorrectAnswer,
-            Id = request.QuestionId
         };
         await questionStorage.SaveQuestion(userId, question);
         return question;

@@ -6,7 +6,6 @@ using MusicJam.Studio.Models.Games;
 using MusicJam.Studio.Models.Packs;
 using MusicJam.Studio.Requests;
 using MusicJam.Studio.Services.GameService;
-using MusicJam.Studio.Services.QuestionService;
 
 namespace MusicJam.Studio.Controllers;
 
@@ -32,7 +31,7 @@ public class GameController(IGameService gameService) : ControllerBase
         });
         if (result.TryGetFault(out var error, out var games))
             return NotFound(error);
-        return Ok(new { games });
+        return Ok(games);
     }
 
     [HttpPost]

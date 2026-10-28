@@ -15,7 +15,6 @@ import { packSchema } from "@/features/pack/model/schema.ts";
 const PackEditor = ({ packId, initial } : { packId : string, initial? : PackDto}) => {
   const { data, isError } = usePack(packId);
   const source = initial ?? data;
-
   if (isError) return <div>Не удалось загрузить пак</div>;
 
   return <PackEditorForm key={source?.packId ?? 'new'} packId={packId} initial={source} />;

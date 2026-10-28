@@ -1,8 +1,8 @@
 import type { PackShort } from "@/entities/pack/models/types.ts";
 
 export const MODES = {
-  withHost : {value : 'withHost', label : 'С ведущим'},
-  withoutHost : {value : 'withoutHost', label : 'Без ведущего'}
+  Hosted : {value : 'Hosted', label : 'С ведущим'},
+  Hostless : {value : 'Hostless', label : 'Без ведущего'}
 } as const;
 
 type Mode = keyof typeof MODES;
