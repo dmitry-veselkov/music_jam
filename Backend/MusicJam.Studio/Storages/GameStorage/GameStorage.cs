@@ -10,10 +10,15 @@ public class GameStorage(AppDbContext db) : IGameStorage
     private IGameStorage _gameStorageImplementation;
     public async Task<List<Game>> GetAllUserGames(Guid userId)
     {
-        return db.Games
+        var entities = await db.Games
+            .AsNoTracking()
             .Where(x => x.UserId == userId)
-            .Select(x => ToModel(x))
+            .ToListAsync();
+        var result = entities
+            .Select(ToModel)
             .ToList();
+        Console.WriteLine(result.Count);
+        return result;
     }
 
     public async Task<Game> SaveGame(Guid userId, Game game)
@@ -24,26 +29,28 @@ public class GameStorage(AppDbContext db) : IGameStorage
         return ToModel(entity);
     }
 
-    public async Task Delete(Guid userId, Guid gameId)
+    public async Task<bool?> Delete(Guid gameId)
     {
         var deleted =  await db.Games
-            .Where(x => x.UserId == userId && x.Id == gameId)
+            .Where(x => x.Id == gameId)
             .FirstOrDefaultAsync();
+        if (deleted != null) return null;
         db.Games.Remove(deleted);
         await db.SaveChangesAsync();
+        return true;
     }
 
-    public async Task<Game?> GetGame(Guid userId, Guid gameId)
+    public async Task<Game?> GetGame(Guid gameId)
     {
         var game = db.Games
-            .FirstOrDefault(x => x.Id == gameId && x.UserId == userId);
+            .FirstOrDefault(x => x.Id == gameId);
         return game is null ? null : ToModel(game);
     }
 
-    public async Task<Game> UpdateGame(Guid userId, Game game)
+    public async Task<Game?> UpdateGame(Game game)
     {
         var entity = await db.Games
-            .FirstOrDefaultAsync(x => x.UserId == userId && x.Id == game.Id);
+            .FirstOrDefaultAsync(x => x.Id == game.Id);
         if (entity is null)
             return null;
  

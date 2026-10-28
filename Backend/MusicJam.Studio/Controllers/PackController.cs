@@ -17,6 +17,7 @@ public class PackController(IPackService packService, IMapper mapper) : Controll
 {
    
     [HttpGet("short")]
+    [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -26,7 +27,7 @@ public class PackController(IPackService packService, IMapper mapper) : Controll
         if (!TryGetUserId(out var userId))
             return Unauthorized();
         var result = await packService.GetShort(userId, query);
-        return Ok(new { result });
+        return Ok(result);
     }
     
     [HttpGet("cards")]

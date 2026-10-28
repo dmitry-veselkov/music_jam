@@ -16,6 +16,7 @@ public class GameController(IGameService gameService) : ControllerBase
 {
    
     [HttpGet]
+    [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -29,6 +30,7 @@ public class GameController(IGameService gameService) : ControllerBase
             Skip = query.Skip,
             Take = query.Take
         });
+        Console.WriteLine(result.IsSuccess);
         if (result.TryGetFault(out var error, out var games))
             return NotFound(error);
         return Ok(games);
@@ -39,7 +41,7 @@ public class GameController(IGameService gameService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> CreateQuestion([FromForm] CreateGameRequests request)
+    public async Task<IActionResult> Create([FromForm] CreateGameRequests request)
     {
         if (!TryGetUserId(out var userId))
             return Unauthorized();
@@ -75,14 +77,14 @@ public class GameController(IGameService gameService) : ControllerBase
         if (!TryGetUserId(out var userId))
             return Unauthorized();
 
-        var result = await gameService.Update(userId, gameId, requests);
+        var result = await gameService.Update(gameId, requests);
         if (result.TryGetFault(out var error, out var track))
             return NotFound(error);
         return Ok(track);
     }
 
     [HttpDelete("{gameId:guid}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -91,10 +93,10 @@ public class GameController(IGameService gameService) : ControllerBase
         if (!TryGetUserId(out var userId))
             return Unauthorized();
 
-        var result = await gameService.Delete(userId, gameId);
+        var result = await gameService.Delete(gameId);
         if (result.TryGetFault(out var error, out var track))
             return NotFound(error);
-        return Ok(track);
+        return NoContent();
     }
 
     private bool TryGetUserId(out Guid userId)

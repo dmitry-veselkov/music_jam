@@ -19,10 +19,10 @@ public class CreateGameRequests
 
     public string Name;
     public string? Description;
-    public DateTime? date;
+    public DateTime? Date;
     
     [Required]
-    public Mode mode;
+    public Mode Mode;
 }
 
 public class UpdateGameRequests
@@ -33,8 +33,8 @@ public class UpdateGameRequests
 
     public string Name;
     public string? Description;
-    public DateTime? date;
+    public DateTime? Date;
     
     [Required]
-    public Mode mode;
+    public Mode Mode;
 }
