@@ -17,6 +17,8 @@ public class CreatePackRequest
     [Required] public Guid PackId;
     public string Name { get; set; } = string.Empty;
 
+    public List<string> Categories { get; set; } = [];
+    public List<int> Costs { get; set; } = [];
     [Required] public List<CreateRoundRequest> Rounds { get; set; } = [];
 }
 
@@ -27,18 +29,20 @@ public class CreateRoundRequest
     [Required] public string Name { get; set; } = string.Empty;
     
     [Required]
-    public List<RoundQuestionRequest> Questions { get; set; } = [new ()
+    public List<List<RoundQuestionRequest>> Questions { get; set; } = [[new ()
     {
         Cost = 100,
         Category = "Первая",
-        QuestionId = Guid.Empty
-    }];
+        QuestionId = null
+    }]];
+
+    public IEnumerable<RoundQuestionRequest> Cells => Questions.SelectMany(row => row);
 }
 
 public class RoundQuestionRequest
 {
     public int Cost { get; set; }
     public string Category { get; set; } = string.Empty;
-    public Guid QuestionId { get; set; }
+    public Guid? QuestionId { get; set; }
 }
 

@@ -12,7 +12,9 @@ using MusicJam.Studio.Models.Packs;
 using MusicJam.Studio.Requests;
 using MusicJam.Studio.Responses;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace MusicJam.Studio;
 
@@ -29,10 +31,14 @@ public class Startup(IConfiguration configuration)
             options.OutputFormatters.Insert(0, new
                 NewtonsoftJsonOutputFormatter(new JsonSerializerSettings
                 {
-                    ContractResolver = new CamelCasePropertyNamesContractResolver()
+                    ContractResolver = new CamelCasePropertyNamesContractResolver(),
+                    Converters = { new StringEnumConverter() }
                 }, ArrayPool<char>.Shared, options));
             options.RespectBrowserAcceptHeader = true;
-        });
+        })
+        // enum'ы во входящем JSON — строками, как их шлёт фронт ("Hosted"/"Hostless")
+        .AddJsonOptions(options =>
+            options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
         services.AddAutoMapper(cfg =>
         {
@@ -77,11 +83,6 @@ public class Startup(IConfiguration configuration)
             .UseRouting()
             .UseAuthentication()
             .UseAuthorization()
-            .Use(async (context, next) =>
-            {
-                context.Response.ContentType = "application/json; charset=utf-8";
-                await next();
-            })
             .UseEndpoints(endpoints => { endpoints.MapControllers(); });
     }
 

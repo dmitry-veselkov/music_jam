@@ -20,5 +20,5 @@ public interface IGameService
 
     Task<Result<Guid, IGameService.GameError>> Delete(Guid gameId);
 
-    Task<Result<Game, IGameService.GameError>> Update(Guid gameId, UpdateGameRequests request);
+    Task<Result<Game, IGameService.GameError>> Update(Guid userId, Guid gameId, UpdateGameRequests request);
 }

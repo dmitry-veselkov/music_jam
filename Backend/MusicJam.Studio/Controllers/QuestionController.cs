@@ -74,6 +74,7 @@ public class QuestionController(IQuestionService questionService) : ControllerBa
         if (result.TryGetFault(out var error, out var track))
             return NotFound(error);
         return Ok(track);
+        //Stream
     }
 
     [HttpGet("{questionId:guid}/question-track")]
@@ -90,6 +91,7 @@ public class QuestionController(IQuestionService questionService) : ControllerBa
         if (result.TryGetFault(out var error, out var track))
             return NotFound(error);
         return Ok(track);
+        //Stream
     }
 
     private bool TryGetUserId(out Guid userId)

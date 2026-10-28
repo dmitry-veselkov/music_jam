@@ -6,6 +6,7 @@ using MusicJam.Studio.Models.Games;
 using MusicJam.Studio.Models.Packs;
 using MusicJam.Studio.Requests;
 using MusicJam.Studio.Services.GameService;
+using MusicJam.Studio.Responses;
 
 namespace MusicJam.Studio.Controllers;
 
@@ -16,7 +17,7 @@ public class GameController(IGameService gameService) : ControllerBase
 {
    
     [HttpGet]
-    [Produces("application/json")]
+    
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -33,7 +34,7 @@ public class GameController(IGameService gameService) : ControllerBase
         Console.WriteLine(result.IsSuccess);
         if (result.TryGetFault(out var error, out var games))
             return NotFound(error);
-        return Ok(games);
+        return Ok(games.Select(GameResponse.From));
     }
 
     [HttpPost]
@@ -48,7 +49,7 @@ public class GameController(IGameService gameService) : ControllerBase
         var result = await gameService.Create(userId, request);
         if (result.TryGetFault(out var error, out var game))
             return BadRequest(error);
-        return CreatedAtAction(nameof(GetGame), new { packId = game.Id }, game);
+        return CreatedAtAction(nameof(GetGame), new { gameId = game.Id }, GameResponse.From(game));
     }
 
     [HttpGet("{gameId:guid}")]
@@ -63,7 +64,7 @@ public class GameController(IGameService gameService) : ControllerBase
         var result = await gameService.Get(gameId);
         if (result.TryGetFault(out var error, out var game))
             return NotFound(error);
-        return Ok(game);
+        return Ok(GameResponse.From(game));
     }
 
     
@@ -72,15 +73,15 @@ public class GameController(IGameService gameService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetAnswerTrack(Guid gameId, UpdateGameRequests requests)
+    public async Task<IActionResult> Upsert(Guid gameId, [FromBody] UpdateGameRequests request)
     {
         if (!TryGetUserId(out var userId))
             return Unauthorized();
 
-        var result = await gameService.Update(gameId, requests);
-        if (result.TryGetFault(out var error, out var track))
-            return NotFound(error);
-        return Ok(track);
+        var result = await gameService.Update(userId, gameId, request);
+        if (result.TryGetFault(out var error, out var game))
+            return BadRequest(error);
+        return Ok(GameResponse.From(game));
     }
 
     [HttpDelete("{gameId:guid}")]

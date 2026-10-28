@@ -20,3 +20,8 @@ public class EditPackResponse
     
     public List<RoundResponse> Rounds { get; set; }
 }
+public class ShortPackResponse
+{
+    public Guid PackId { get; set; }
+    public string Name { get; set; }
+}

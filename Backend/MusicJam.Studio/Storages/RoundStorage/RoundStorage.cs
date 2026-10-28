@@ -134,27 +134,34 @@ public class RoundStorage(AppDbContext db) : IRoundStorage
         return ids;
     }
 
-    private void RemoveCategoriesByIds(IEnumerable<Guid> ids)
+    // Категории общие для всех раундов (ищутся по имени), поэтому удаляем только те,
+    // на которые больше не ссылается ни одна ячейка
+    private void RemoveUnusedCategories(IEnumerable<Guid> ids)
     {
         var wanted = ids.Distinct().ToList();
         db.Categories.RemoveRange(
-            db.Categories.Where(x => wanted.Contains(x.Id)));
+            db.Categories.Where(x => wanted.Contains(x.Id)
+                                     && !db.RoundQuestions.Any(rq => rq.CategoryId == x.Id)));
     }
-    
+
     public async Task Delete(Guid roundId)
     {
-        var categoryIds = db.RoundQuestions
+        var categoryIds = await db.RoundQuestions
             .Where(x => x.RoundId == roundId)
-            .Select(x => x.CategoryId);
-        
+            .Select(x => x.CategoryId)
+            .Distinct()
+            .ToListAsync();
+
         db.RoundQuestions.RemoveRange(
             db.RoundQuestions
                 .Where(x => x.RoundId == roundId));
-        
+
         db.PackRounds.RemoveRange(
             db.PackRounds
                 .Where(x => x.RoundId == roundId));
-        RemoveCategoriesByIds(categoryIds);
+        await db.SaveChangesAsync();
+
+        RemoveUnusedCategories(categoryIds);
         await db.SaveChangesAsync();
     }
 }

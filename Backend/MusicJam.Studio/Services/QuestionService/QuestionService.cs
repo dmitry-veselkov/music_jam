@@ -22,6 +22,7 @@ internal class QuestionService(
 
     public async Task<Result<Question, IQuestionService.QuestionError>> Create(Guid userId, CreateQuestionRequest request)
     {
+        //в s3
         var question = new Question()
         {
             AnswerTrack = new Track()

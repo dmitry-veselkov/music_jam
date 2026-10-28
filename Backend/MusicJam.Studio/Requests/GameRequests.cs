@@ -13,28 +13,11 @@ public class GetGameRequests
 
 public class CreateGameRequests
 {
-    [Required]
-    public Guid packId;
-    [Required]
-
-    public string Name;
-    public string? Description;
-    public DateTime? Date;
-    
-    [Required]
-    public Mode Mode;
+    [Required] public Guid PackId { get; set; }
+    [Required] public string Name { get; set; } = string.Empty;
+    public string? Description { get; set; }
+    public DateTime? Date { get; set; }
+    [Required] public Mode Mode { get; set; }
 }
 
-public class UpdateGameRequests
-{
-    [Required]
-    public Guid packId;
-    [Required]
-
-    public string Name;
-    public string? Description;
-    public DateTime? Date;
-    
-    [Required]
-    public Mode Mode;
-}
+public class UpdateGameRequests : CreateGameRequests;

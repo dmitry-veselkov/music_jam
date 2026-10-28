@@ -10,9 +10,7 @@ public class GetQuestionsQuery
     public int Take { get; set; } = 20;
 }
 
-//usages = List<packId, namePackId>
 
-//в DTO отправлять 
 
 public class CreateQuestionRequest
 {
@@ -23,10 +21,10 @@ public class CreateQuestionRequest
     public string CorrectAnswer { get; set; } = string.Empty;
  
     [Required]
-    public IFormFile QuestionTrack { get; set; } = null!;
+    public IFormFile QuestionTrack { get; set; }
  
     [Required]
-    public IFormFile AnswerTrack { get; set; } = null!;
+    public IFormFile AnswerTrack { get; set; }
 }
 
 public class UpdateQuestionRequest

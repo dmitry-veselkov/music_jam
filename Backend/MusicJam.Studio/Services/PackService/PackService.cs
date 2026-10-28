@@ -9,9 +9,6 @@ public class PackService(
     IPackStorage packStorage, IQuestionStorage questionStorage)
     : IPackService
 {
-    private IPackService _packServiceImplementation;
-    private IQuestionStorage _questionStorage;
-
     public async Task<List<(Guid, string)>> GetShort(Guid userId, GetPackRequest query)
     {
         var packs = await packStorage.TryGetPacksByUser(userId);
@@ -72,8 +69,9 @@ public class PackService(
     private async Task<List<Round>?> GetAllRounds(Guid userId, CreatePackRequest request)
     {
         var ids = request.Rounds
-            .SelectMany(r => r.Questions)
-            .Select(q => q.QuestionId)
+            .SelectMany(r => r.Cells)
+            .Where(q => q.QuestionId.HasValue)
+            .Select(q => q.QuestionId!.Value)
             .Distinct()
             .ToList();
 
@@ -85,18 +83,18 @@ public class PackService(
         }
 
         if (request.Rounds.Any(r =>
-                r.Questions.GroupBy(q => (q.Category, q.Cost)).Any(g => g.Count() > 1)))
+                r.Cells.GroupBy(q => (q.Category, q.Cost)).Any(g => g.Count() > 1)))
             return null;
 
         return request.Rounds.Select(r => new Round
         {
             Name = r.Name,
-            Categories = r.Questions.Select(q => q.Category).Distinct().ToList(),
-            Field = r.Questions
+            Categories = r.Cells.Select(q => q.Category).Distinct().ToList(),
+            Field = r.Cells
                 .GroupBy(q => q.Category)
                 .ToDictionary(
                     g => g.Key,
-                    g => g.ToDictionary(q => q.Cost, q => questions[q.QuestionId]))
+                    g => g.ToDictionary(q => q.Cost, q => q.QuestionId is { } id ? questions[id] : null))
         }).ToList();
     }
 }

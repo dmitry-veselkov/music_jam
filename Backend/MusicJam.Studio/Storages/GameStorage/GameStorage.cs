@@ -2,6 +2,7 @@
 using MusicJam.Studio.Infrustructure.Data.Configurations;
 using DbGame = MusicJam.Studio.Infrustructure.Entities.Game;
 using Game = MusicJam.Studio.Models.Games.Game;
+using Pack = MusicJam.Studio.Models.Packs.Pack;
 
 namespace MusicJam.Studio.Storages;
 
@@ -12,6 +13,7 @@ public class GameStorage(AppDbContext db) : IGameStorage
     {
         var entities = await db.Games
             .AsNoTracking()
+            .Include(x => x.Pack)
             .Where(x => x.UserId == userId)
             .ToListAsync();
         var result = entities
@@ -24,6 +26,8 @@ public class GameStorage(AppDbContext db) : IGameStorage
     public async Task<Game> SaveGame(Guid userId, Game game)
     {
         var entity = ToDbModel(game, userId);
+        // Id у Entity с protected set — задаём через EF, чтобы сохранить id, пришедший с фронта
+        db.Entry(entity).Property(x => x.Id).CurrentValue = game.Id;
         db.Games.Add(entity);
         await db.SaveChangesAsync();
         return ToModel(entity);
@@ -34,7 +38,7 @@ public class GameStorage(AppDbContext db) : IGameStorage
         var deleted =  await db.Games
             .Where(x => x.Id == gameId)
             .FirstOrDefaultAsync();
-        if (deleted != null) return null;
+        if (deleted is null) return null;
         db.Games.Remove(deleted);
         await db.SaveChangesAsync();
         return true;
@@ -42,8 +46,9 @@ public class GameStorage(AppDbContext db) : IGameStorage
 
     public async Task<Game?> GetGame(Guid gameId)
     {
-        var game = db.Games
-            .FirstOrDefault(x => x.Id == gameId);
+        var game = await db.Games
+            .Include(x => x.Pack)
+            .FirstOrDefaultAsync(x => x.Id == gameId);
         return game is null ? null : ToModel(game);
     }
 
@@ -58,7 +63,6 @@ public class GameStorage(AppDbContext db) : IGameStorage
         entity.Description = game.Description;
         entity.GameTime = ToUtc(game.PlannedStart);
         entity.Mode = game.Mode;
-        entity.State = game.State;
         entity.PackId = game.Pack.Id;
  
         await db.SaveChangesAsync();
@@ -68,6 +72,8 @@ public class GameStorage(AppDbContext db) : IGameStorage
     private static Game ToModel(DbGame e) => new()
     {
         Id = e.Id,
+        Name = e.Title,
+        Pack = new Pack { Id = e.PackId, Name = e.Pack?.Title ?? string.Empty },
         Description = e.Description,
         PlannedStart = e.GameTime,
         Mode = e.Mode,

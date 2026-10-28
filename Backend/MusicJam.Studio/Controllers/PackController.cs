@@ -27,7 +27,7 @@ public class PackController(IPackService packService, IMapper mapper) : Controll
         if (!TryGetUserId(out var userId))
             return Unauthorized();
         var result = await packService.GetShort(userId, query);
-        return Ok(result);
+        return Ok(result.Select(x => new ShortPackResponse { PackId = x.Item1, Name = x.Item2 }));
     }
     
     [HttpGet("cards")]
@@ -108,12 +108,14 @@ public class PackController(IPackService packService, IMapper mapper) : Controll
                     Name = "Тур 1",
                     Questions =
                     [
-                        new RoundQuestionRequest
-                        {
-                            Cost = 100,
-                            Category = "Первая",
-                            QuestionId = Guid.Empty
-                        }
+                        [
+                            new RoundQuestionRequest
+                            {
+                                Cost = 100,
+                                Category = "Первая",
+                                QuestionId = null
+                            }
+                        ]
                     ]
                 }
             ]
@@ -133,21 +135,46 @@ public class PackController(IPackService packService, IMapper mapper) : Controll
     {
         PackId = packId,
         Name = pack.Name,
-        Rounds = pack.Rounds.Select(round => new RoundResponse
+        Rounds = pack.Rounds.Select(ToRoundResponse).ToList()
+    };
+
+    private static RoundResponse ToRoundResponse(Round round)
+    {
+        var field = round.Field ?? [];
+        var categories = (round.Categories ?? [])
+            .Concat(field.Keys)
+            .Distinct()
+            .ToList();
+        var costs = field.Values
+            .SelectMany(row => row.Keys)
+            .Distinct()
+            .Order()
+            .ToList();
+
+        return new RoundResponse
         {
             Name = round.Name,
-            Questions = round.Field
-                .SelectMany(category => category.Value
-                    .OrderBy(question => question.Key)
-                    .Select(question => new QuestionResponse
+            Categories = categories,
+            Costs = costs,
+            Questions = categories
+                .Select(category => costs
+                    .Select(cost =>
                     {
-                        QuestionId = question.Value?.Id,
-                        Category = category.Key,
-                        Cost = question.Key,
-                    }))
+                        Question? question = null;
+                        if (field.TryGetValue(category, out var row))
+                            row.TryGetValue(cost, out question);
+                        return new QuestionResponse
+                        {
+                            QuestionId = question?.Id,
+                            Category = category,
+                            Cost = cost,
+                            CorrectAnswer = question?.CorrectAnswer,
+                        };
+                    })
+                    .ToList())
                 .ToList()
-        }).ToList()
-    };
+        };
+    }
 
     private bool TryGetUserId(out Guid userId)
     {

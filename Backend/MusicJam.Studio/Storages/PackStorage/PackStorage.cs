@@ -97,14 +97,17 @@ public class PackStorage(AppDbContext db, IRoundStorage roundStorage) : IPackSto
 
     public async Task<Pack> Update(Guid userId, Pack pack)
     {
-        var packDb = await TryGetPackByUser(userId, pack.Id);
+        // Берём именно сущность EF: изменения доменной модели Pack в БД не попадают
+        var packDb = await db.Packs
+            .FirstOrDefaultAsync(x => x.UserId == userId && x.Id == pack.Id);
         if (packDb is null)
             return await SavePack(userId, pack);
-        packDb.Name = pack.Name;
-        packDb.UpdatedAtUtc = DateTime.UtcNow;
-        await db.SaveChangesAsync(); 
+
         await using var tx = await db.Database.BeginTransactionAsync();
-            
+        packDb.Title = pack.Name;
+        packDb.UpdatedAtUtc = DateTime.UtcNow;
+        await db.SaveChangesAsync();
+
         var roundIds = await db.PackRounds
             .Where(x => x.PackId == packDb.Id)
             .Select(x => x.RoundId)
@@ -120,9 +123,8 @@ public class PackStorage(AppDbContext db, IRoundStorage roundStorage) : IPackSto
             rounds.Add(saved);
             order++;
         }
-        packDb.Rounds = rounds;
         await tx.CommitAsync();
-        return packDb;
+        return ToModel(packDb, rounds);
     }
 
     public static Pack ToModel(DbPack e, List<Round> rounds) => new()
