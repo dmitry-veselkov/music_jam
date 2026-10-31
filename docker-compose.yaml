@@ -1,16 +1,57 @@
 services:
   postgres:
     image: postgres:18
-    container_name: music_jam
     restart: unless-stopped
     environment:
-      POSTGRES_DB: music_jam
+      POSTGRES_DB: musicjam
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
-      - "5432:5432"
+      - "5432"
     volumes:
       - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d musicjam"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  musicjam-gateway:
+    build:
+      context: .
+      dockerfile: Backend/MusicJam.ApiGateway/Dockerfile
+    ports:
+      - "5000:8080"
+    depends_on:
+      musicjam-studio:
+        condition: service_started
+      musicjam-runtime:
+        condition: service_started
+
+  musicjam-studio:
+    build:
+      context: .
+      dockerfile: Backend/MusicJam.Studio/Dockerfile
+    expose:
+      - "8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=musicjam;Username=postgres;Password=postgres"
+      JwtSettings__SecretKey: "${JWT_SECRET}"
+      JwtSettings__Issuer: "${JWT_ISSUER}"
+      JwtSettings__Audience: "${JWT_AUDIENCE}"
+
+  musicjam-runtime:
+    build:
+      context: .
+      dockerfile: Backend/MusicJam.Runtime/Dockerfile
+    expose:
+      - "8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
 
 volumes:
   postgres_data:

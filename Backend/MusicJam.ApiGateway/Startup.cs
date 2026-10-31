@@ -1,6 +1,4 @@
-﻿using MusicJam.ApiGateway.Extensions;
-
-namespace MusicJam.ApiGateway;
+﻿namespace MusicJam.ApiGateway;
 
 public class Startup(IConfiguration configuration)
 {
@@ -15,20 +13,14 @@ public class Startup(IConfiguration configuration)
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
-        var staticFileOptions = new StaticFileOptions
-        {
-            FileProvider = FileProviderExtensions.CreateStaticFileProvider(env)
-        };
-
         app
-            .UseHttpsRedirection()
+            .UseDefaultFiles()
+            .UseStaticFiles()
             .UseRouting()
-            .UseDefaultFiles(new DefaultFilesOptions { FileProvider = staticFileOptions.FileProvider })
-            .UseStaticFiles(staticFileOptions)
             .UseEndpoints(endpoints =>
             {
                 endpoints.MapReverseProxy();
-                endpoints.MapFallbackToFile("index.html", staticFileOptions);
+                endpoints.MapFallbackToFile("index.html");
             });
     }
 }

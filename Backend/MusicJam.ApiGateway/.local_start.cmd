@@ -6,6 +6,8 @@ call npm install
 call npm run build
 popd
 
+robocopy ..\..\Frontend\dist .\wwwroot /E
+
 cd ..\MusicJam.Runtime
 start dotnet run -c=Release
 

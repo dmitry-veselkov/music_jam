@@ -1,0 +1,24 @@
+﻿FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+USER $APP_UID
+WORKDIR /app
+EXPOSE 8080
+
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+ARG BUILD_CONFIGURATION=Release
+WORKDIR /src
+COPY ["Backend/MusicJam.Runtime/MusicJam.Runtime.csproj", "Backend/MusicJam.Runtime/"]
+COPY ["Backend/MusicJam.Music/MusicJam.Music.csproj", "Backend/MusicJam.Music/"]
+COPY ["Backend/MusicJam.Shared/MusicJam.Shared.csproj", "Backend/MusicJam.Shared/"]
+RUN dotnet restore "Backend/MusicJam.Runtime/MusicJam.Runtime.csproj"
+COPY . .
+WORKDIR "/src/Backend/MusicJam.Runtime"
+RUN dotnet build "./MusicJam.Runtime.csproj" -c $BUILD_CONFIGURATION -o /app/build
+
+FROM build AS publish
+ARG BUILD_CONFIGURATION=Release
+RUN dotnet publish "./MusicJam.Runtime.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+ENTRYPOINT ["dotnet", "MusicJam.Runtime.dll"]
