@@ -1,5 +1,6 @@
 using MusicJam.Studio.Models.Packs;
 using MusicJam.Studio.Responses;
+using MusicJam.Studio.Responses.Packs;
 
 namespace MusicJam.Studio.Extensions;
 

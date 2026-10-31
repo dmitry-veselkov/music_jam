@@ -1,6 +1,6 @@
 ﻿using MusicJam.Music;
 using MusicJam.Studio.Models.Packs;
-using MusicJam.Studio.Requests;
+using MusicJam.Studio.Requests.Questions;
 using Shared;
 
 namespace MusicJam.Studio.Services.QuestionService;

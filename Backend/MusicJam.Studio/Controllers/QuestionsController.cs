@@ -4,7 +4,7 @@ using MusicJam.Music;
 using MusicJam.Studio.Constants;
 using MusicJam.Studio.Extensions;
 using MusicJam.Studio.Models.Packs;
-using MusicJam.Studio.Requests;
+using MusicJam.Studio.Requests.Questions;
 using MusicJam.Studio.Services.QuestionService;
 
 namespace MusicJam.Studio.Controllers;

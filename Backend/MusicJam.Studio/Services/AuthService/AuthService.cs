@@ -1,6 +1,7 @@
 ﻿using MusicJam.Studio.Helpers;
 using MusicJam.Studio.Models.Users;
 using MusicJam.Studio.Requests;
+using MusicJam.Studio.Requests.Auth;
 using MusicJam.Studio.Services.TokenService;
 using MusicJam.Studio.Storages.UsersStorage;
 using Shared;
@@ -12,7 +13,7 @@ internal class AuthService(
     ITokenService tokenService)
     : IAuthService
 {
-    public async Task<Result<string, IAuthService.AuthError>> Login(AuthRequest request)
+    public async Task<Result<string, IAuthService.AuthError>> Login(LoginRequest request)
     {
         var user = await userStorage.GetUserByEmail(request.Email);
         if (user is null)

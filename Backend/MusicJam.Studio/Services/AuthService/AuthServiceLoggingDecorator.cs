@@ -1,4 +1,5 @@
 ﻿using MusicJam.Studio.Requests;
+using MusicJam.Studio.Requests.Auth;
 using Shared;
 
 namespace MusicJam.Studio.Services.AuthService;
@@ -7,7 +8,7 @@ internal class AuthServiceLoggingDecorator(
     IAuthService authService,
     ILogger<AuthServiceLoggingDecorator> logger) : IAuthService
 {
-    public async Task<Result<string, IAuthService.AuthError>> Login(AuthRequest request)
+    public async Task<Result<string, IAuthService.AuthError>> Login(LoginRequest request)
     {
         logger.LogInformation(
             "Start login user with email = {Email}",

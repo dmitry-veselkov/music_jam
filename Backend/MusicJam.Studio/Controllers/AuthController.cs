@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using MusicJam.Studio.Constants;
 using MusicJam.Studio.Extensions;
 using MusicJam.Studio.Requests;
+using MusicJam.Studio.Requests.Auth;
 using MusicJam.Studio.Services.AuthService;
 
 namespace MusicJam.Studio.Controllers;
@@ -17,7 +18,7 @@ public class AuthController(IAuthService authService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult> Login([FromBody] AuthRequest request)
+    public async Task<ActionResult> Login([FromBody] LoginRequest request)
     {
         var loginResult = await authService.Login(request);
         if (loginResult.TryGetFault(out var error, out var token))
