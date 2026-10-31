@@ -16,7 +16,7 @@ public static class ServiceCollectionExtensions
             .AddScoped<IAuthService, AuthService>()
             .Decorate<IAuthService, AuthServiceLoggingDecorator>()
             .AddScoped<ITokenService, JwtTokenService>()
-            .AddScoped<IQuestionService, QuestionService>()
+            .AddScoped<IQuestionsService, QuestionsService>()
             .AddScoped<IPacksService, PacksService>()
             .AddScoped<IGameService, GameService>();
 

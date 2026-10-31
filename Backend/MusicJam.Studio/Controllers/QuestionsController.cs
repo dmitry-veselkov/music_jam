@@ -1,7 +1,8 @@
-﻿using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MusicJam.Music;
 using MusicJam.Studio.Constants;
+using MusicJam.Studio.Extensions;
 using MusicJam.Studio.Models.Packs;
 using MusicJam.Studio.Requests;
 using MusicJam.Studio.Services.QuestionService;
@@ -11,21 +12,24 @@ namespace MusicJam.Studio.Controllers;
 [ApiController]
 [Route("api/questions")]
 [Authorize(AuthenticationSchemes = AuthConstants.DefaultAuthorizationScheme)]
-public class QuestionController(IQuestionService questionService) : ControllerBase
+public class QuestionsController(IQuestionsService questionsService) : ControllerBase
 {
-   
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetQuestions([FromQuery] GetQuestionsRequest request)
+    public async Task<ActionResult<Question[]>> GetQuestions([FromQuery] GetQuestionsRequest request)
     {
         var userId = User.GetUserId();
-        var result = await questionService.GetQuestions(userId, request);
+
+        var result = await questionsService.GetQuestions(userId, request);
         if (result.TryGetFault(out var error, out var questions))
+        {
             return ErrorResponse(error);
-        return Ok(questions);
+        }
+
+        return questions;
     }
 
     [HttpPost]
@@ -33,13 +37,20 @@ public class QuestionController(IQuestionService questionService) : ControllerBa
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> CreateQuestion([FromForm] CreateQuestionRequest request)
+    public async Task<ActionResult> CreateQuestion([FromForm] CreateQuestionRequest request)
     {
         var userId = User.GetUserId();
-        var result = await questionService.Create(userId, request);
+
+        var result = await questionsService.Create(userId, request);
         if (result.TryGetFault(out var error, out var question))
+        {
             return ErrorResponse(error);
-        return CreatedAtAction(nameof(GetQuestion), new { questionId = question.Id }, question);
+        }
+
+        return CreatedAtAction(
+            nameof(GetQuestion),
+            new { questionId = question.Id },
+            question);
     }
 
 
@@ -51,12 +62,16 @@ public class QuestionController(IQuestionService questionService) : ControllerBa
     public async Task<IActionResult> DeleteQuestion(Guid questionId)
     {
         var userId = User.GetUserId();
-        var result = await questionService.Delete(userId, questionId);
-        if (result.TryGetFault(out var error, out var question))
+
+        var result = await questionsService.Delete(userId, questionId);
+        if (result.TryGetFault(out var error, out _))
+        {
             return ErrorResponse(error);
+        }
+
         return NoContent();
     }
-    
+
     [HttpPatch("{questionId:guid}")]
     [ProducesResponseType(typeof(Question), StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -65,9 +80,13 @@ public class QuestionController(IQuestionService questionService) : ControllerBa
     public async Task<IActionResult> PatchQuestion(Guid questionId, [FromForm] CreateQuestionRequest request)
     {
         var userId = User.GetUserId();
-        var result = await questionService.Update(userId, questionId, PatchMode.PatchCopy, request);
-        if (result.TryGetFault(out var error, out var question))
+
+        var result = await questionsService.Update(userId, questionId, PatchMode.PatchCopy, request);
+        if (result.TryGetFault(out var error, out _))
+        {
             return ErrorResponse(error);
+        }
+
         return NoContent();
     }
 
@@ -79,13 +98,17 @@ public class QuestionController(IQuestionService questionService) : ControllerBa
     public async Task<IActionResult> GetQuestion(Guid questionId)
     {
         var userId = User.GetUserId();
-        var result = await questionService.Get(userId, questionId);
+
+        var result = await questionsService.Get(userId, questionId);
         if (result.TryGetFault(out var error, out var question))
+        {
             return ErrorResponse(error);
+        }
+
         return Ok(question);
     }
 
-    
+
     [HttpGet("{questionId:guid}/answer-track")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -94,9 +117,13 @@ public class QuestionController(IQuestionService questionService) : ControllerBa
     public async Task<IActionResult> GetAnswerTrack(Guid questionId)
     {
         var userId = User.GetUserId();
-        var result = await questionService.GetAnswerTrack(userId, questionId);
+
+        var result = await questionsService.GetTrack(userId, questionId, TrackType.Answer);
         if (result.TryGetFault(out var error, out var track))
+        {
             return ErrorResponse(error);
+        }
+
         return Ok(track);
     }
 
@@ -108,9 +135,24 @@ public class QuestionController(IQuestionService questionService) : ControllerBa
     public async Task<IActionResult> GetQuestionTrack(Guid questionId)
     {
         var userId = User.GetUserId();
-        var result = await questionService.GetQuestionTrack(userId, questionId);
+
+        var result = await questionsService.GetTrack(userId, questionId, TrackType.Question);
         if (result.TryGetFault(out var error, out var track))
+        {
             return ErrorResponse(error);
+        }
+
         return Ok(track);
+    }
+
+    private ActionResult ErrorResponse(IQuestionsService.QuestionError error)
+    {
+        return error switch
+        {
+            IQuestionsService.QuestionError.NotFound => NotFound(),
+            IQuestionsService.QuestionError.InvalidRequest => BadRequest(),
+            IQuestionsService.QuestionError.InvalidTrackType => BadRequest(),
+            _ => throw new ArgumentOutOfRangeException(error.ToString()),
+        };
     }
 }
