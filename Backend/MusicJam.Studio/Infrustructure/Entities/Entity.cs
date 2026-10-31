@@ -1,10 +1,6 @@
-﻿namespace MusicJam.Domain.Common;
+﻿namespace MusicJam.Studio.Infrustructure.Entities;
 
 public abstract class Entity
 {
     public Guid Id { get; protected set; } = Guid.NewGuid();
-
-    public DateTime CreatedAtUtc { get; set; }
-
-    public DateTime? UpdatedAtUtc { get; set; }
 }

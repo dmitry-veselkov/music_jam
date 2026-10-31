@@ -1,9 +1,7 @@
-﻿using MusicJam.Domain.Common;
-using Microsoft.EntityFrameworkCore;
-using MusicJam.Domain.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using MusicJam.Studio.Infrustructure.Entities;
 
-
-namespace MusicJam.Infrastructure.Data;
+namespace MusicJam.Studio.Infrustructure.Data.Configurations;
 
 public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
@@ -17,30 +15,8 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<QuestionUsages> QuestionUsages => Set<QuestionUsages>();
     public DbSet<RoundQuestion> RoundQuestions => Set<RoundQuestion>();
     
+    public DbSet<Statistic> Statistics => Set<Statistic>();
+    
     protected override void OnModelCreating(ModelBuilder b) =>
         b.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
-
-    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-    {
-        var now = DateTime.UtcNow;
-        foreach (var entry in ChangeTracker.Entries<Entity>())
-        {
-            switch (entry.State)
-            {
-                case EntityState.Added:
-                    entry.Entity.CreatedAtUtc = now;
-                    break;
-                case EntityState.Modified:
-                    entry.Entity.UpdatedAtUtc = now;
-                    break;
-                case EntityState.Detached:
-                case EntityState.Unchanged:
-                case EntityState.Deleted:
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
-        return base.SaveChangesAsync(cancellationToken);
-    }
 }

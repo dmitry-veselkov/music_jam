@@ -2,9 +2,9 @@
 
 namespace MusicJam.Studio.Storages.UsersStorage;
 
-public interface IUsersStorage
+public interface IUserStorage
 {
-    Task<User?> TryGetUserByEmail(string email);
+    Task<User?> GetUserByEmail(string email);
 
     Task<User> SaveUser(User user);
 }

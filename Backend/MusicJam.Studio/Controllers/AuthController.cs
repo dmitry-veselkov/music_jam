@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MusicJam.Studio.Constants;
+using MusicJam.Studio.Extensions;
 using MusicJam.Studio.Requests;
+using MusicJam.Studio.Requests.Auth;
 using MusicJam.Studio.Services.AuthService;
 
 namespace MusicJam.Studio.Controllers;
@@ -16,7 +18,7 @@ public class AuthController(IAuthService authService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> Login([FromBody] AuthRequest request)
+    public async Task<ActionResult> Login([FromBody] LoginRequest request)
     {
         var loginResult = await authService.Login(request);
         if (loginResult.TryGetFault(out var error, out var token))
@@ -24,7 +26,7 @@ public class AuthController(IAuthService authService) : ControllerBase
             return ErrorResponse(error);
         }
 
-        Response.Cookies.Append(AuthConstants.AccessToken, token, GetTokenCookieOptions());
+        Response.SetAccessTokenCookie(token);
 
         return Ok();
     }
@@ -35,7 +37,7 @@ public class AuthController(IAuthService authService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> Register([FromBody] RegisterRequest request)
+    public async Task<ActionResult> Register([FromBody] RegisterRequest request)
     {
         var registerResult = await authService.Register(request);
         if (registerResult.TryGetFault(out var error, out var token))
@@ -43,7 +45,7 @@ public class AuthController(IAuthService authService) : ControllerBase
             return ErrorResponse(error);
         }
 
-        Response.Cookies.Append(AuthConstants.AccessToken, token, GetTokenCookieOptions());
+        Response.SetAccessTokenCookie(token);
 
         return Created();
     }
@@ -52,12 +54,12 @@ public class AuthController(IAuthService authService) : ControllerBase
     [Authorize(AuthenticationSchemes = AuthConstants.DefaultAuthorizationScheme)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public IActionResult Me()
+    public ActionResult Me()
     {
         return Ok();
     }
 
-    private IActionResult ErrorResponse(IAuthService.AuthError error)
+    private ActionResult ErrorResponse(IAuthService.AuthError error)
     {
         return error switch
         {
@@ -67,12 +69,4 @@ public class AuthController(IAuthService authService) : ControllerBase
             _ => throw new ArgumentOutOfRangeException(error.ToString()),
         };
     }
-
-    private static CookieOptions GetTokenCookieOptions() => new()
-    {
-        HttpOnly = true,
-        Secure = true,
-        SameSite = SameSiteMode.Strict,
-        Expires = DateTimeOffset.UtcNow.AddDays(AuthConstants.AccessTokenLifetimeInDays)
-    };
 }

@@ -1,8 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using MusicJam.Domain.Entities;
 
-namespace MusicJam.Infrastructure.Data.Configurations;
+namespace MusicJam.Studio.Infrustructure.Entities;
 
 internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
 {
@@ -12,6 +11,6 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Username).IsRequired();
         builder.Property(x => x.Email).IsRequired();
-        builder.Property(x => x.PasswordHash).IsRequired();
+        builder.Property(x => x.Password).IsRequired();
     }
 }

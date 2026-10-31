@@ -24,7 +24,7 @@ const RegisterForm = () => {
               id="reg-name"
               placeholder="Иван Иванов"
               maxLength={250}
-              {...register("nickname")}
+              {...register("username")}
             />
           </div>
 

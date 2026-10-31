@@ -1,8 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using MusicJam.Domain.Entities;
 
-namespace MusicJam.Infrastructure.Data.Configurations;
+namespace MusicJam.Studio.Infrustructure.Entities;
 
 internal sealed class GameConfiguration : IEntityTypeConfiguration<Game>
 {
@@ -19,8 +18,11 @@ internal sealed class GameConfiguration : IEntityTypeConfiguration<Game>
         builder.Property(x => x.State).IsRequired();
 
         builder.HasOne(x => x.User)
-            .WithOne();
+            .WithMany(x => x.Games)
+            .HasForeignKey(x => x.UserId);
+
         builder.HasOne(x => x.Pack)
-            .WithOne();
+            .WithMany()
+            .HasForeignKey(x => x.PackId);
     }
 }

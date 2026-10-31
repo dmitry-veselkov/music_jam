@@ -1,9 +1,17 @@
-﻿using System.Text;
+﻿using System.Buffers;
+using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc.Formatters;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using MusicJam.Studio.Configurations;
 using MusicJam.Studio.Constants;
 using MusicJam.Studio.Extensions;
+using MusicJam.Studio.Infrustructure.Data.Configurations;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace MusicJam.Studio;
 
@@ -15,7 +23,19 @@ public class Startup(IConfiguration configuration)
     {
         services.AddServices();
         services.AddStorages();
-        services.AddControllers();
+        services.AddControllers(options =>
+        {
+            options.OutputFormatters.Insert(0, new
+                NewtonsoftJsonOutputFormatter(new JsonSerializerSettings
+                {
+                    ContractResolver = new CamelCasePropertyNamesContractResolver(),
+                    Converters = { new StringEnumConverter() }
+                }, ArrayPool<char>.Shared, options));
+            options.RespectBrowserAcceptHeader = true;
+        })
+        // enum'ы во входящем JSON — строками, как их шлёт фронт ("Hosted"/"Hostless")
+        .AddJsonOptions(options =>
+            options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
         var jwtSettings = new JwtSettings();
         Configuration.GetSection(nameof(JwtSettings)).Bind(jwtSettings);
@@ -41,6 +61,10 @@ public class Startup(IConfiguration configuration)
                     };
                 });
         services.AddAuthorization();
+        services.AddDbContext<AppDbContext>(options =>
+            options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"))
+                .UseSnakeCaseNamingConvention()
+                .EnableSensitiveDataLogging());
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -50,11 +74,6 @@ public class Startup(IConfiguration configuration)
             .UseRouting()
             .UseAuthentication()
             .UseAuthorization()
-            .Use(async (context, next) =>
-            {
-                context.Response.ContentType = "application/json; charset=utf-8";
-                await next();
-            })
             .UseEndpoints(endpoints => { endpoints.MapControllers(); });
     }
 

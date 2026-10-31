@@ -10,7 +10,7 @@ const Pack = () => {
   return (
     <div className={styles.page}>
       <Header showAuthButtons={false} />
-      <PackEditor packId={id} initial={data} />
+      <PackEditor packId={id ?? "Херота"} initial={data} />
     </div>
   );
 };

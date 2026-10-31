@@ -1,6 +1,7 @@
 ﻿using MusicJam.Studio.Helpers;
 using MusicJam.Studio.Models.Users;
 using MusicJam.Studio.Requests;
+using MusicJam.Studio.Requests.Auth;
 using MusicJam.Studio.Services.TokenService;
 using MusicJam.Studio.Storages.UsersStorage;
 using Shared;
@@ -8,19 +9,19 @@ using Shared;
 namespace MusicJam.Studio.Services.AuthService;
 
 internal class AuthService(
-    IUsersStorage usersStorage,
+    IUserStorage userStorage,
     ITokenService tokenService)
     : IAuthService
 {
-    public async Task<Result<string, IAuthService.AuthError>> Login(AuthRequest request)
+    public async Task<Result<string, IAuthService.AuthError>> Login(LoginRequest request)
     {
-        var user = await usersStorage.TryGetUserByEmail(request.Email);
+        var user = await userStorage.GetUserByEmail(request.Email);
         if (user is null)
         {
             return IAuthService.AuthError.UserNotFound;
         }
 
-        if (!PasswordHelper.Verify(request.Password, user.PasswordHash))
+        if (!PasswordHelper.Verify(request.Password, user.Password))
         {
             return IAuthService.AuthError.InvalidCredentials;
         }
@@ -30,7 +31,7 @@ internal class AuthService(
 
     public async Task<Result<string, IAuthService.AuthError>> Register(RegisterRequest request)
     {
-        var user = await usersStorage.TryGetUserByEmail(request.Email);
+        var user = await userStorage.GetUserByEmail(request.Email);
         if (user is not null)
         {
             return IAuthService.AuthError.SameEmailAlreadyExists;
@@ -39,8 +40,8 @@ internal class AuthService(
         var passwordHash = PasswordHelper.Hash(request.Password);
 
         user = new User(request.Email, passwordHash, request.Username);
-        await usersStorage.SaveUser(user);
+        var saved = await userStorage.SaveUser(user);
 
-        return tokenService.GenerateToken(user);
+        return tokenService.GenerateToken(saved);
     }
 }

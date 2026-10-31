@@ -1,7 +1,4 @@
-﻿
-using MusicJam.Domain.Common;
-
-namespace MusicJam.Domain.Entities;
+﻿namespace MusicJam.Studio.Infrustructure.Entities;
 
 public class Statistic : Entity
 {

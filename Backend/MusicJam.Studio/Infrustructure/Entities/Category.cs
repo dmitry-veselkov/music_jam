@@ -1,6 +1,5 @@
-﻿using MusicJam.Domain.Common;
+﻿namespace MusicJam.Studio.Infrustructure.Entities;
 
-namespace MusicJam.Domain.Entities;
 
 public class Category : Entity
 {

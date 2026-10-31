@@ -6,6 +6,9 @@
 # dotenv files
 .env
 
+# agents
+.opencode/
+
 # .cert
 .cert/
 

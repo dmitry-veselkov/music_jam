@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using MusicJam.Domain.Entities;
 
-namespace MusicJam.Infrastructure.Data.Configurations;
+namespace MusicJam.Studio.Infrustructure.Entities;
+
 
 internal sealed class CategoryConfiguration : IEntityTypeConfiguration<Category>
 {

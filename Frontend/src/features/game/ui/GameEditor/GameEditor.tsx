@@ -72,7 +72,7 @@ const GameForm = ({
       name: game?.name ?? '',
       description: game?.description ?? '',
       ...(game ? toFormDate(game.date) : { date: '', time: '' }),
-      mode: game?.mode ?? 'withHost',
+      mode: game?.mode ?? 'Hosted',
     },
   });
 

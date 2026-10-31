@@ -1,8 +1,7 @@
-﻿
-using MusicJam.Domain.Common;
-using MusicJam.Studio.Models.Games;
+﻿using MusicJam.Studio.Models.Games;
 
-namespace MusicJam.Domain.Entities;
+namespace MusicJam.Studio.Infrustructure.Entities;
+
 
 public class Game : Entity
 {

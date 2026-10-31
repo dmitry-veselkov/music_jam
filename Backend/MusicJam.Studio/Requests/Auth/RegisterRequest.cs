@@ -1,9 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace MusicJam.Studio.Requests;
+namespace MusicJam.Studio.Requests.Auth;
 
-public class AuthRequest
+public class RegisterRequest
 {
+    public string Username { get; set; }
+
     [Required]
     public string Email { get; set; }
 

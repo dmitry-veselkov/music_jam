@@ -9,5 +9,6 @@ public class Question
     public string CorrectAnswer { get; set; }
     public Track QuestionTrack { get; set; }
     public Track AnswerTrack { get; set; }
+    
     public List<Pack> Usages { get; set; }
 }
