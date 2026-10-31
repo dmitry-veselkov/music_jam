@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MusicJam.Studio.Infrustructure.Entities;
 
-namespace MusicJam.Studio.Infrustructure.Data.Configurations;
+namespace MusicJam.Studio.Infrustructure.Data;
 
 public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {

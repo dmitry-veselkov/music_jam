@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using MusicJam.Studio.Infrustructure.Data;
 using MusicJam.Studio.Infrustructure.Data.Configurations;
 using DbGame = MusicJam.Studio.Infrustructure.Entities.Game;
 using Game = MusicJam.Studio.Models.Games.Game;

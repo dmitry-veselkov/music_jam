@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.AspNetCore.Authentication" Version="2.3.13" />
+      <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="8.0.31" />
+      <PackageReference Include="Npgsql" Version="8.0.6" />
+      <PackageReference Include="Respawn" Version="7.0.0" />
+      <PackageReference Include="Testcontainers.PostgreSql" Version="4.16.0" />
+      <PackageReference Include="xunit.extensibility.core" Version="2.5.3" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\MusicJam.Studio\MusicJam.Studio.csproj" />
+    </ItemGroup>
+
+</Project>

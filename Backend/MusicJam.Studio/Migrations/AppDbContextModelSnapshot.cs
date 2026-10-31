@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using MusicJam.Studio.Infrustructure.Data;
 using MusicJam.Studio.Infrustructure.Data.Configurations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
