@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using MusicJam.Studio.Infrustructure.Data;
 using MusicJam.Studio.Infrustructure.Data.Configurations;
 using DbUser = MusicJam.Studio.Infrustructure.Entities.User;
 using User = MusicJam.Studio.Models.Users.User;
