@@ -5,9 +5,9 @@ using User = MusicJam.Studio.Models.Users.User;
 
 namespace MusicJam.Studio.Storages.UsersStorage;
 
-internal class UsersStorage(AppDbContext db) : IUsersStorage
+internal class UserStorage(AppDbContext db) : IUserStorage
 {
-    public async Task<User?> TryGetUserByEmail(string email)
+    public async Task<User?> GetUserByEmail(string email)
     {
         var entity =  await db.Users
             .Where(x => x.Email == email)

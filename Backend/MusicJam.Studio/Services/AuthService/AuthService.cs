@@ -8,13 +8,13 @@ using Shared;
 namespace MusicJam.Studio.Services.AuthService;
 
 internal class AuthService(
-    IUsersStorage usersStorage,
+    IUserStorage userStorage,
     ITokenService tokenService)
     : IAuthService
 {
     public async Task<Result<string, IAuthService.AuthError>> Login(AuthRequest request)
     {
-        var user = await usersStorage.TryGetUserByEmail(request.Email);
+        var user = await userStorage.GetUserByEmail(request.Email);
         if (user is null)
         {
             return IAuthService.AuthError.UserNotFound;
@@ -30,7 +30,7 @@ internal class AuthService(
 
     public async Task<Result<string, IAuthService.AuthError>> Register(RegisterRequest request)
     {
-        var user = await usersStorage.TryGetUserByEmail(request.Email);
+        var user = await userStorage.GetUserByEmail(request.Email);
         if (user is not null)
         {
             return IAuthService.AuthError.SameEmailAlreadyExists;
@@ -39,7 +39,7 @@ internal class AuthService(
         var passwordHash = PasswordHelper.Hash(request.Password);
 
         user = new User(request.Email, passwordHash, request.Username);
-        var saved = await usersStorage.SaveUser(user);
+        var saved = await userStorage.SaveUser(user);
 
         return tokenService.GenerateToken(saved);
     }

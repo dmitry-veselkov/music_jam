@@ -1,6 +1,3 @@
--- Схема сгенерирована из EF-модели (AppDbContext + *Configuration, snake_case).
--- При изменении сущностей перегенерируйте: db.Database.GenerateCreateScript()
-
 CREATE TABLE categories (
     id uuid NOT NULL,
     "order" integer NOT NULL,

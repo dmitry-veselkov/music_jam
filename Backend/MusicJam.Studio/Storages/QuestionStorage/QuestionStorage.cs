@@ -10,6 +10,7 @@ public class QuestionStorage(AppDbContext db) : IQuestionStorage
 {
     public static Question ToModel(DbQuestion e) => new()
     {
+        Id = e.Id,
         Requested = e.Requested,
         CorrectAnswer = e.CorrectAnswer,
         AnswerTrack = new Track()
@@ -23,7 +24,7 @@ public class QuestionStorage(AppDbContext db) : IQuestionStorage
     };
 
 
-    public async Task<List<Question>> TryGetAllUserQuestions(Guid id)
+    public async Task<List<Question>> GetAllUserQuestions(Guid id)
     {
         return db.Questions
             .Include(q => q.QuestionTrack)
@@ -35,20 +36,24 @@ public class QuestionStorage(AppDbContext db) : IQuestionStorage
 
     public async Task<Question> SaveQuestion(Guid userId, Question question)
     {
-        await db.Questions.AddAsync(new DbQuestion()
+        var entity = new DbQuestion()
         {
             AnswerTrack = TrackStorage.ToDbModel(question.AnswerTrack),
             QuestionTrack =  TrackStorage.ToDbModel(question.QuestionTrack),
             CorrectAnswer = question.CorrectAnswer,
             Requested = question.Requested,
             UserId = userId
-        });
-        return question;
+        };
+        await db.Questions.AddAsync(entity);
+        await db.SaveChangesAsync();
+        return ToModel(entity);
     }
 
-    public async Task<Question?> TryGetQuestion(Guid userId, Guid questionId)
+    public async Task<Question?> GetQuestion(Guid userId, Guid questionId)
     {
         var question = await db.Questions
+            .Include(q => q.QuestionTrack)
+            .Include(q => q.AnswerTrack)
             .Where(x => x.UserId == userId && x.Id == questionId)
             .FirstOrDefaultAsync();
         return question is null ? null : ToModel(question);
@@ -62,5 +67,6 @@ public class QuestionStorage(AppDbContext db) : IQuestionStorage
         if (question is null)
             return;
         db.Questions.Remove(question);
+        await db.SaveChangesAsync();
     }
 }

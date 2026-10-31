@@ -17,7 +17,7 @@ public class TrackStorage(AppDbContext db) : ITrackStorage
     };
 
 
-    public async Task<Track?> TryGetTrackById(Guid id)
+    public async Task<Track?> GetTrackById(Guid id)
     {
         var track = await db.Tracks
             .Where(x => x.Id == id)

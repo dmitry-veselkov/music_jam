@@ -19,14 +19,13 @@ public class QuestionController(IQuestionService questionService) : ControllerBa
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetQuestions([FromQuery] GetQuestionsQuery query)
+    public async Task<IActionResult> GetQuestions([FromQuery] GetQuestionsRequest request)
     {
-        if (!TryGetUserId(out var userId))
-            return Unauthorized();
-        var result = await questionService.GetQuestions(userId, query);
+        var userId = User.GetUserId();
+        var result = await questionService.GetQuestions(userId, request);
         if (result.TryGetFault(out var error, out var questions))
-            return NotFound(error);
-        return Ok(new { questions });
+            return ErrorResponse(error);
+        return Ok(questions);
     }
 
     [HttpPost]
@@ -34,14 +33,42 @@ public class QuestionController(IQuestionService questionService) : ControllerBa
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> CreateQuestion([FromBody] CreateQuestionRequest request)
+    public async Task<IActionResult> CreateQuestion([FromForm] CreateQuestionRequest request)
     {
-        if (!TryGetUserId(out var userId))
-            return Unauthorized();
+        var userId = User.GetUserId();
         var result = await questionService.Create(userId, request);
         if (result.TryGetFault(out var error, out var question))
-            return BadRequest(error);
-        return CreatedAtAction(nameof(GetQuestion), question);
+            return ErrorResponse(error);
+        return CreatedAtAction(nameof(GetQuestion), new { questionId = question.Id }, question);
+    }
+
+
+    [HttpDelete("{questionId:guid}")]
+    [ProducesResponseType(typeof(Question), StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> DeleteQuestion(Guid questionId)
+    {
+        var userId = User.GetUserId();
+        var result = await questionService.Delete(userId, questionId);
+        if (result.TryGetFault(out var error, out var question))
+            return ErrorResponse(error);
+        return NoContent();
+    }
+    
+    [HttpPatch("{questionId:guid}")]
+    [ProducesResponseType(typeof(Question), StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> PatchQuestion(Guid questionId, [FromForm] CreateQuestionRequest request)
+    {
+        var userId = User.GetUserId();
+        var result = await questionService.Update(userId, questionId, PatchMode.PatchCopy, request);
+        if (result.TryGetFault(out var error, out var question))
+            return ErrorResponse(error);
+        return NoContent();
     }
 
     [HttpGet("{questionId:guid}")]
@@ -51,11 +78,10 @@ public class QuestionController(IQuestionService questionService) : ControllerBa
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetQuestion(Guid questionId)
     {
-        if (!TryGetUserId(out var userId))
-            return Unauthorized();
+        var userId = User.GetUserId();
         var result = await questionService.Get(userId, questionId);
         if (result.TryGetFault(out var error, out var question))
-            return NotFound(error);
+            return ErrorResponse(error);
         return Ok(question);
     }
 
@@ -67,14 +93,11 @@ public class QuestionController(IQuestionService questionService) : ControllerBa
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetAnswerTrack(Guid questionId)
     {
-        if (!TryGetUserId(out var userId))
-            return Unauthorized();
-
+        var userId = User.GetUserId();
         var result = await questionService.GetAnswerTrack(userId, questionId);
         if (result.TryGetFault(out var error, out var track))
-            return NotFound(error);
+            return ErrorResponse(error);
         return Ok(track);
-        //Stream
     }
 
     [HttpGet("{questionId:guid}/question-track")]
@@ -84,19 +107,10 @@ public class QuestionController(IQuestionService questionService) : ControllerBa
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetQuestionTrack(Guid questionId)
     {
-        if (!TryGetUserId(out var userId))
-            return Unauthorized();
-
+        var userId = User.GetUserId();
         var result = await questionService.GetQuestionTrack(userId, questionId);
         if (result.TryGetFault(out var error, out var track))
-            return NotFound(error);
+            return ErrorResponse(error);
         return Ok(track);
-        //Stream
-    }
-
-    private bool TryGetUserId(out Guid userId)
-    {
-        var value = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
-        return Guid.TryParse(value, out userId);
     }
 }

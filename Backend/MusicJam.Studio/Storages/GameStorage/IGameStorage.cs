@@ -7,7 +7,7 @@ namespace MusicJam.Studio.Storages;
 
 public interface IGameStorage
 {
-    Task<List<Game>> GetAllUserGames(Guid userId);
+    Task<List<Game>> GetAllUserGames(Guid userId, int? take = null, int skip = 0);
 
     Task<Game> SaveGame(Guid userId, Game game);
     

@@ -2,7 +2,7 @@
 
 namespace MusicJam.Studio.Requests;
 
-public class GetQuestionsQuery
+public class GetQuestionsRequest
 {
     [Range(0, int.MaxValue)]
     public int Skip { get; set; }

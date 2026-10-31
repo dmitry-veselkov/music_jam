@@ -1,5 +1,4 @@
-﻿using MusicJam.Studio.Models.Packs;
-using MusicJam.Studio.Services.AuthService;
+﻿using MusicJam.Studio.Services.AuthService;
 using MusicJam.Studio.Services.GameService;
 using MusicJam.Studio.Services.PackService;
 using MusicJam.Studio.Services.QuestionService;
@@ -27,7 +26,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddStorages(this IServiceCollection services)
     {
         services
-            .AddScoped<IUsersStorage, UsersStorage>()
+            .AddScoped<IUserStorage, UserStorage>()
             .AddScoped<ITrackStorage, TrackStorage>()
             .AddScoped<IQuestionStorage, QuestionStorage>()
             .AddScoped<IRoundStorage, RoundStorage>()

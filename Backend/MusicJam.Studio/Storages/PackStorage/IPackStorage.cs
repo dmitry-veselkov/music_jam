@@ -5,9 +5,9 @@ namespace MusicJam.Studio.Storages;
 
 public interface IPackStorage
 {
-    Task<List<Pack>> TryGetPacksByUser(Guid userId);
+    Task<List<Pack>> GetPacksByUser(Guid userId, int? take = null, int skip = 0);
     
-    Task<Pack?> TryGetPackByUser(Guid userId, Guid packId);
+    Task<Pack?> GetPackByUser(Guid userId, Guid packId);
 
     Task<Pack> SavePack(Guid userId, Pack pack);
     

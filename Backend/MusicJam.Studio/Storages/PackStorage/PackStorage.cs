@@ -9,12 +9,17 @@ namespace MusicJam.Studio.Storages;
 
 public class PackStorage(AppDbContext db, IRoundStorage roundStorage) : IPackStorage
 {
-    public async Task<List<Pack>> TryGetPacksByUser(Guid userId)
+    public async Task<List<Pack>> GetPacksByUser(Guid userId, int? take = null, int skip = 0)
     {
-        var packsDb = await db.Packs
+        var query = db.Packs
             .Where(x => x.UserId == userId)
             .OrderBy(x => x.CreatedAtUtc)
-            .ToListAsync();
+            .Skip(skip);
+
+        if (take.HasValue)
+            query = query.Take(take.Value);
+
+        var packsDb = await query.ToListAsync();
         var packs = new List<Pack>();
         foreach (var packDb in packsDb)
         {
@@ -23,14 +28,14 @@ public class PackStorage(AppDbContext db, IRoundStorage roundStorage) : IPackSto
                 Id = packDb.Id,
                 Name = packDb.Title,
                 CreatedAtUtc = packDb.CreatedAtUtc,
-                Rounds = await roundStorage.TryGetByPackId(packDb.Id),
+                Rounds = await roundStorage.GetByPackId(packDb.Id),
                 UpdatedAtUtc = packDb.UpdatedAtUtc,
             });
         }
         return packs;
     }
 
-    public async Task<Pack?> TryGetPackByUser(Guid userId, Guid packId)
+    public async Task<Pack?> GetPackByUser(Guid userId, Guid packId)
     {
         var packsDb = db.Packs
             .FirstOrDefault(x => x.UserId == userId && x.Id == packId);
@@ -41,7 +46,7 @@ public class PackStorage(AppDbContext db, IRoundStorage roundStorage) : IPackSto
             Id = packsDb.Id,
             Name = packsDb.Title,
             CreatedAtUtc = packsDb.CreatedAtUtc,
-            Rounds = await roundStorage.TryGetByPackId(packsDb.Id),
+            Rounds = await roundStorage.GetByPackId(packsDb.Id),
             UpdatedAtUtc = packsDb.UpdatedAtUtc,
         };
         return pack;

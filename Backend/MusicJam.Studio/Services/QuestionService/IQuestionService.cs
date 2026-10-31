@@ -12,7 +12,7 @@ public interface IQuestionService
         InvalidRequest,
     }
     
-    Task<Result<List<Question>, QuestionError>> GetQuestions(Guid userId, GetQuestionsQuery query);
+    Task<Result<List<Question>, QuestionError>> GetQuestions(Guid userId, GetQuestionsRequest request);
 
     Task<Result<Question, QuestionError>> Create(Guid userId, CreateQuestionRequest request);
 
@@ -20,7 +20,7 @@ public interface IQuestionService
 
     Task<Result<Guid, QuestionError>> Delete(Guid userId, Guid questionId);
 
-    Task<Result<Question, QuestionError>> Update(Guid userId, Guid questionId, PatchMode mode, UpdateQuestionRequest request);
+    Task<Result<Question, QuestionError>> Update(Guid userId, Guid questionId, PatchMode mode, CreateQuestionRequest request);
 
     Task<Result<string, QuestionError>> GetQuestionTrack(Guid userId, Guid questionId);
 

@@ -8,25 +8,25 @@ namespace MusicJam.Studio.Storages;
 
 public class GameStorage(AppDbContext db) : IGameStorage
 {
-    private IGameStorage _gameStorageImplementation;
-    public async Task<List<Game>> GetAllUserGames(Guid userId)
+    public async Task<List<Game>> GetAllUserGames(Guid userId, int? take = null, int skip = 0)
     {
-        var entities = await db.Games
+        var query = db.Games
             .AsNoTracking()
             .Include(x => x.Pack)
             .Where(x => x.UserId == userId)
-            .ToListAsync();
+            .Skip(skip);
+        if (take.HasValue)
+            query = query.Take(take.Value);
+        var entities = await query.ToListAsync();
         var result = entities
             .Select(ToModel)
             .ToList();
-        Console.WriteLine(result.Count);
         return result;
     }
 
     public async Task<Game> SaveGame(Guid userId, Game game)
     {
         var entity = ToDbModel(game, userId);
-        // Id у Entity с protected set — задаём через EF, чтобы сохранить id, пришедший с фронта
         db.Entry(entity).Property(x => x.Id).CurrentValue = game.Id;
         db.Games.Add(entity);
         await db.SaveChangesAsync();

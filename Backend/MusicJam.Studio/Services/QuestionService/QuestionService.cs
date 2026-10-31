@@ -11,12 +11,12 @@ internal class QuestionService(
     ITrackStorage trackStorage)
     : IQuestionService
 {
-    public async Task<Result<List<Question>, IQuestionService.QuestionError>> GetQuestions(Guid userId, GetQuestionsQuery query)
+    public async Task<Result<List<Question>, IQuestionService.QuestionError>> GetQuestions(Guid userId, GetQuestionsRequest request)
     {
-        var questions = await questionStorage.TryGetAllUserQuestions(userId);
+        var questions = await questionStorage.GetAllUserQuestions(userId);
         return questions
-            .Skip(query.Skip)
-            .Take(query.Take)
+            .Skip(request.Skip)
+            .Take(request.Take)
             .ToList();
     }
 
@@ -36,13 +36,12 @@ internal class QuestionService(
             Requested = request.Requested,
             CorrectAnswer = request.CorrectAnswer,
         };
-        await questionStorage.SaveQuestion(userId, question);
-        return question;
+        return await questionStorage.SaveQuestion(userId, question);
     }
 
     public async Task<Result<Question, IQuestionService.QuestionError>> Get(Guid userId, Guid questionId)
     {
-        var question = await questionStorage.TryGetQuestion(userId, questionId);
+        var question = await questionStorage.GetQuestion(userId, questionId);
         if (question is null)
             return IQuestionService.QuestionError.NotFound;
         return question;
@@ -50,21 +49,21 @@ internal class QuestionService(
 
     public async Task<Result<Guid, IQuestionService.QuestionError>> Delete(Guid userId, Guid questionId)
     {
-        var question = await questionStorage.TryGetQuestion(userId, questionId);
+        var question = await questionStorage.GetQuestion(userId, questionId);
         if (question is null)
             return IQuestionService.QuestionError.NotFound;
         await questionStorage.DeleteQuestion(userId, questionId);
         return questionId;
     }
 
-    public Task<Result<Question, IQuestionService.QuestionError>> Update(Guid userId, Guid questionId, PatchMode mode, UpdateQuestionRequest request)
+    public Task<Result<Question, IQuestionService.QuestionError>> Update(Guid userId, Guid questionId, PatchMode mode, CreateQuestionRequest request)
     {
         throw new NotImplementedException();
     }
 
     public async Task<Result<string, IQuestionService.QuestionError>> GetQuestionTrack(Guid userId, Guid questionId)
     {
-        var question = await questionStorage.TryGetQuestion(userId, questionId);
+        var question = await questionStorage.GetQuestion(userId, questionId);
         if (question is null)
             return IQuestionService.QuestionError.NotFound;
         return question.QuestionTrack.Link;
@@ -72,7 +71,7 @@ internal class QuestionService(
 
     public async Task<Result<string, IQuestionService.QuestionError>> GetAnswerTrack(Guid userId, Guid questionId)
     {
-        var question = await questionStorage.TryGetQuestion(userId, questionId);
+        var question = await questionStorage.GetQuestion(userId, questionId);
         if (question is null)
             return IQuestionService.QuestionError.NotFound;
         return question.AnswerTrack.Link;

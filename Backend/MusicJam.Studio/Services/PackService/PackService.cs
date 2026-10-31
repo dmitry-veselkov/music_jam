@@ -11,10 +11,9 @@ public class PackService(
 {
     public async Task<List<(Guid, string)>> GetShort(Guid userId, GetPackRequest query)
     {
-        var packs = await packStorage.TryGetPacksByUser(userId);
-        return packs.Select(x => (x.Id, x.Name))
-            .Skip(query.Skip)
-            .Take(query.Take)
+        var packs = await packStorage.GetPacksByUser(userId, query.Take, query.Skip);
+        return packs
+            .Select(x => (x.Id, x.Name))
             .ToList();
     }
     public async Task<Result<Pack, IPackService.PackError>> Create(Guid userId, CreatePackRequest request)
@@ -51,7 +50,7 @@ public class PackService(
 
     public async Task<Result<Pack, IPackService.PackError>> GetPack(Guid userId, Guid packId)
     {
-        var pack = await packStorage.TryGetPackByUser(userId, packId);
+        var pack = await packStorage.GetPackByUser(userId, packId);
         if (pack is null)
             return IPackService.PackError.NotFound;
         return pack;
@@ -59,7 +58,7 @@ public class PackService(
     
     public async Task<List<Pack>> GetPacks(Guid userId, GetPackRequest query)
     {
-        var packIds = await packStorage.TryGetPacksByUser(userId);
+        var packIds = await packStorage.GetPacksByUser(userId);
         return packIds
             .Skip(query.Skip)
             .Take(query.Take)
@@ -78,7 +77,7 @@ public class PackService(
         var questions = new Dictionary<Guid, Question>();
         foreach (var id in ids)
         {
-            var question = await questionStorage.TryGetQuestion(userId, id);
+            var question = await questionStorage.GetQuestion(userId, id);
             questions[id] = question;
         }
 

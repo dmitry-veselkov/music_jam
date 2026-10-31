@@ -13,22 +13,27 @@ public class GameService(
     public async Task<Result<List<Game>, IGameService.GameError>> GetGames(Guid userId, GetGameRequests query)
     {
         var games = await gameStorage.GetAllUserGames(userId);
-        Console.WriteLine(games.Count);
         return games
-            .Skip(query.Skip)
-            .Take(query.Take)
             .ToList();
     }
 
     public async Task<Result<Game, IGameService.GameError>> Create(Guid userId, CreateGameRequests request)
     {
-        return await gameStorage.SaveGame(userId, ToModel(Guid.NewGuid(), request));
+        return await gameStorage.SaveGame(userId, new Game()
+        {
+            Id = Guid.NewGuid(),
+            Description = request.Description ?? string.Empty,
+            Name = request.Name,
+            PlannedStart = request.Date ?? DateTime.Now,
+            Mode = request.Mode,
+            State = State.Scheduled
+        });
     }
 
     public async Task<Result<Game, IGameService.GameError>> Get(Guid gameId)
     {
         var game = await gameStorage.GetGame(gameId);
-        if (game == null)
+        if (game is null)
             return IGameService.GameError.NotFound;
         return game;
     }

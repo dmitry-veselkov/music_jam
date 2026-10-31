@@ -3,6 +3,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MusicJam.Studio.Constants;
+using MusicJam.Studio.Extensions;
 using MusicJam.Studio.Models.Packs;
 using MusicJam.Studio.Requests;
 using MusicJam.Studio.Responses;
@@ -12,22 +13,22 @@ namespace MusicJam.Studio.Controllers;
 
 [ApiController]
 [Route("api/packs")]
+[Produces("application/json")]
 [Authorize(AuthenticationSchemes = AuthConstants.DefaultAuthorizationScheme)]
 public class PackController(IPackService packService, IMapper mapper) : ControllerBase
 {
    
     [HttpGet("short")]
-    [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetShortPack([FromQuery] GetPackRequest query)
+    public async Task<ActionResult<List<ShortPackResponse>>> GetShortPack([FromQuery] GetPackRequest query)
     {
-        if (!TryGetUserId(out var userId))
-            return Unauthorized();
         var result = await packService.GetShort(userId, query);
-        return Ok(result.Select(x => new ShortPackResponse { PackId = x.Item1, Name = x.Item2 }));
+        return result
+            .Select(x => new ShortPackResponse { PackId = x.Item1, Name = x.Item2 })
+            .ToList();
     }
     
     [HttpGet("cards")]
@@ -35,16 +36,13 @@ public class PackController(IPackService packService, IMapper mapper) : Controll
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    [Produces("application/json")]
-    public async Task<IActionResult> GetCardPacks([FromQuery] GetPackRequest query)
+    public async Task<ActionResult<List<GetPackResponse>>> GetCardPacks([FromQuery] GetPackRequest query)
     {
-        if (!TryGetUserId(out var userId))
-            return Unauthorized();
+        var userId = User.GetUserId();
         var result = await packService.GetPacks(userId, query);
-        var packDto = result
-            .Select(mapper.Map<GetPackResponse>)
+        return result
+            .Select(x => x.ToCardResponse())
             .ToList();
-        return Ok(packDto);
     }
     
 
@@ -53,18 +51,16 @@ public class PackController(IPackService packService, IMapper mapper) : Controll
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> UpdatePack(
+    public async Task<ActionResult<Pack>> UpdatePack(
         Guid packId,
         [FromBody] UpdatePackRequest request)
     {
-        if (!TryGetUserId(out var userId))
-            return Unauthorized();
-
+        var userId = User.GetUserId();
         var result = await packService.Update(userId, packId, request);
 
         if (result.TryGetFault(out var error, out var pack))
-            return BadRequest(error);
-        return Ok(pack);
+            return ErrorResponse(error);
+        return pack;
     }
 
     
@@ -75,12 +71,10 @@ public class PackController(IPackService packService, IMapper mapper) : Controll
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> DeletePack(Guid packId)
     {
-        if (!TryGetUserId(out var userId))
-            return Unauthorized();
-
+        var userId = User.GetUserId();
         var result = await packService.Delete(userId, packId);
         if (result.TryGetFault(out var error, out var track))
-            return NotFound(error);
+            return ErrorResponse(error);
         return NoContent();
     }
 
@@ -89,14 +83,14 @@ public class PackController(IPackService packService, IMapper mapper) : Controll
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    [Produces("application/json")]
     public async Task<IActionResult> GetPack(Guid packId)
     {
-        if (!TryGetUserId(out var userId))
-            return Unauthorized();
-
+        var userId = User.GetUserId();
         var result = await packService.GetPack(userId, packId);
-        if (!result.TryGetFault(out var error, out var pack)) return Ok(ToResponse(packId, pack));
+        if (!result.TryGetFault(out var error, out var pack))
+        {
+            return Ok(pack.ToEditResponse());
+        }
         var created = await packService.Create(userId, new CreatePackRequest
         {
             PackId = packId,
@@ -105,80 +99,18 @@ public class PackController(IPackService packService, IMapper mapper) : Controll
             [
                 new CreateRoundRequest
                 {
-                    Name = "Тур 1",
-                    Questions =
-                    [
-                        [
-                            new RoundQuestionRequest
-                            {
-                                Cost = 100,
-                                Category = "Первая",
-                                QuestionId = null
-                            }
-                        ]
-                    ]
+                    Questions = []
                 }
             ]
         });
 
         if (created.TryGetFault(out var createError, out _))
-            return BadRequest(createError);
+            return ErrorResponse(createError);
 
         result = await packService.GetPack(userId, packId);
         if (result.TryGetFault(out error, out pack))
-            return NotFound(error);
+            return ErrorResponse(error);
 
-        return Ok(ToResponse(packId, pack));
-    }
-    
-    private static EditPackResponse ToResponse(Guid packId, Pack pack) => new()
-    {
-        PackId = packId,
-        Name = pack.Name,
-        Rounds = pack.Rounds.Select(ToRoundResponse).ToList()
-    };
-
-    private static RoundResponse ToRoundResponse(Round round)
-    {
-        var field = round.Field ?? [];
-        var categories = (round.Categories ?? [])
-            .Concat(field.Keys)
-            .Distinct()
-            .ToList();
-        var costs = field.Values
-            .SelectMany(row => row.Keys)
-            .Distinct()
-            .Order()
-            .ToList();
-
-        return new RoundResponse
-        {
-            Name = round.Name,
-            Categories = categories,
-            Costs = costs,
-            Questions = categories
-                .Select(category => costs
-                    .Select(cost =>
-                    {
-                        Question? question = null;
-                        if (field.TryGetValue(category, out var row))
-                            row.TryGetValue(cost, out question);
-                        return new QuestionResponse
-                        {
-                            QuestionId = question?.Id,
-                            Category = category,
-                            Cost = cost,
-                            CorrectAnswer = question?.CorrectAnswer,
-                        };
-                    })
-                    .ToList())
-                .ToList()
-        };
-    }
-
-    private bool TryGetUserId(out Guid userId)
-    {
-        var value = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
-        return Guid.TryParse(value, out userId);
+        return Ok(pack.ToEditResponse());
     }
 }

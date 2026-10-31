@@ -8,9 +8,6 @@ using MusicJam.Studio.Configurations;
 using MusicJam.Studio.Constants;
 using MusicJam.Studio.Extensions;
 using MusicJam.Studio.Infrustructure.Data.Configurations;
-using MusicJam.Studio.Models.Packs;
-using MusicJam.Studio.Requests;
-using MusicJam.Studio.Responses;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
@@ -39,12 +36,6 @@ public class Startup(IConfiguration configuration)
         // enum'ы во входящем JSON — строками, как их шлёт фронт ("Hosted"/"Hostless")
         .AddJsonOptions(options =>
             options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
-
-        services.AddAutoMapper(cfg =>
-        {
-            cfg.CreateMap<Pack, GetPackResponse>()
-                .ForMember(d => d.PackId, o => o.MapFrom(s => s.Id));
-        }, new System.Reflection.Assembly[0]);
 
         var jwtSettings = new JwtSettings();
         Configuration.GetSection(nameof(JwtSettings)).Bind(jwtSettings);

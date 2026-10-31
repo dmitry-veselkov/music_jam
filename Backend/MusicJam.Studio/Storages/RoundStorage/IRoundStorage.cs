@@ -6,9 +6,9 @@ namespace MusicJam.Studio.Storages;
 
 public interface IRoundStorage
 {
-    Task<List<Round>> TryGetByPackId(Guid packId);
+    Task<List<Round>> GetByPackId(Guid packId);
     
-    Task<Dictionary<string, Dictionary<int, Question>>> TryGetRound(Guid roundId);
+    Task<Dictionary<string, Dictionary<int, Question>>> GetRound(Guid roundId);
 
 
     Task<(Round, Guid)> Save(Guid packId, int order, Round round);

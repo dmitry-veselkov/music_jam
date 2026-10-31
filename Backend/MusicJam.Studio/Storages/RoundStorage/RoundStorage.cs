@@ -13,10 +13,10 @@ public class RoundStorage(AppDbContext db) : IRoundStorage
     {
         Name = e.Title, 
         Categories = GetCategories(e.Id),
-        Field = TryGetRound(e.Id).Result
+        Field = GetRound(e.Id).Result
     };
 
-    public async Task<List<Round>> TryGetByPackId(Guid packId)
+    public async Task<List<Round>> GetByPackId(Guid packId)
     {
         var packRounds =  await db.PackRounds
             .Where(x => x.PackId == packId)
@@ -55,7 +55,7 @@ public class RoundStorage(AppDbContext db) : IRoundStorage
         return roundQuestions;
     }
 
-    public async Task<Dictionary<string, Dictionary<int, Question>>> TryGetRound(Guid roundId)
+    public async Task<Dictionary<string, Dictionary<int, Question>>> GetRound(Guid roundId)
     {
         var roundQuestions = await db.RoundQuestions
             .Where(x => x.RoundId == roundId)
