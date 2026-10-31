@@ -1,6 +1,6 @@
 import styles from "./RoundField.module.css"
 import { AddItem } from "@/shared/ui/AddItem/AddItem.tsx";
-import CellTable from "@/shared/ui/CellTable/CellTable.tsx";
+import CellTable from "@/widgets/Pack/ui/CellTable/CellTable.tsx";
 import { usePackDraftContext } from "@/widgets/Pack/model/PackDraftContext.tsx";
 
 const RoundField = ( { idx } : { idx : number }) => {

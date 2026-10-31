@@ -1,4 +1,4 @@
-export type QuestionCard = {
+export type QuestionCardState = {
   questionId: string;
   correctAnswer: string;
 }

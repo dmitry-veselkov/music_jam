@@ -1,9 +1,9 @@
 import Input from "@/shared/ui/Input/Input.tsx";
 import styles from "./RegisterForm.module.css";
 import { useForm } from "react-hook-form";
-import { type AuthRequest, authSchema } from "@/features/auth/model/schema.ts";
+import { type AuthRequest, authSchema } from "@/features/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRegister } from "@/features/auth/api/useRegister.ts";
+import { useRegister } from "@/features/auth";
 import { Button } from "@/shared/ui/Button/Button.tsx";
 
 const RegisterForm = () => {

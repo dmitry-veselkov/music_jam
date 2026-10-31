@@ -1,7 +1,6 @@
-import type { QuestionDtoCard } from "@/entities/question";
-import type { QuestionCard } from "@/entities/question/model/state.ts";
+import type { QuestionCardState, QuestionDtoCard } from "@/entities/question";
 
-export const toQuestionState = (questionDto : QuestionDtoCard) : QuestionCard => ({
+export const toQuestionState = (questionDto : QuestionDtoCard) : QuestionCardState => ({
   questionId : questionDto.questionId,
   correctAnswer : questionDto.correctAnswer,
 })

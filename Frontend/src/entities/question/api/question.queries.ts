@@ -1,5 +1,5 @@
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
-import { questionApi } from "@/entities/question/api/question.api.ts";
+import { questionApi } from "@/entities/question";
 
 const QUESTIONS_PAGE = 20;
 

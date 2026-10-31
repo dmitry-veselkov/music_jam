@@ -1,4 +1,4 @@
-import type { PackDto } from "@/entities/pack/models/types.ts";
+import type { PackDto } from "@/entities/pack/model/types.ts";
 
 export const packs : PackDto[] = [
   {

@@ -1,4 +1,4 @@
-import { usePack } from "@/entities/pack/api/pack.queries.ts";
+import { usePack } from "@/entities/pack";
 import { useParams } from "react-router-dom";
 import PackEditor from "@/widgets/Pack/ui/PackEditor/PackEditor.tsx";
 import Header from "@/widgets/Header/Header.tsx";

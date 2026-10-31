@@ -1,5 +1,5 @@
 import styles from "./QuestionCreator.module.css"
-import QuestionForm from "@/features/question-form/ui/QuestionForm.tsx";
+import { QuestionForm } from "@/features/question";
 
 const QuestionCreator = () => {
   return (

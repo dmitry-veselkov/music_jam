@@ -1,4 +1,4 @@
-import type { PackDto } from "@/entities/pack/models/types.ts";
+import type { PackDto } from "@/entities/pack";
 import { usePackDraft } from "@/widgets/Pack/model/usePackDraft.ts";
 import { useUpsertPack } from "@/features/pack/api/useUpsertPack.ts";
 import { useState } from "react";

@@ -1,6 +1,5 @@
 import { useEffect, useRef } from "react";
 import styles from "./ConfirmDialog.module.css";
-import { Button } from "@/shared/ui/Button/Button.tsx";
 
 type ConfirmDialogProps = {
   open: boolean;
@@ -28,6 +27,7 @@ export const ConfirmDialog = ({
   useEffect(() => {
     const dialog = ref.current;
     if (!dialog) return;
+
     if (open && !dialog.open) dialog.showModal();
     if (!open && dialog.open) dialog.close();
   }, [open]);
@@ -40,17 +40,33 @@ export const ConfirmDialog = ({
         e.stopPropagation();
         if (e.target === ref.current) onCancel();
       }}
-      onCancel={(e) => { e.preventDefault(); onCancel(); }}
+      onCancel={(e) => {
+        e.preventDefault();
+        onCancel();
+      }}
     >
       <h3 className={styles.title}>{title}</h3>
-      {description && <p className={styles.description}>{description}</p>}
+
+      {description && (
+        <p className={styles.description}>{description}</p>
+      )}
+
       <div className={styles.actions}>
-        <Button type="button" text={cancelText} onClick={onCancel} />
-        <Button
+        <button
           type="button"
-          text={isLoading ? "Удаление..." : confirmText}
+          onClick={onCancel}
+          disabled={isLoading}
+        >
+          {cancelText}
+        </button>
+
+        <button
+          type="button"
           onClick={onConfirm}
-        />
+          disabled={isLoading}
+        >
+          {isLoading ? "Удаление..." : confirmText}
+        </button>
       </div>
     </dialog>
   );
