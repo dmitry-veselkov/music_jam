@@ -2,7 +2,7 @@
 
 namespace MusicJam.Studio.Responses;
 
-public class GetPackResponse
+public class PackCardResponse
 {
     [Required]
     public string PackId { get; set; } 

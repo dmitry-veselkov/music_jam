@@ -14,9 +14,9 @@ public static class PackExtensions
         };
     }
 
-    public static GetPackResponse ToCardResponse(this Pack pack)
+    public static PackCardResponse ToCardResponse(this Pack pack)
     {
-        return new GetPackResponse
+        return new PackCardResponse
         {
             PackId = pack.Id.ToString(),
             Name = pack.Name,

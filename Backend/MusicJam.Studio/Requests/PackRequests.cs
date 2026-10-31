@@ -1,6 +1,4 @@
-﻿using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
-using MusicJam.Studio.Models.Packs;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace MusicJam.Studio.Requests;
 
@@ -8,33 +6,44 @@ public class GetPackRequest
 {
     [Range(0, int.MaxValue)]
     public int Skip { get; set; }
+
     [Range(1, 100)]
     public int Take { get; set; } = 20;
 }
 
 public class CreatePackRequest
 {
-    [Required] public Guid PackId;
+    [Required]
+    public Guid PackId;
+
     public string Name { get; set; } = string.Empty;
 
     public List<string> Categories { get; set; } = [];
     public List<int> Costs { get; set; } = [];
-    [Required] public List<CreateRoundRequest> Rounds { get; set; } = [];
+
+    [Required]
+    public List<CreateRoundRequest> Rounds { get; set; } = [];
 }
 
 public class UpdatePackRequest : CreatePackRequest;
 
 public class CreateRoundRequest
 {
-    [Required] public string Name { get; set; } = string.Empty;
-    
     [Required]
-    public List<List<RoundQuestionRequest>> Questions { get; set; } = [[new ()
-    {
-        Cost = 100,
-        Category = "Первая",
-        QuestionId = null
-    }]];
+    public string Name { get; set; } = string.Empty;
+
+    [Required]
+    public List<List<RoundQuestionRequest>> Questions { get; set; } =
+    [
+        [
+            new()
+            {
+                Cost = 100,
+                Category = "Первая",
+                QuestionId = null
+            }
+        ]
+    ];
 
     public IEnumerable<RoundQuestionRequest> Cells => Questions.SelectMany(row => row);
 }
@@ -45,4 +54,3 @@ public class RoundQuestionRequest
     public string Category { get; set; } = string.Empty;
     public Guid? QuestionId { get; set; }
 }
-
