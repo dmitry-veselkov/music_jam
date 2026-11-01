@@ -12,13 +12,23 @@ public abstract class FunctionalTestBase(TestApplicationFixture fixture) : IAsyn
 
     protected HttpClient Client => Fixture.Client;
 
+    private IServiceScope? _scope;
+
+    protected IServiceProvider ScopedServices =>
+        _scope?.ServiceProvider
+        ?? throw new InvalidOperationException("Test scope has not been initialized.");
+
     public async Task InitializeAsync()
     {
         await Fixture.ResetDatabaseAsync();
+
+        _scope = CreateScope();
     }
 
     public Task DisposeAsync()
     {
+        _scope?.Dispose();
+
         return Task.CompletedTask;
     }
 
@@ -27,14 +37,17 @@ public abstract class FunctionalTestBase(TestApplicationFixture fixture) : IAsyn
         return Fixture.CreateScope();
     }
 
+    protected T GetService<T>() where T : notnull
+    {
+        return ScopedServices.GetRequiredService<T>();
+    }
+
     protected async Task SeedAsync<TEntity>(TEntity entity)
         where TEntity : class
     {
         using var scope = CreateScope();
 
-        var dbContext = scope.ServiceProvider
-            .GetRequiredService<AppDbContext>();
-
+        var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         var seeder = new TestDataSeeder(dbContext);
 
         await seeder.SeedAsync(entity);

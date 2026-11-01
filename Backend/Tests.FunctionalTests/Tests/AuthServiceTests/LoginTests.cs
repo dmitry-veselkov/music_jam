@@ -1,0 +1,45 @@
+﻿using System.IdentityModel.Tokens.Jwt;
+using MusicJam.Studio.Requests.Auth;
+using MusicJam.Studio.Services.AuthService;
+using Shouldly;
+using Tests.FunctionalTests.Fixtures;
+
+namespace Tests.FunctionalTests.Tests.AuthServiceTests;
+
+[Collection(TestCollection.Name)]
+public class LoginTests(TestApplicationFixture fixture) : AuthServiceTestBase(fixture)
+{
+    private const string TestUserEmail = "test@example.com";
+    private const string TestUserPassword = "password";
+
+    private readonly LoginRequest _loginRequest = new()
+    {
+        Email = TestUserEmail,
+        Password = TestUserPassword,
+    };
+
+    [Fact]
+    public async Task Login_WhenUserDoesNotExist_ReturnsNotFound()
+    {
+        var result = await AuthService.Login(_loginRequest);
+
+        result.IsFailure.ShouldBeTrue();
+        result.GetFaultOrThrow().ShouldBe(IAuthService.AuthError.UserNotFound);
+        result.GetValueOrDefault().ShouldBeNull();
+    }
+
+    [Fact]
+    public async Task Login_WhenUserExists_ReturnsAuthToken()
+    {
+        await CreateUserAsync(TestUserEmail, TestUserPassword);
+
+        var result = await AuthService.Login(_loginRequest);
+        result.IsSuccess.ShouldBeTrue();
+
+        var accessToken = result.GetValueOrDefault();
+        accessToken.ShouldNotBeNullOrWhiteSpace();
+
+        var handler = new JwtSecurityTokenHandler();
+        handler.CanReadToken(accessToken).ShouldBeTrue();
+    }
+}
