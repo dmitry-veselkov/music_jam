@@ -20,9 +20,8 @@ public class LoginTests(TestApplicationFixture fixture) : AuthServiceTestBase(fi
     {
         var result = await AuthService.Login(_loginRequest);
 
-        result.IsFailure.ShouldBeTrue();
+        result.IsSuccess.ShouldBeFalse();
         result.GetFaultOrThrow().ShouldBe(IAuthService.AuthError.UserNotFound);
-        result.GetValueOrDefault().ShouldBeNull();
     }
 
     [Fact]

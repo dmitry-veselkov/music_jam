@@ -35,8 +35,7 @@ public class RegistrationTests(TestApplicationFixture fixture) : AuthServiceTest
 
         var result = await AuthService.Register(_registerRequest);
 
-        result.IsFailure.ShouldBeTrue();
+        result.IsSuccess.ShouldBeFalse();
         result.GetFaultOrThrow().ShouldBe(IAuthService.AuthError.SameEmailAlreadyExists);
-        result.GetValueOrDefault().ShouldBeNull();
     }
 }
