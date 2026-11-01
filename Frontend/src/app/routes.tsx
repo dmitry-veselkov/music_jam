@@ -6,7 +6,6 @@ import Pack from "@/pages/Pack/Pack.tsx";
 import LoginPage from "@/pages/LoginPage/LoginPage.tsx";
 import AccountPage from "@/pages/AccountPage/AccountPage.tsx";
 import GamesPage from "@/pages/GamesPage/GamesPage.tsx";
-import NewPackPage from "@/pages/NewPackPage/NewPackPage.tsx";
 
 export const routes = createBrowserRouter([
   { path: '/', element : <StartPage />},
@@ -16,5 +15,4 @@ export const routes = createBrowserRouter([
   { path: '/packs', element: <Packs />},
   { path: '/packs/:id', element: <Pack />},
   { path : '/games', element : <GamesPage />},
-  { path : '/packs/new', element : <NewPackPage />},
 ])
