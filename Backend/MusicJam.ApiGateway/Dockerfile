@@ -1,4 +1,11 @@
-﻿FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+﻿FROM node:22-alpine AS frontend-build
+WORKDIR /frontend
+COPY Frontend/package*.json ./
+RUN npm ci
+COPY Frontend/ ./
+RUN npm run build
+
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 USER $APP_UID
 WORKDIR /app
 EXPOSE 8080
@@ -19,4 +26,5 @@ RUN dotnet publish "./MusicJam.ApiGateway.csproj" -c $BUILD_CONFIGURATION -o /ap
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+COPY --from=frontend-build /frontend/dist ./wwwroot
 ENTRYPOINT ["dotnet", "MusicJam.ApiGateway.dll"]
