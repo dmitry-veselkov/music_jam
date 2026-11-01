@@ -1,8 +1,8 @@
-﻿using FluentAssertions;
-using MusicJam.Studio.Services.PackService;
+﻿using MusicJam.Studio.Services.PackService;
+using Shouldly;
 using Tests.FunctionalTests.Fixtures;
 
-namespace Tests.FunctionalTests.Tests;
+namespace Tests.FunctionalTests.Tests.PacksServiceTests;
 
 [Collection(TestCollection.Name)]
 public sealed class GetPackTests(TestApplicationFixture fixture) : PacksServiceTestBase(fixture)
@@ -13,15 +13,12 @@ public sealed class GetPackTests(TestApplicationFixture fixture) : PacksServiceT
         var userId = Guid.NewGuid();
         var packId = Guid.NewGuid();
 
-        using var scope = CreateScope();
-        var service = GetPacksService(scope);
-
-        var result = await service.GetPack(userId, packId);
+        var result = await PacksService.GetPack(userId, packId);
 
         var success = result.TryGetValue(out var pack, out var error);
 
-        success.Should().BeFalse();
-        pack.Should().BeNull();
-        error.Should().Be(IPacksService.PackError.NotFound);
+        success.ShouldBeFalse();
+        pack.ShouldBeNull();
+        error.ShouldBe(IPacksService.PackError.NotFound);
     }
 }

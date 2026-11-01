@@ -22,14 +22,14 @@ internal class UserStorage(AppDbContext db) : IUserStorage
         {
             Username = user.Username,
             Email = user.Email,
-            Password = user.Password
+            PasswordHash = user.Password
         };
         await db.Users.AddAsync(saved);
         await db.SaveChangesAsync();
         return ToModel(saved);
     }
     
-    private static User ToModel(DbUser e) => new(e.Email, e.Password, e.Username)
+    private static User ToModel(DbUser e) => new(e.Email, e.PasswordHash, e.Username)
     {
         Id = e.Id
     };
