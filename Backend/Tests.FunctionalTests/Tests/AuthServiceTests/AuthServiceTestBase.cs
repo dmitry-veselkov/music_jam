@@ -9,11 +9,15 @@ public abstract class AuthServiceTestBase(TestApplicationFixture fixture) : Func
 {
     protected IAuthService AuthService => GetService<IAuthService>();
 
-    protected async Task CreateUserAsync(string email, string password)
+    protected const string TestUserName = "John Doe";
+    protected const string TestUserEmail = "test@example.com";
+    protected const string TestUserPassword = "password";
+
+    protected async Task<User> CreateUserAsync(string email, string password)
     {
         var user = new User
         {
-            Username = "John Doe",
+            Username = TestUserName,
             Email = email,
             PasswordHash = PasswordHelper.Hash(password),
             Games = [],
@@ -22,5 +26,7 @@ public abstract class AuthServiceTestBase(TestApplicationFixture fixture) : Func
         };
 
         await SeedAsync(user);
+
+        return user;
     }
 }
