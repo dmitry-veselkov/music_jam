@@ -1,7 +1,7 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using MusicJam.Studio.Requests.Auth;
+﻿using MusicJam.Studio.Requests.Auth;
 using MusicJam.Studio.Services.AuthService;
 using Shouldly;
+using Tests.FunctionalTests.Extensions;
 using Tests.FunctionalTests.Fixtures;
 
 namespace Tests.FunctionalTests.Tests.AuthServiceTests;
@@ -9,9 +9,6 @@ namespace Tests.FunctionalTests.Tests.AuthServiceTests;
 [Collection(TestCollection.Name)]
 public class LoginTests(TestApplicationFixture fixture) : AuthServiceTestBase(fixture)
 {
-    private const string TestUserEmail = "test@example.com";
-    private const string TestUserPassword = "password";
-
     private readonly LoginRequest _loginRequest = new()
     {
         Email = TestUserEmail,
@@ -29,7 +26,7 @@ public class LoginTests(TestApplicationFixture fixture) : AuthServiceTestBase(fi
     }
 
     [Fact]
-    public async Task Login_WhenUserExists_ReturnsAuthToken()
+    public async Task Login_WhenUserExists_ReturnsAccessToken()
     {
         await CreateUserAsync(TestUserEmail, TestUserPassword);
 
@@ -38,8 +35,6 @@ public class LoginTests(TestApplicationFixture fixture) : AuthServiceTestBase(fi
 
         var accessToken = result.GetValueOrDefault();
         accessToken.ShouldNotBeNullOrWhiteSpace();
-
-        var handler = new JwtSecurityTokenHandler();
-        handler.CanReadToken(accessToken).ShouldBeTrue();
+        accessToken.ShouldBeValidAccessToken();
     }
 }
