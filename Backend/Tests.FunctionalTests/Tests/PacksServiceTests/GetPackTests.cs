@@ -5,7 +5,7 @@ using Tests.FunctionalTests.Fixtures;
 namespace Tests.FunctionalTests.Tests.PacksServiceTests;
 
 [Collection(TestCollection.Name)]
-public sealed class GetPackTests(TestApplicationFixture fixture) : PacksServiceTestBase(fixture)
+public class GetPackTests(TestApplicationFixture fixture) : PacksServiceTestBase(fixture)
 {
     [Fact]
     public async Task GetPack_WhenPackDoesNotExist_ReturnsNotFound()
