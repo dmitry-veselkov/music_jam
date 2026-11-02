@@ -16,8 +16,7 @@ public abstract class PacksServiceTestBase(TestApplicationFixture fixture) : Fun
 
     protected IPacksService PacksService => GetService<IPacksService>();
 
-    protected async Task<User> CreateUserAsync(
-        IEnumerable<DbPack>? packs = null)
+    protected async Task<User> CreateUserAsync(IEnumerable<DbPack>? packs = null)
     {
         var user = new User
         {
@@ -51,9 +50,7 @@ public abstract class PacksServiceTestBase(TestApplicationFixture fixture) : Fun
         return pack;
     }
 
-    protected async Task<List<DbPack>> CreatePacksAsync(
-        Guid userId,
-        int count)
+    protected async Task<List<DbPack>> CreatePacksAsync(Guid userId, int count)
     {
         var packs = Enumerable.Range(1, count)
             .Select(i =>
@@ -78,21 +75,6 @@ public abstract class PacksServiceTestBase(TestApplicationFixture fixture) : Fun
         }
 
         return packs;
-    }
-
-    protected async Task<Question> CreateQuestionAsync(
-        Guid userId, string requested, string correctAnswer)
-    {
-        var question = new Question
-        {
-            UserId = userId,
-            Requested = requested,
-            CorrectAnswer = correctAnswer,
-        };
-
-        await SeedAsync(question);
-
-        return question;
     }
 
     protected static DomainPack CreateDomainPack(
