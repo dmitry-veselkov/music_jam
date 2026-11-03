@@ -7,11 +7,11 @@ using Microsoft.IdentityModel.Tokens;
 using MusicJam.Studio.Configurations;
 using MusicJam.Studio.Constants;
 using MusicJam.Studio.Extensions;
-using MusicJam.Studio.Infrustructure.Data.Configurations;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using System.Text.Json.Serialization;
+using MusicJam.Studio.Infrustructure.Data;
 
 namespace MusicJam.Studio;
 

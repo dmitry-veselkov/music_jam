@@ -2,7 +2,7 @@
 
 public class PackCardResponse
 {
-    public string PackId { get; set; }
+    public Guid PackId { get; set; }
 
     public string Name { get; set; }
 

@@ -17,7 +17,7 @@ public interface IPacksService
 
     Task<Result<ShortPackResponse[], PackError>> GetShortPacks(Guid userId, GetPackRequest query);
     Task<Result<PackCardResponse[], PackError>> GetPackCards(Guid userId, GetPackRequest request);
-    Task<Result<EditPackResponse, PackError>> GetEditPackOrCreate(Guid userId, Guid packId);
+    Task<Result<EditPackResponse, PackError>> GetEditPack(Guid userId, Guid packId);
     Task<Result<Pack, PackError>> GetPack(Guid userId, Guid packId);
     Task<Result<Pack, PackError>> Create(Guid userId, CreatePackRequest request);
     Task<Result<Pack, PackError>> Update(Guid userId, Guid packId, UpdatePackRequest request);

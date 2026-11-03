@@ -59,7 +59,7 @@ public class PacksController(IPacksService packsService) : ControllerBase
     {
         var userId = User.GetUserId();
 
-        var result = await packsService.GetEditPackOrCreate(userId, packId);
+        var result = await packsService.GetEditPack(userId, packId);
         if (result.TryGetFault(out var error, out var packForEdit))
         {
             return ErrorResponse(error);

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using MusicJam.Studio.Infrustructure.Data;
 using MusicJam.Studio.Infrustructure.Data.Configurations;
 using DbTrack = MusicJam.Studio.Infrustructure.Entities.Track;
 using Track = MusicJam.Music.Track;

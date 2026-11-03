@@ -1,5 +1,4 @@
-﻿using MusicJam.Studio.Requests;
-using MusicJam.Studio.Requests.Auth;
+﻿using MusicJam.Studio.Requests.Auth;
 using Shared;
 
 namespace MusicJam.Studio.Services.AuthService;

@@ -29,6 +29,12 @@ public class Result<TValue, TFault>
 
     public TValue GetValueOrThrow() => IsSuccess ? Value : throw new ResultException<TFault>(Fault);
 
+    public TFault GetFaultOrDefault() => IsFailure ? Fault : default!;
+
+    public TFault GetFaultOrThrow() => IsFailure
+        ? Fault
+        : throw new InvalidOperationException("Cannot get fault from a successful result.");
+
     public bool TryGetFault(out TFault fault, out TValue value)
     {
         if (IsSuccess)
@@ -89,6 +95,12 @@ public class Result<TFault>
     public static Result<TFault> Failure(TFault fault) => new(false, fault);
 
     public static implicit operator Result<TFault>(TFault fault) => Failure(fault);
+
+    public TFault GetFaultOrDefault() => IsFailure ? Fault : default!;
+
+    public TFault GetFaultOrThrow() => IsFailure
+        ? Fault
+        : throw new InvalidOperationException("Cannot get fault from a successful result.");
 
     public bool TryGetFault(out TFault fault)
     {
