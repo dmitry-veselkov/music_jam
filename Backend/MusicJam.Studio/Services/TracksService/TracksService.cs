@@ -61,6 +61,37 @@ internal class TracksService(IAmazonS3 s3, IOptions<ObjectStorageSettings> optio
         return await s3.GetObjectAsync(_settings.BucketName, trackId.ToString(), cancellationToken);
     }
 
+    public async Task<Result<long, ITracksService.TrackError>> GetTrackSize(
+        Guid trackId,
+        CancellationToken cancellationToken = default)
+    {
+        var response = await s3.GetObjectMetadataAsync(
+            new GetObjectMetadataRequest
+            {
+                BucketName = _settings.BucketName,
+                Key = trackId.ToString()
+            },
+            cancellationToken);
+
+        return response.Headers.ContentLength;
+    }
+
+    public async Task<GetObjectResponse> GetTrackRange(
+        Guid trackId,
+        long start,
+        long end,
+        CancellationToken cancellationToken = default)
+    {
+        var request = new GetObjectRequest
+        {
+            BucketName = _settings.BucketName,
+            Key = trackId.ToString(),
+            ByteRange = new ByteRange(start, end)
+        };
+
+        return await s3.GetObjectAsync(request, cancellationToken);
+    }
+
     private bool TryGetFileValidationError(
         IFormFile file,
         [NotNullWhen(true)] out ITracksService.TrackError? validationError)
