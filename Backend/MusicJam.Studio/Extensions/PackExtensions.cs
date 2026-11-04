@@ -19,7 +19,7 @@ public static class PackExtensions
     {
         return new PackCardResponse
         {
-            PackId = pack.Id.ToString(),
+            PackId = pack.Id,
             Name = pack.Name,
             CreatedAtUtc = pack.CreatedAtUtc.ToString(),
             UpdatedAtUtc = pack.UpdatedAtUtc.ToString()

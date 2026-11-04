@@ -2,7 +2,6 @@
 using MusicJam.Studio.Models.Packs;
 using MusicJam.Studio.Requests;
 using MusicJam.Studio.Requests.Packs;
-using MusicJam.Studio.Responses;
 using MusicJam.Studio.Responses.Packs;
 using MusicJam.Studio.Storages;
 using Shared;
@@ -42,23 +41,15 @@ public class PacksService(
             .ToArray();
     }
 
-    public async Task<Result<EditPackResponse, IPacksService.PackError>> GetEditPackOrCreate(Guid userId, Guid packId)
+    public async Task<Result<EditPackResponse, IPacksService.PackError>> GetEditPack(Guid userId, Guid packId)
     {
-        var getResult = await GetPack(userId, packId);
-        if (getResult.TryGetValue(out var pack, out var getPackError))
+        var result = await GetPack(userId, packId);
+        if (result.TryGetFault(out var error, out var pack))
         {
-            return pack.ToEditResponse();
+            return error;
         }
 
-        if (getPackError != IPacksService.PackError.NotFound)
-        {
-            return getPackError;
-        }
-
-        var emptyPackRequest = CreateEmptyPackRequest(packId);
-        var createResult = await Create(userId, emptyPackRequest);
-
-        return createResult.GetValueOrThrow().ToEditResponse();
+        return pack.ToEditResponse();
     }
 
     public async Task<Result<Pack, IPacksService.PackError>> GetPack(Guid userId, Guid packId)

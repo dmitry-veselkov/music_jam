@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MusicJam.Music;
+using MusicJam.Studio.Infrustructure.Data;
 using MusicJam.Studio.Infrustructure.Data.Configurations;
 using DbQuestion = MusicJam.Studio.Infrustructure.Entities.Question;
 using Question = MusicJam.Studio.Models.Packs.Question;

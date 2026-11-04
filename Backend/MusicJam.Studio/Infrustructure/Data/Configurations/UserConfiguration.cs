@@ -11,6 +11,6 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Username).IsRequired();
         builder.Property(x => x.Email).IsRequired();
-        builder.Property(x => x.Password).IsRequired();
+        builder.Property(x => x.PasswordHash).IsRequired();
     }
 }
