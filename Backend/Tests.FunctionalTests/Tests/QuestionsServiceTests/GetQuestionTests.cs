@@ -1,4 +1,4 @@
-﻿using MusicJam.Studio.Services.QuestionService;
+﻿using MusicJam.Studio.Services.QuestionsService;
 using Shouldly;
 using Tests.FunctionalTests.Fixtures;
 

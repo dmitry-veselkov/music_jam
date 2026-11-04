@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MusicJam.Music;
 using MusicJam.Studio.Constants;
 using MusicJam.Studio.Extensions;
 using MusicJam.Studio.Models.Packs;
+using MusicJam.Studio.Models.Tracks;
 using MusicJam.Studio.Requests.Questions;
-using MusicJam.Studio.Services.QuestionService;
+using MusicJam.Studio.Services.QuestionsService;
 
 namespace MusicJam.Studio.Controllers;
 
@@ -150,8 +150,9 @@ public class QuestionsController(IQuestionsService questionsService) : Controlle
         return error switch
         {
             IQuestionsService.QuestionError.NotFound => NotFound(),
-            IQuestionsService.QuestionError.InvalidRequest => BadRequest(),
             IQuestionsService.QuestionError.InvalidTrackType => BadRequest(),
+            IQuestionsService.QuestionError.InvalidTrack => BadRequest(),
+            IQuestionsService.QuestionError.CannotLoadTrack => BadRequest(),
             _ => throw new ArgumentOutOfRangeException(error.ToString()),
         };
     }

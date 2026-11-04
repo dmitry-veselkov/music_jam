@@ -1,7 +1,6 @@
-﻿using MusicJam.Music;
-using MusicJam.Studio.Models.Packs;
+﻿using MusicJam.Studio.Models.Tracks;
 
-namespace MusicJam.Studio.Storages;
+namespace MusicJam.Studio.Storages.TrackStorage;
 
 public interface ITrackStorage
 {

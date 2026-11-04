@@ -1,17 +1,19 @@
-﻿using MusicJam.Music;
+﻿using Amazon.S3.Model;
 using MusicJam.Studio.Models.Packs;
+using MusicJam.Studio.Models.Tracks;
 using MusicJam.Studio.Requests.Questions;
 using Shared;
 
-namespace MusicJam.Studio.Services.QuestionService;
+namespace MusicJam.Studio.Services.QuestionsService;
 
 public interface IQuestionsService
 {
     public enum QuestionError
     {
         NotFound,
-        InvalidRequest,
+        InvalidTrack,
         InvalidTrackType,
+        CannotLoadTrack,
     }
 
     Task<Result<Question[], QuestionError>> GetQuestions(Guid userId, GetQuestionsRequest request);
@@ -25,5 +27,5 @@ public interface IQuestionsService
     Task<Result<Question, QuestionError>> Update(Guid userId, Guid questionId, PatchMode mode,
         CreateQuestionRequest request);
 
-    Task<Result<string, QuestionError>> GetTrack(Guid userId, Guid questionId, TrackType trackType);
+    Task<Result<GetObjectResponse, QuestionError>> GetTrack(Guid userId, Guid questionId, TrackType trackType);
 }

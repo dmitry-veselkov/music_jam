@@ -1,14 +1,16 @@
-﻿using MusicJam.Music;
+﻿using Amazon.S3.Model;
 using MusicJam.Studio.Models.Packs;
+using MusicJam.Studio.Models.Tracks;
 using MusicJam.Studio.Requests.Questions;
-using MusicJam.Studio.Storages;
+using MusicJam.Studio.Services.TracksService;
+using MusicJam.Studio.Storages.QuestionStorage;
 using Shared;
 
-namespace MusicJam.Studio.Services.QuestionService;
+namespace MusicJam.Studio.Services.QuestionsService;
 
 internal class QuestionsService(
     IQuestionStorage questionStorage,
-    ITrackStorage trackStorage)
+    ITracksService tracksService)
     : IQuestionsService
 {
     // todo Elizaveta-Vinogradova
@@ -24,22 +26,26 @@ internal class QuestionsService(
             .ToArray();
     }
 
-    // todo Elizaveta-Vinogradova
-    // заглушка - решить в рамках задачи https://buildin.ai/fiit-urfu/bee9347e-e145-4921-8451-3ef40771a16a
     public async Task<Result<Question, IQuestionsService.QuestionError>> Create(
         Guid userId,
         CreateQuestionRequest request)
     {
+        var uploadQuestionTrackResult = await tracksService.UploadTrack(request.QuestionTrack);
+        if (uploadQuestionTrackResult.TryGetFault(out _, out var questionTrack))
+        {
+            return IQuestionsService.QuestionError.InvalidTrack;
+        }
+
+        var uploadAnswerTrackResult = await tracksService.UploadTrack(request.QuestionTrack);
+        if (uploadAnswerTrackResult.TryGetFault(out _, out var answerTrack))
+        {
+            return IQuestionsService.QuestionError.InvalidTrack;
+        }
+
         var question = new Question
         {
-            AnswerTrack = new Track
-            {
-                Link = "answer"
-            },
-            QuestionTrack = new Track
-            {
-                Link = "question"
-            },
+            AnswerTrack = new Track { Id = answerTrack.Id },
+            QuestionTrack = new Track { Id = questionTrack.Id },
             Requested = request.Requested,
             CorrectAnswer = request.CorrectAnswer,
         };
@@ -85,7 +91,7 @@ internal class QuestionsService(
         throw new NotImplementedException();
     }
 
-    public async Task<Result<string, IQuestionsService.QuestionError>> GetTrack(
+    public async Task<Result<GetObjectResponse, IQuestionsService.QuestionError>> GetTrack(
         Guid userId,
         Guid questionId,
         TrackType trackType)
@@ -96,11 +102,24 @@ internal class QuestionsService(
             return IQuestionsService.QuestionError.NotFound;
         }
 
-        return trackType switch
+        Guid? trackId = trackType switch
         {
-            TrackType.Question => question.QuestionTrack.Link,
-            TrackType.Answer => question.AnswerTrack.Link,
-            _ => IQuestionsService.QuestionError.InvalidTrackType
+            TrackType.Question => question.QuestionTrack.Id,
+            TrackType.Answer => question.AnswerTrack.Id,
+            _ => null
         };
+
+        if (trackId is null)
+        {
+            return IQuestionsService.QuestionError.InvalidTrackType;
+        }
+
+        var getTrackResult = await tracksService.GetTrack(trackId.Value);
+        if (getTrackResult.TryGetFault(out _, out var response))
+        {
+            return IQuestionsService.QuestionError.CannotLoadTrack;
+        }
+
+        return response;
     }
 }

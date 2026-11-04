@@ -1,6 +1,6 @@
 ﻿using MusicJam.Studio.Models.Packs;
 
-namespace MusicJam.Studio.Storages;
+namespace MusicJam.Studio.Storages.QuestionStorage;
 
 public interface IQuestionStorage
 {

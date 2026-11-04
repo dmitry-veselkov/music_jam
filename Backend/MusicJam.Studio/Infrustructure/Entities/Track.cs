@@ -2,5 +2,5 @@
 
 public class Track : Entity
 {
-    public string Link { get; set; }
+    public Guid ObjectKey { get; set; }
 }

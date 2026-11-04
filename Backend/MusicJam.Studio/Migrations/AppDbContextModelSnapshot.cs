@@ -317,10 +317,9 @@ namespace MusicJam.Studio.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<string>("Link")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("link");
+                    b.Property<Guid>("ObjectKey")
+                        .HasColumnType("uuid")
+                        .HasColumnName("object_key");
 
                     b.HasKey("Id")
                         .HasName("pk_tracks");

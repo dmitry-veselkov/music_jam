@@ -17,12 +17,14 @@ namespace MusicJam.Studio;
 
 public class Startup(IConfiguration configuration)
 {
-    private IConfiguration Configuration { get; } = configuration;
-
     public void ConfigureServices(IServiceCollection services)
     {
-        services.AddServices();
-        services.AddStorages();
+        services
+            .ConfigureSettings(configuration)
+            .AddObjectStorage()
+            .AddServices()
+            .AddStorages();
+
         services.AddControllers(options =>
         {
             options.OutputFormatters.Insert(0, new
@@ -38,8 +40,7 @@ public class Startup(IConfiguration configuration)
             options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
         var jwtSettings = new JwtSettings();
-        Configuration.GetSection(nameof(JwtSettings)).Bind(jwtSettings);
-        services.Configure<JwtSettings>(Configuration.GetSection(nameof(JwtSettings)));
+        configuration.GetSection(nameof(JwtSettings)).Bind(jwtSettings);
 
         services
             .AddAuthentication(options =>
@@ -62,7 +63,7 @@ public class Startup(IConfiguration configuration)
                 });
         services.AddAuthorization();
         services.AddDbContext<AppDbContext>(options =>
-            options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"))
+            options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"))
                 .UseSnakeCaseNamingConvention()
                 .EnableSensitiveDataLogging());
     }
