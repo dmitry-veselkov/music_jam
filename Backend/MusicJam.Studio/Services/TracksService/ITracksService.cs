@@ -13,12 +13,12 @@ public interface ITracksService
         TrackNotFound,
     }
 
-    Task<Result<Track, TrackError>> UploadTrack(IFormFile file, CancellationToken cancellationToken = default);
+    Task<Result<Track, TrackError>> UploadTrack(
+        IFormFile file,
+        Guid? trackId = null, // если не null - хотим перезаписать существующий файл
+        CancellationToken cancellationToken = default);
 
     Task<Result<TrackError>> DeleteTrack(Guid trackId, CancellationToken cancellationToken = default);
 
     Task<Result<GetObjectResponse, TrackError>> GetTrack(Guid trackId, CancellationToken cancellationToken = default);
-
-    Task<Result<Track, TrackError>> UploadTrackInsteadOf(IFormFile file, Guid trackId,
-        CancellationToken cancellationToken = default);
 }

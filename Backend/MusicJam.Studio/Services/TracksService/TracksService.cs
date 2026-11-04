@@ -1,4 +1,5 @@
-﻿using Amazon.S3;
+﻿using System.Diagnostics.CodeAnalysis;
+using Amazon.S3;
 using Amazon.S3.Model;
 using Microsoft.Extensions.Options;
 using MusicJam.Studio.Configurations;
@@ -7,38 +8,27 @@ using Shared;
 
 namespace MusicJam.Studio.Services.TracksService;
 
-internal class TracksService : ITracksService
+internal class TracksService(IAmazonS3 s3, IOptions<ObjectStorageSettings> options) : ITracksService
 {
-    private readonly IAmazonS3 s3;
-    private readonly ObjectStorageSettings settings;
-
-    public TracksService(IAmazonS3 s3, IOptions<ObjectStorageSettings> options)
-    {
-        this.s3 = s3;
-        settings = options.Value;
-    }
+    private readonly ObjectStorageSettings _settings = options.Value;
 
     public async Task<Result<Track, ITracksService.TrackError>> UploadTrack(
         IFormFile file,
+        Guid? trackId = null,
         CancellationToken cancellationToken = default)
     {
-        if (file.Length == 0)
+        if (TryGetFileValidationError(file, out var validationError))
         {
-            return ITracksService.TrackError.EmptyFile;
+            return validationError;
         }
 
-        if (file.Length > settings.MaxFileSizeInBytes)
-        {
-            return ITracksService.TrackError.FileTooLarge;
-        }
-
-        var trackId = Guid.NewGuid();
+        trackId ??= Guid.NewGuid();
 
         await using var stream = file.OpenReadStream();
 
         var request = new PutObjectRequest
         {
-            BucketName = settings.BucketName,
+            BucketName = _settings.BucketName,
             Key = trackId.ToString(),
             InputStream = stream,
             AutoCloseStream = false
@@ -46,28 +36,49 @@ internal class TracksService : ITracksService
 
         await s3.PutObjectAsync(request, cancellationToken);
 
-        return new Track { Id = trackId };
+        return new Track { Id = trackId.Value };
     }
 
     public async Task<Result<ITracksService.TrackError>> DeleteTrack(
         Guid trackId,
         CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        var request = new DeleteObjectRequest
+        {
+            BucketName = _settings.BucketName,
+            Key = trackId.ToString()
+        };
+
+        await s3.DeleteObjectAsync(request, cancellationToken);
+
+        return Result<ITracksService.TrackError>.Success();
     }
 
     public async Task<Result<GetObjectResponse, ITracksService.TrackError>> GetTrack(
         Guid trackId,
         CancellationToken cancellationToken = default)
     {
-        return await s3.GetObjectAsync(settings.BucketName, trackId.ToString(), cancellationToken);
+        return await s3.GetObjectAsync(_settings.BucketName, trackId.ToString(), cancellationToken);
     }
 
-    public async Task<Result<Track, ITracksService.TrackError>> UploadTrackInsteadOf(
+    private bool TryGetFileValidationError(
         IFormFile file,
-        Guid trackId,
-        CancellationToken cancellationToken = default)
+        [NotNullWhen(true)] out ITracksService.TrackError? validationError)
     {
-        throw new NotImplementedException();
+        validationError = null;
+
+        if (file.Length == 0)
+        {
+            validationError = ITracksService.TrackError.EmptyFile;
+            return true;
+        }
+
+        if (file.Length > _settings.MaxFileSizeInBytes)
+        {
+            validationError = ITracksService.TrackError.FileTooLarge;
+            return true;
+        }
+
+        return false;
     }
 }
