@@ -1,6 +1,6 @@
-﻿namespace MusicJam.Studio.Responses;
+﻿namespace MusicJam.Studio.Responses.Questions;
 
-public class QuestionResponse
+public class QuestionCellResponse
 {
     public Guid? QuestionId { get; set; }
 

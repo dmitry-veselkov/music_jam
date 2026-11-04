@@ -5,6 +5,7 @@ using MusicJam.Studio.Extensions;
 using MusicJam.Studio.Models.Packs;
 using MusicJam.Studio.Models.Tracks;
 using MusicJam.Studio.Requests.Questions;
+using MusicJam.Studio.Responses.Questions;
 using MusicJam.Studio.Services.QuestionsService;
 
 namespace MusicJam.Studio.Controllers;
@@ -19,7 +20,7 @@ public class QuestionsController(IQuestionsService questionsService) : Controlle
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Question[]>> GetQuestions([FromQuery] GetQuestionsRequest request)
+    public async Task<ActionResult<QuestionCardResponse[]>> GetQuestions([FromQuery] GetQuestionsRequest request)
     {
         var userId = User.GetUserId();
 
@@ -112,37 +113,37 @@ public class QuestionsController(IQuestionsService questionsService) : Controlle
     [HttpGet("{questionId:guid}/answer-track")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    // [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetAnswerTrack(Guid questionId)
+    public async Task GetAnswerTrack(Guid questionId)
     {
         var userId = User.GetUserId();
 
         var result = await questionsService.GetTrack(userId, questionId, TrackType.Answer);
-        if (result.TryGetFault(out var error, out var track))
-        {
-            return ErrorResponse(error);
-        }
+        var response = result.GetValueOrThrow();
 
-        return Ok(track);
+        Response.ContentType = response.Headers.ContentType;
+        Response.ContentLength = response.Headers.ContentLength;
+
+        await response.ResponseStream.CopyToAsync(Response.Body);
     }
 
     [HttpGet("{questionId:guid}/question-track")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    // [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetQuestionTrack(Guid questionId)
+    public async Task GetQuestionTrack(Guid questionId)
     {
         var userId = User.GetUserId();
 
         var result = await questionsService.GetTrack(userId, questionId, TrackType.Question);
-        if (result.TryGetFault(out var error, out var track))
-        {
-            return ErrorResponse(error);
-        }
+        var response = result.GetValueOrThrow();
 
-        return Ok(track);
+        Response.ContentType = response.Headers.ContentType;
+        Response.ContentLength = response.Headers.ContentLength;
+
+        await response.ResponseStream.CopyToAsync(Response.Body);
     }
 
     private ActionResult ErrorResponse(IQuestionsService.QuestionError error)

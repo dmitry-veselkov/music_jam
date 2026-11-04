@@ -60,7 +60,7 @@ internal class TracksService : ITracksService
         Guid trackId,
         CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        return await s3.GetObjectAsync(settings.BucketName, trackId.ToString(), cancellationToken);
     }
 
     public async Task<Result<Track, ITracksService.TrackError>> UploadTrackInsteadOf(

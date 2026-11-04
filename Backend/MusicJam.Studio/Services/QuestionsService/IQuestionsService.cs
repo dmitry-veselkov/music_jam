@@ -2,6 +2,7 @@
 using MusicJam.Studio.Models.Packs;
 using MusicJam.Studio.Models.Tracks;
 using MusicJam.Studio.Requests.Questions;
+using MusicJam.Studio.Responses.Questions;
 using Shared;
 
 namespace MusicJam.Studio.Services.QuestionsService;
@@ -16,7 +17,7 @@ public interface IQuestionsService
         CannotLoadTrack,
     }
 
-    Task<Result<Question[], QuestionError>> GetQuestions(Guid userId, GetQuestionsRequest request);
+    Task<Result<QuestionCardResponse[], QuestionError>> GetQuestions(Guid userId, GetQuestionsRequest request);
 
     Task<Result<Question, QuestionError>> Create(Guid userId, CreateQuestionRequest request);
 

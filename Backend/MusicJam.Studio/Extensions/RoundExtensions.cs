@@ -1,5 +1,6 @@
 using MusicJam.Studio.Models.Packs;
 using MusicJam.Studio.Responses;
+using MusicJam.Studio.Responses.Questions;
 
 namespace MusicJam.Studio.Extensions;
 
@@ -31,7 +32,7 @@ public static class RoundExtensions
                         Question? question = null;
                         if (field.TryGetValue(category, out var row))
                             row.TryGetValue(cost, out question);
-                        return new QuestionResponse
+                        return new QuestionCellResponse
                         {
                             QuestionId = question?.Id,
                             Category = category,

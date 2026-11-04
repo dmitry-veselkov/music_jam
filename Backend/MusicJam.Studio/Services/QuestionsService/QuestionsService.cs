@@ -1,7 +1,9 @@
 ﻿using Amazon.S3.Model;
+using MusicJam.Studio.Extensions;
 using MusicJam.Studio.Models.Packs;
 using MusicJam.Studio.Models.Tracks;
 using MusicJam.Studio.Requests.Questions;
+using MusicJam.Studio.Responses.Questions;
 using MusicJam.Studio.Services.TracksService;
 using MusicJam.Studio.Storages.QuestionStorage;
 using Shared;
@@ -15,12 +17,13 @@ internal class QuestionsService(
 {
     // todo Elizaveta-Vinogradova
     // перетащить skip и take внутрь запроса к БД, чтобы не грузить лишнее
-    public async Task<Result<Question[], IQuestionsService.QuestionError>> GetQuestions(
+    public async Task<Result<QuestionCardResponse[], IQuestionsService.QuestionError>> GetQuestions(
         Guid userId,
         GetQuestionsRequest request)
     {
         var questions = await questionStorage.GetAllUserQuestions(userId);
         return questions
+            .Select(question => question.ToCardResponse())
             .Skip(request.Skip)
             .Take(request.Take)
             .ToArray();
@@ -36,7 +39,7 @@ internal class QuestionsService(
             return IQuestionsService.QuestionError.InvalidTrack;
         }
 
-        var uploadAnswerTrackResult = await tracksService.UploadTrack(request.QuestionTrack);
+        var uploadAnswerTrackResult = await tracksService.UploadTrack(request.AnswerTrack);
         if (uploadAnswerTrackResult.TryGetFault(out _, out var answerTrack))
         {
             return IQuestionsService.QuestionError.InvalidTrack;
