@@ -11,13 +11,12 @@ import styles from "./PackEditor.module.css"
 import { Button } from "@/shared/ui/Button/Button.tsx";
 import { usePack } from "@/entities/pack/api/pack.queries.ts";
 import { packSchema } from "@/features/pack/model/schema.ts";
+import axios from "axios";
 
-const PackEditor = ({ packId, initial } : { packId : string, initial? : PackDto}) => {
-  const { data, isError } = usePack(packId);
-  const source = initial ?? data;
-  if (isError) return <div>Не удалось загрузить пак</div>;
-
-  return <PackEditorForm key={source?.packId ?? 'new'} packId={packId} initial={source} />;
+const PackEditor = ({ packId } : { packId : string }) => {
+  const { data, error } = usePack(packId);
+  if (axios.isAxiosError(error) && error.response?.status != 404) return <div>Не удалось загрузить пак</div>;
+  return <PackEditorForm key={data?.packId ?? 'new_pack'} packId={packId} initial={data} />;
 };
 
 export const PackEditorForm = ({ packId, initial }: { packId: string; initial?: PackDto }) => {

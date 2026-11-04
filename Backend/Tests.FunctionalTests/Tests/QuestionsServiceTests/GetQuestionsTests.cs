@@ -31,7 +31,7 @@ public class GetQuestionsTests(TestApplicationFixture fixture) : QuestionsServic
 
         foundQuestions.Length.ShouldBe(3);
         foundQuestions
-            .Select(x => x.Id)
+            .Select(x => x.QuestionId)
             .ShouldBeEquivalentTo(questions.Select(x => x.Id));
     }
 
@@ -48,7 +48,7 @@ public class GetQuestionsTests(TestApplicationFixture fixture) : QuestionsServic
 
         foundQuestions.Length.ShouldBe(2);
         foundQuestions
-            .Select(x => x.Id)
+            .Select(x => x.QuestionId)
             .ShouldBeEquivalentTo(questions
                 .Take(2)
                 .Select(x => x.Id));
@@ -66,7 +66,7 @@ public class GetQuestionsTests(TestApplicationFixture fixture) : QuestionsServic
         var foundQuestions = result.GetValueOrThrow();
         foundQuestions.Length.ShouldBe(3);
         foundQuestions
-            .Select(x => x.Id)
+            .Select(x => x.QuestionId)
             .ShouldBeEquivalentTo(questions
                 .Skip(2)
                 .Select(x => x.Id));

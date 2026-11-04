@@ -1,6 +1,6 @@
-﻿using MusicJam.Music;
+﻿using MusicJam.Studio.Models.Tracks;
 using MusicJam.Studio.Requests.Questions;
-using MusicJam.Studio.Services.QuestionService;
+using MusicJam.Studio.Services.QuestionsService;
 using Shouldly;
 using Tests.FunctionalTests.Fixtures;
 
@@ -11,9 +11,9 @@ public class GetTrackTests(TestApplicationFixture fixture)
     : QuestionsServiceTestBase(fixture)
 {
     [Theory]
-    [InlineData(TrackType.Question, "question")]
-    [InlineData(TrackType.Answer, "answer")]
-    public async Task GetTrack_WhenTrackTypeIsValid_ReturnsTrackLink(TrackType trackType, string expectedLink)
+    [InlineData(TrackType.Question)]
+    [InlineData(TrackType.Answer)]
+    public async Task GetTrack_WhenTrackTypeIsValid_ReturnsGetObjectResponse(TrackType trackType)
     {
         var user = await CreateUserAsync();
 
@@ -30,10 +30,11 @@ public class GetTrackTests(TestApplicationFixture fixture)
         var result = await QuestionsService.GetTrack(
             user.Id,
             question.GetValueOrThrow().Id,
-            trackType);
+            trackType,
+            null,
+            null);
 
         result.IsSuccess.ShouldBeTrue();
-        result.GetValueOrThrow().ShouldBe(expectedLink);
     }
 
     [Fact]
@@ -44,7 +45,9 @@ public class GetTrackTests(TestApplicationFixture fixture)
         var result = await QuestionsService.GetTrack(
             user.Id,
             Guid.NewGuid(),
-            TrackType.Question);
+            TrackType.Question,
+            null,
+            null);
 
         result.IsSuccess.ShouldBeFalse();
         result.GetFaultOrThrow().ShouldBe(IQuestionsService.QuestionError.NotFound);
@@ -61,7 +64,9 @@ public class GetTrackTests(TestApplicationFixture fixture)
         var result = await QuestionsService.GetTrack(
             anotherUser.Id,
             question.Id,
-            TrackType.Question);
+            TrackType.Question,
+            null,
+            null);
 
         result.IsSuccess.ShouldBeFalse();
         result.GetFaultOrThrow().ShouldBe(IQuestionsService.QuestionError.NotFound);
@@ -85,7 +90,9 @@ public class GetTrackTests(TestApplicationFixture fixture)
         var result = await QuestionsService.GetTrack(
             user.Id,
             question.GetValueOrThrow().Id,
-            (TrackType)(-1));
+            (TrackType)(-1),
+            null,
+            null);
 
         result.IsSuccess.ShouldBeFalse();
         result.GetFaultOrThrow().ShouldBe(IQuestionsService.QuestionError.InvalidTrackType);

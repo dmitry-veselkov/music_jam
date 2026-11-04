@@ -13,7 +13,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\MusicJam.Music\MusicJam.Music.csproj" />
       <ProjectReference Include="..\MusicJam.Shared\MusicJam.Shared.csproj" />
     </ItemGroup>
 

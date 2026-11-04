@@ -1,11 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MusicJam.Music;
 using MusicJam.Studio.Constants;
 using MusicJam.Studio.Extensions;
 using MusicJam.Studio.Models.Packs;
+using MusicJam.Studio.Models.Tracks;
 using MusicJam.Studio.Requests.Questions;
-using MusicJam.Studio.Services.QuestionService;
+using MusicJam.Studio.Responses.Questions;
+using MusicJam.Studio.Services.QuestionsService;
 
 namespace MusicJam.Studio.Controllers;
 
@@ -19,7 +20,7 @@ public class QuestionsController(IQuestionsService questionsService) : Controlle
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Question[]>> GetQuestions([FromQuery] GetQuestionsRequest request)
+    public async Task<ActionResult<QuestionCardResponse[]>> GetQuestions([FromQuery] GetQuestionsRequest request)
     {
         var userId = User.GetUserId();
 
@@ -114,35 +115,46 @@ public class QuestionsController(IQuestionsService questionsService) : Controlle
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetAnswerTrack(Guid questionId)
-    {
-        var userId = User.GetUserId();
-
-        var result = await questionsService.GetTrack(userId, questionId, TrackType.Answer);
-        if (result.TryGetFault(out var error, out var track))
-        {
-            return ErrorResponse(error);
-        }
-
-        return Ok(track);
-    }
+    public async Task GetAnswerTrack(Guid questionId) => await GetTrackByType(questionId, TrackType.Answer);
 
     [HttpGet("{questionId:guid}/question-track")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetQuestionTrack(Guid questionId)
-    {
-        var userId = User.GetUserId();
+    public async Task GetQuestionTrack(Guid questionId) => await GetTrackByType(questionId, TrackType.Question);
 
-        var result = await questionsService.GetTrack(userId, questionId, TrackType.Question);
-        if (result.TryGetFault(out var error, out var track))
+    private async Task GetTrackByType(Guid questionId, TrackType trackType)
+    {
+        var range = Request.GetTypedHeaders().Range?.Ranges.SingleOrDefault();
+
+        var result = await questionsService.GetTrack(
+            User.GetUserId(),
+            questionId,
+            trackType,
+            range?.From,
+            range?.To);
+
+        var track = result.GetValueOrThrow();
+
+        Response.StatusCode = range is null
+            ? StatusCodes.Status200OK
+            : StatusCodes.Status206PartialContent;
+
+        Response.ContentType = track.ContentType;
+        Response.ContentLength = track.ContentLength;
+
+        Response.Headers.AcceptRanges = "bytes";
+
+        if (range is not null)
         {
-            return ErrorResponse(error);
+            Response.Headers.ContentRange = $"bytes {track.Start}-{track.End}/{track.TotalLength}";
         }
 
-        return Ok(track);
+        await using (track.Stream)
+        {
+            await track.Stream.CopyToAsync(Response.Body);
+        }
     }
 
     private ActionResult ErrorResponse(IQuestionsService.QuestionError error)
@@ -150,8 +162,9 @@ public class QuestionsController(IQuestionsService questionsService) : Controlle
         return error switch
         {
             IQuestionsService.QuestionError.NotFound => NotFound(),
-            IQuestionsService.QuestionError.InvalidRequest => BadRequest(),
             IQuestionsService.QuestionError.InvalidTrackType => BadRequest(),
+            IQuestionsService.QuestionError.InvalidTrack => BadRequest(),
+            IQuestionsService.QuestionError.CannotLoadTrack => BadRequest(),
             _ => throw new ArgumentOutOfRangeException(error.ToString()),
         };
     }

@@ -1,20 +1,23 @@
-﻿using MusicJam.Music;
-using MusicJam.Studio.Models.Packs;
+﻿using MusicJam.Studio.Models.Packs;
+using MusicJam.Studio.Models.Tracks;
 using MusicJam.Studio.Requests.Questions;
+using MusicJam.Studio.Responses;
+using MusicJam.Studio.Responses.Questions;
 using Shared;
 
-namespace MusicJam.Studio.Services.QuestionService;
+namespace MusicJam.Studio.Services.QuestionsService;
 
 public interface IQuestionsService
 {
     public enum QuestionError
     {
         NotFound,
-        InvalidRequest,
+        InvalidTrack,
         InvalidTrackType,
+        CannotLoadTrack,
     }
 
-    Task<Result<Question[], QuestionError>> GetQuestions(Guid userId, GetQuestionsRequest request);
+    Task<Result<QuestionCardResponse[], QuestionError>> GetQuestions(Guid userId, GetQuestionsRequest request);
 
     Task<Result<Question, QuestionError>> Create(Guid userId, CreateQuestionRequest request);
 
@@ -25,5 +28,10 @@ public interface IQuestionsService
     Task<Result<Question, QuestionError>> Update(Guid userId, Guid questionId, PatchMode mode,
         CreateQuestionRequest request);
 
-    Task<Result<string, QuestionError>> GetTrack(Guid userId, Guid questionId, TrackType trackType);
+    Task<Result<TrackResponse, QuestionError>> GetTrack(
+        Guid userId,
+        Guid questionId,
+        TrackType trackType,
+        long? start,
+        long? end);
 }

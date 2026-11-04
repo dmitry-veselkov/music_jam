@@ -1,4 +1,6 @@
-﻿namespace MusicJam.Studio.Responses;
+﻿using MusicJam.Studio.Responses.Questions;
+
+namespace MusicJam.Studio.Responses;
 
 public class RoundResponse
 {
@@ -8,5 +10,5 @@ public class RoundResponse
 
     public List<int> Costs { get; set; } = [];
 
-    public List<List<QuestionResponse>> Questions { get; set; } = [];
+    public List<List<QuestionCellResponse>> Questions { get; set; } = [];
 }

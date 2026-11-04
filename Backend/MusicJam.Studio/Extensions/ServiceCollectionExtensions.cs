@@ -1,9 +1,17 @@
-﻿using MusicJam.Studio.Services.AuthService;
+﻿using Amazon.S3;
+using Microsoft.Extensions.Options;
+using MusicJam.Studio.Configurations;
+using MusicJam.Studio.Constants;
+using MusicJam.Studio.Services.AuthService;
 using MusicJam.Studio.Services.GameService;
 using MusicJam.Studio.Services.PackService;
-using MusicJam.Studio.Services.QuestionService;
+using MusicJam.Studio.Services.QuestionsService;
 using MusicJam.Studio.Services.TokenService;
+using MusicJam.Studio.Services.TracksService;
 using MusicJam.Studio.Storages;
+using MusicJam.Studio.Storages.QuestionStorage;
+using MusicJam.Studio.Storages.RoundStorage;
+using MusicJam.Studio.Storages.TrackStorage;
 using MusicJam.Studio.Storages.UsersStorage;
 
 namespace MusicJam.Studio.Extensions;
@@ -18,7 +26,8 @@ public static class ServiceCollectionExtensions
             .AddScoped<ITokenService, JwtTokenService>()
             .AddScoped<IQuestionsService, QuestionsService>()
             .AddScoped<IPacksService, PacksService>()
-            .AddScoped<IGameService, GameService>();
+            .AddScoped<IGameService, GameService>()
+            .AddScoped<ITracksService, TracksService>();
 
         return services;
     }
@@ -32,6 +41,36 @@ public static class ServiceCollectionExtensions
             .AddScoped<IRoundStorage, RoundStorage>()
             .AddScoped<IPackStorage, PackStorage>()
             .AddScoped<IGameStorage, GameStorage>();
+        return services;
+    }
+
+    public static IServiceCollection AddObjectStorage(this IServiceCollection services)
+    {
+        services.AddSingleton<IAmazonS3>(provider =>
+        {
+            var settings = provider
+                .GetRequiredService<IOptions<ObjectStorageSettings>>()
+                .Value;
+
+            var config = new AmazonS3Config
+            {
+                ServiceURL = settings.ObjectStorageBaseUrl,
+                ForcePathStyle = true
+            };
+
+            var client = new AmazonS3Client(settings.AccessKey, settings.SecretKey, config);
+            return client;
+        });
+
+        return services;
+    }
+
+    public static IServiceCollection ConfigureSettings(this IServiceCollection services, IConfiguration configuration)
+    {
+        services
+            .Configure<ObjectStorageSettings>(configuration.GetSection(nameof(ObjectStorageSettings)))
+            .Configure<JwtSettings>(configuration.GetSection(nameof(JwtSettings)));
+
         return services;
     }
 }

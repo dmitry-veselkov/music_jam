@@ -1,12 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using MusicJam.Studio.Extensions;
 using MusicJam.Studio.Infrustructure.Data;
-using MusicJam.Studio.Infrustructure.Data.Configurations;
 using MusicJam.Studio.Infrustructure.Entities;
 using DbRound = MusicJam.Studio.Infrustructure.Entities.Round;
 using Question = MusicJam.Studio.Models.Packs.Question;
 using Round = MusicJam.Studio.Models.Packs.Round;
 
-namespace MusicJam.Studio.Storages;
+namespace MusicJam.Studio.Storages.RoundStorage;
 
 public class RoundStorage(AppDbContext db) : IRoundStorage
 {
@@ -39,7 +39,7 @@ public class RoundStorage(AppDbContext db) : IRoundStorage
                     .ToDictionary(
                         g => g.First().Category.Name,
                         g => g.OrderBy(rq => rq.Cost)
-                            .ToDictionary(rq => rq.Cost,  rq => rq.Question is null ? null : QuestionStorage.ToModel(rq.Question)))
+                            .ToDictionary(rq => rq.Cost,  rq => rq.Question is null ? null : QuestionExtensions.ToModel(rq.Question)))
             })
             .ToList();
     }
@@ -76,7 +76,7 @@ public class RoundStorage(AppDbContext db) : IRoundStorage
                 field[categoryName] = costs;
             }
 
-            costs[rq.Cost] = QuestionStorage.ToModel(rq.Question);
+            costs[rq.Cost] = rq.Question.ToModel();
         }
 
         return field;

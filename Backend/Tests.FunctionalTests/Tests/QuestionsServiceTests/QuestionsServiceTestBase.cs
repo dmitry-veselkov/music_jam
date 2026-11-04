@@ -1,5 +1,5 @@
 ﻿using MusicJam.Studio.Infrustructure.Entities;
-using MusicJam.Studio.Services.QuestionService;
+using MusicJam.Studio.Services.QuestionsService;
 using Tests.FunctionalTests.Fixtures;
 
 namespace Tests.FunctionalTests.Tests.QuestionsServiceTests;
@@ -33,8 +33,8 @@ public abstract class QuestionsServiceTestBase(TestApplicationFixture fixture) :
             UserId = userId,
             Requested = requested,
             CorrectAnswer = correctAnswer,
-            AnswerTrack = new Track { Link = "test://link" },
-            QuestionTrack = new Track { Link = "test://link" },
+            AnswerTrack = new Track { ObjectKey = Guid.NewGuid() },
+            QuestionTrack = new Track { ObjectKey = Guid.NewGuid() },
         };
 
         await SeedAsync(question);
@@ -50,8 +50,8 @@ public abstract class QuestionsServiceTestBase(TestApplicationFixture fixture) :
                 UserId = userId,
                 Requested = $"Requested {i}",
                 CorrectAnswer = $"Correct answer {i}",
-                AnswerTrack = new Track { Link = "test://link" },
-                QuestionTrack = new Track { Link = "test://link" },
+                AnswerTrack = new Track { ObjectKey = Guid.NewGuid() },
+                QuestionTrack = new Track { ObjectKey = Guid.NewGuid() },
             })
             .ToList();
 
