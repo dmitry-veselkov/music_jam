@@ -3,12 +3,7 @@ import type { PackRequest } from "@/features/pack/model/schema.ts";
 
 export const packMutations = {
   upsert: async ({ id, ...pack }: PackRequest & { id: string }) => {
-    // бэкенд ждёт плоский список ячеек в раунде, а не сетку
-    const body = {
-      ...pack,
-      rounds: pack.rounds.map((round) => ({ ...round, questions: round.questions.flat() })),
-    };
-    const { data } = await http.patch(`/packs/${id}`, body)
+    const { data } = await http.patch(`/packs/${id}`, pack)
     return data;
   },
   delete: async (id: string) => {
