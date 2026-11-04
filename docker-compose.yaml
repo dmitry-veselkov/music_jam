@@ -42,6 +42,9 @@ services:
       JwtSettings__SecretKey: "${JWT_SECRET}"
       JwtSettings__Issuer: "${JWT_ISSUER}"
       JwtSettings__Audience: "${JWT_AUDIENCE}"
+      ObjectStorageSettings__AccessKey: "${S3_ACCESS_KEY}"
+      ObjectStorageSettings__SecretKey: "${S3_SECRET_KEY}"
+      ObjectStorageSettings__BucketName: "${S3_BUCKET_NAME}"
 
   musicjam-runtime:
     build:
