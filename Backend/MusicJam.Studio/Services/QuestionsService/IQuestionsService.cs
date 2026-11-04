@@ -1,7 +1,7 @@
-﻿using Amazon.S3.Model;
-using MusicJam.Studio.Models.Packs;
+﻿using MusicJam.Studio.Models.Packs;
 using MusicJam.Studio.Models.Tracks;
 using MusicJam.Studio.Requests.Questions;
+using MusicJam.Studio.Responses;
 using MusicJam.Studio.Responses.Questions;
 using Shared;
 
@@ -28,5 +28,10 @@ public interface IQuestionsService
     Task<Result<Question, QuestionError>> Update(Guid userId, Guid questionId, PatchMode mode,
         CreateQuestionRequest request);
 
-    Task<Result<GetObjectResponse, QuestionError>> GetTrack(Guid userId, Guid questionId, TrackType trackType);
+    Task<Result<TrackResponse, QuestionError>> GetTrack(
+        Guid userId,
+        Guid questionId,
+        TrackType trackType,
+        long? start,
+        long? end);
 }

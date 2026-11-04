@@ -20,11 +20,11 @@ public interface ITracksService
 
     Task<Result<TrackError>> DeleteTrack(Guid trackId, CancellationToken cancellationToken = default);
 
-    Task<Result<GetObjectResponse, TrackError>> GetTrack(Guid trackId, CancellationToken cancellationToken = default);
-
     Task<Result<long, TrackError>> GetTrackSize(Guid trackId, CancellationToken cancellationToken = default);
 
-    Task<GetObjectResponse> GetTrackRange(
+    Task<Result<GetObjectResponse, TrackError>> GetTrack(Guid trackId, CancellationToken cancellationToken = default);
+
+    Task<Result<GetObjectResponse, TrackError>> GetTrackRange(
         Guid trackId,
         long start,
         long end,

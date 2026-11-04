@@ -30,7 +30,9 @@ public class GetTrackTests(TestApplicationFixture fixture)
         var result = await QuestionsService.GetTrack(
             user.Id,
             question.GetValueOrThrow().Id,
-            trackType);
+            trackType,
+            null,
+            null);
 
         result.IsSuccess.ShouldBeTrue();
     }
@@ -43,7 +45,9 @@ public class GetTrackTests(TestApplicationFixture fixture)
         var result = await QuestionsService.GetTrack(
             user.Id,
             Guid.NewGuid(),
-            TrackType.Question);
+            TrackType.Question,
+            null,
+            null);
 
         result.IsSuccess.ShouldBeFalse();
         result.GetFaultOrThrow().ShouldBe(IQuestionsService.QuestionError.NotFound);
@@ -60,7 +64,9 @@ public class GetTrackTests(TestApplicationFixture fixture)
         var result = await QuestionsService.GetTrack(
             anotherUser.Id,
             question.Id,
-            TrackType.Question);
+            TrackType.Question,
+            null,
+            null);
 
         result.IsSuccess.ShouldBeFalse();
         result.GetFaultOrThrow().ShouldBe(IQuestionsService.QuestionError.NotFound);
@@ -84,7 +90,9 @@ public class GetTrackTests(TestApplicationFixture fixture)
         var result = await QuestionsService.GetTrack(
             user.Id,
             question.GetValueOrThrow().Id,
-            (TrackType)(-1));
+            (TrackType)(-1),
+            null,
+            null);
 
         result.IsSuccess.ShouldBeFalse();
         result.GetFaultOrThrow().ShouldBe(IQuestionsService.QuestionError.InvalidTrackType);

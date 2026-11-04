@@ -113,37 +113,48 @@ public class QuestionsController(IQuestionsService questionsService) : Controlle
     [HttpGet("{questionId:guid}/answer-track")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    // [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task GetAnswerTrack(Guid questionId)
-    {
-        var userId = User.GetUserId();
-
-        var result = await questionsService.GetTrack(userId, questionId, TrackType.Answer);
-        var response = result.GetValueOrThrow();
-
-        Response.ContentType = response.Headers.ContentType;
-        Response.ContentLength = response.Headers.ContentLength;
-
-        await response.ResponseStream.CopyToAsync(Response.Body);
-    }
+    public async Task GetAnswerTrack(Guid questionId) => await GetTrackByType(questionId, TrackType.Answer);
 
     [HttpGet("{questionId:guid}/question-track")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    // [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task GetQuestionTrack(Guid questionId)
+    public async Task GetQuestionTrack(Guid questionId) => await GetTrackByType(questionId, TrackType.Question);
+
+    private async Task GetTrackByType(Guid questionId, TrackType trackType)
     {
-        var userId = User.GetUserId();
+        var range = Request.GetTypedHeaders().Range?.Ranges.SingleOrDefault();
 
-        var result = await questionsService.GetTrack(userId, questionId, TrackType.Question);
-        var response = result.GetValueOrThrow();
+        var result = await questionsService.GetTrack(
+            User.GetUserId(),
+            questionId,
+            trackType,
+            range?.From,
+            range?.To);
 
-        Response.ContentType = response.Headers.ContentType;
-        Response.ContentLength = response.Headers.ContentLength;
+        var track = result.GetValueOrThrow();
 
-        await response.ResponseStream.CopyToAsync(Response.Body);
+        Response.StatusCode = range is null
+            ? StatusCodes.Status200OK
+            : StatusCodes.Status206PartialContent;
+
+        Response.ContentType = track.ContentType;
+        Response.ContentLength = track.ContentLength;
+
+        Response.Headers.AcceptRanges = "bytes";
+
+        if (range is not null)
+        {
+            Response.Headers.ContentRange = $"bytes {track.Start}-{track.End}/{track.TotalLength}";
+        }
+
+        await using (track.Stream)
+        {
+            await track.Stream.CopyToAsync(Response.Body);
+        }
     }
 
     private ActionResult ErrorResponse(IQuestionsService.QuestionError error)

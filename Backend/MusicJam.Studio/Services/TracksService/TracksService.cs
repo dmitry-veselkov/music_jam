@@ -54,13 +54,6 @@ internal class TracksService(IAmazonS3 s3, IOptions<ObjectStorageSettings> optio
         return Result<ITracksService.TrackError>.Success();
     }
 
-    public async Task<Result<GetObjectResponse, ITracksService.TrackError>> GetTrack(
-        Guid trackId,
-        CancellationToken cancellationToken = default)
-    {
-        return await s3.GetObjectAsync(_settings.BucketName, trackId.ToString(), cancellationToken);
-    }
-
     public async Task<Result<long, ITracksService.TrackError>> GetTrackSize(
         Guid trackId,
         CancellationToken cancellationToken = default)
@@ -76,7 +69,14 @@ internal class TracksService(IAmazonS3 s3, IOptions<ObjectStorageSettings> optio
         return response.Headers.ContentLength;
     }
 
-    public async Task<GetObjectResponse> GetTrackRange(
+    public async Task<Result<GetObjectResponse, ITracksService.TrackError>> GetTrack(
+        Guid trackId,
+        CancellationToken cancellationToken = default)
+    {
+        return await s3.GetObjectAsync(_settings.BucketName, trackId.ToString(), cancellationToken);
+    }
+
+    public async Task<Result<GetObjectResponse, ITracksService.TrackError>> GetTrackRange(
         Guid trackId,
         long start,
         long end,

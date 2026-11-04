@@ -1,8 +1,8 @@
-﻿using Amazon.S3.Model;
-using MusicJam.Studio.Extensions;
+﻿using MusicJam.Studio.Extensions;
 using MusicJam.Studio.Models.Packs;
 using MusicJam.Studio.Models.Tracks;
 using MusicJam.Studio.Requests.Questions;
+using MusicJam.Studio.Responses;
 using MusicJam.Studio.Responses.Questions;
 using MusicJam.Studio.Services.TracksService;
 using MusicJam.Studio.Storages.QuestionStorage;
@@ -94,10 +94,12 @@ internal class QuestionsService(
         throw new NotImplementedException();
     }
 
-    public async Task<Result<GetObjectResponse, IQuestionsService.QuestionError>> GetTrack(
+    public async Task<Result<TrackResponse, IQuestionsService.QuestionError>> GetTrack(
         Guid userId,
         Guid questionId,
-        TrackType trackType)
+        TrackType trackType,
+        long? start,
+        long? end)
     {
         var question = await questionStorage.GetQuestion(userId, questionId);
         if (question is null)
@@ -105,10 +107,10 @@ internal class QuestionsService(
             return IQuestionsService.QuestionError.NotFound;
         }
 
-        Guid? trackId = trackType switch
+        var trackId = trackType switch
         {
-            TrackType.Question => question.QuestionTrack.Id,
-            TrackType.Answer => question.AnswerTrack.Id,
+            TrackType.Question => question.QuestionTrack?.Id,
+            TrackType.Answer => question.AnswerTrack?.Id,
             _ => null
         };
 
@@ -117,12 +119,45 @@ internal class QuestionsService(
             return IQuestionsService.QuestionError.InvalidTrackType;
         }
 
-        var getTrackResult = await tracksService.GetTrack(trackId.Value);
-        if (getTrackResult.TryGetFault(out _, out var response))
+        var sizeResult = await tracksService.GetTrackSize(trackId.Value);
+        if (sizeResult.TryGetFault(out _, out var fileSize))
         {
             return IQuestionsService.QuestionError.CannotLoadTrack;
         }
 
-        return response;
+        var rangeStart = start ?? 0;
+        var rangeEnd = end ?? fileSize - 1;
+
+        if (IsValidRange(fileSize, rangeStart, rangeEnd))
+        {
+            return IQuestionsService.QuestionError.CannotLoadTrack;
+        }
+
+        rangeEnd = Math.Min(rangeEnd, fileSize - 1);
+
+        var trackResult = await tracksService.GetTrackRange(trackId.Value, rangeStart, rangeEnd);
+        if (trackResult.TryGetFault(out _, out var track))
+        {
+            return IQuestionsService.QuestionError.CannotLoadTrack;
+        }
+
+        return new TrackResponse
+        {
+            TrackId = trackId.Value,
+            Stream = track.ResponseStream,
+            ContentType = track.Headers.ContentType,
+            ContentLength = rangeEnd - rangeStart + 1,
+            TotalLength = fileSize,
+            Start = rangeStart,
+            End = rangeEnd,
+        };
+    }
+
+    private static bool IsValidRange(long fileSize, long rangeStart, long rangeEnd)
+    {
+        return fileSize <= 0
+               || rangeStart < 0
+               || rangeStart >= fileSize
+               || rangeEnd < rangeStart;
     }
 }
