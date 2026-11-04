@@ -7,7 +7,6 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["Backend/MusicJam.Studio/MusicJam.Studio.csproj", "Backend/MusicJam.Studio/"]
-COPY ["Backend/MusicJam.Music/MusicJam.Music.csproj", "Backend/MusicJam.Music/"]
 COPY ["Backend/MusicJam.Shared/MusicJam.Shared.csproj", "Backend/MusicJam.Shared/"]
 RUN dotnet restore "Backend/MusicJam.Studio/MusicJam.Studio.csproj"
 COPY . .
