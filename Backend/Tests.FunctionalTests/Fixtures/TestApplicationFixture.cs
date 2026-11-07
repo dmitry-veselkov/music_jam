@@ -2,12 +2,14 @@
 using MusicJam.Studio.Infrustructure.Data;
 using Tests.Infrastructure.Application;
 using Tests.Infrastructure.Database;
+using Tests.Infrastructure.ObjectStorage;
 
 namespace Tests.FunctionalTests.Fixtures;
 
 public sealed class TestApplicationFixture : IAsyncLifetime
 {
     private PostgreSqlDatabase? _database;
+    private MinioObjectStorage? _objectStorage;
     private TestHostFactory? _hostFactory;
     private DatabaseCleaner? _databaseCleaner;
 
@@ -22,11 +24,12 @@ public sealed class TestApplicationFixture : IAsyncLifetime
     public async Task InitializeAsync()
     {
         _database = new PostgreSqlDatabase();
-
         await _database.StartAsync();
 
-        _hostFactory = new TestHostFactory(_database.ConnectionString);
+        _objectStorage = new MinioObjectStorage();
+        await _objectStorage.InitializeAsync();
 
+        _hostFactory = new TestHostFactory(_database.ConnectionString);
         await _hostFactory.StartAsync();
 
         await using (var scope = Services.CreateAsyncScope())
@@ -68,6 +71,11 @@ public sealed class TestApplicationFixture : IAsyncLifetime
         if (_database is not null)
         {
             await _database.DisposeAsync();
+        }
+
+        if (_objectStorage is not null)
+        {
+            await _objectStorage.DisposeAsync();
         }
     }
 }

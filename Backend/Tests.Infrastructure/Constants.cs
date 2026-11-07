@@ -21,4 +21,11 @@ public static class Constants
         public const string AccessKey = "test_access_key";
         public const string SecretKey = "test_secret_key";
     }
+
+    public static class Configuration
+    {
+        public const string JwtSettingsIssuer = "MusicJam.Tests";
+        public const string JwtSettingsAudience = "MusicJam.Tests";
+        public const string JwtSettingsSecretKey = "TestSecretKey_AtLeast32CharactersLong!";
+    };
 }
