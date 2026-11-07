@@ -7,7 +7,7 @@ namespace Tests.Infrastructure.ObjectStorage;
 
 public class S3MockObjectStorage : IAsyncLifetime
 {
-    private readonly IContainer _container = new ContainerBuilder("adobe/s3mock:latest")
+    private readonly IContainer _container = new ContainerBuilder(Constants.ObjectStorage.Image)
         .WithPortBinding(Constants.ObjectStorage.Port, true)
         .WithWaitStrategy(
             Wait.ForUnixContainer()
@@ -18,7 +18,7 @@ public class S3MockObjectStorage : IAsyncLifetime
 
     public IAmazonS3 S3 { get; private set; } = null!;
 
-    public string ConnectionString;
+    public string ConnectionString { get; private set; } = null!;
 
     public async Task InitializeAsync()
     {
