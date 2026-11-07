@@ -1,4 +1,5 @@
-﻿using MusicJam.Studio.Infrustructure.Entities;
+﻿using Microsoft.AspNetCore.Http;
+using MusicJam.Studio.Infrustructure.Entities;
 using MusicJam.Studio.Services.QuestionsService;
 using Tests.FunctionalTests.Fixtures;
 
@@ -61,5 +62,18 @@ public abstract class QuestionsServiceTestBase(TestApplicationFixture fixture) :
         }
 
         return questions;
+    }
+
+    protected static IFormFile CreateFile(string fileName = "audio.mp3", long fileSize = 20 * 1024)
+    {
+        var bytes = new byte[fileSize];
+        Random.Shared.NextBytes(bytes);
+        
+        var stream = new MemoryStream(bytes);
+        return new FormFile(stream, 0, stream.Length, "file", fileName)
+        {
+            Headers = new HeaderDictionary(),
+            ContentType = "audio/mpeg"
+        };
     }
 }
