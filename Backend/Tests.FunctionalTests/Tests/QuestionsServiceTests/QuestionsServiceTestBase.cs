@@ -29,15 +29,7 @@ public abstract class QuestionsServiceTestBase(TestApplicationFixture fixture) :
         string requested = "Test question",
         string correctAnswer = "Test answer")
     {
-        var question = new Question
-        {
-            UserId = userId,
-            Requested = requested,
-            CorrectAnswer = correctAnswer,
-            AnswerTrack = new Track { ObjectKey = Guid.NewGuid() },
-            QuestionTrack = new Track { ObjectKey = Guid.NewGuid() },
-        };
-
+        var question = await GetQuestion(userId, requested, correctAnswer);
         await SeedAsync(question);
 
         return question;
@@ -45,30 +37,44 @@ public abstract class QuestionsServiceTestBase(TestApplicationFixture fixture) :
 
     protected async Task<List<Question>> CreateQuestionsAsync(Guid userId, int count)
     {
-        var questions = Enumerable.Range(1, count)
-            .Select(i => new Question
-            {
-                UserId = userId,
-                Requested = $"Requested {i}",
-                CorrectAnswer = $"Correct answer {i}",
-                AnswerTrack = new Track { ObjectKey = Guid.NewGuid() },
-                QuestionTrack = new Track { ObjectKey = Guid.NewGuid() },
-            })
-            .ToList();
+        var questionTasks = Enumerable.Range(1, count)
+            .Select(i => GetQuestion(
+                userId,
+                $"Requested {i}",
+                $"Correct answer {i}"));
+
+        var questions = await Task.WhenAll(questionTasks);
 
         foreach (var question in questions)
         {
             await SeedAsync(question);
         }
 
-        return questions;
+        return questions.ToList();
+    }
+
+    private async Task<Question> GetQuestion(Guid userId, string requested, string correctAnswer)
+    {
+        var questionTrackKey = await UploadObjectAsync(CreateFile("question.mp3"));
+        var answerTrackKey = await UploadObjectAsync(CreateFile("answer.mp3"));
+
+        var question = new Question
+        {
+            UserId = userId,
+            Requested = requested,
+            CorrectAnswer = correctAnswer,
+            AnswerTrack = new Track { ObjectKey = answerTrackKey },
+            QuestionTrack = new Track { ObjectKey = questionTrackKey },
+        };
+
+        return question;
     }
 
     protected static IFormFile CreateFile(string fileName = "audio.mp3", long fileSize = 20 * 1024)
     {
         var bytes = new byte[fileSize];
         Random.Shared.NextBytes(bytes);
-        
+
         var stream = new MemoryStream(bytes);
         return new FormFile(stream, 0, stream.Length, "file", fileName)
         {

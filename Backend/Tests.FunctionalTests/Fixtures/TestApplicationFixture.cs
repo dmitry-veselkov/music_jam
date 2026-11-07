@@ -21,6 +21,10 @@ public sealed class TestApplicationFixture : IAsyncLifetime
         _hostFactory?.Client
         ?? throw new InvalidOperationException("Test application has not been initialized.");
 
+    public MinioObjectStorage ObjectStorage =>
+        _objectStorage
+        ?? throw new InvalidOperationException("Object storage has not been initialized.");
+
     public async Task InitializeAsync()
     {
         _database = new PostgreSqlDatabase();
