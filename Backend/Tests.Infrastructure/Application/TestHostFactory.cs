@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.TestHost;
 
 namespace Tests.Infrastructure.Application;
 
-public sealed class TestHostFactory(string connectionString) : IAsyncDisposable
+public sealed class TestHostFactory(string dbConnectionString, string s3ConnectionString) : IAsyncDisposable
 {
     private IHost? _host;
 
@@ -22,13 +22,14 @@ public sealed class TestHostFactory(string connectionString) : IAsyncDisposable
     {
         var configuration = new Dictionary<string, string?>
         {
-            ["ConnectionStrings:DefaultConnection"] = connectionString,
+            ["ConnectionStrings:DefaultConnection"] = dbConnectionString,
             ["JwtSettings:Issuer"] = Constants.Configuration.JwtSettingsIssuer,
             ["JwtSettings:Audience"] = Constants.Configuration.JwtSettingsAudience,
             ["JwtSettings:SecretKey"] = Constants.Configuration.JwtSettingsSecretKey,
             ["ObjectStorageSettings:AccessKey"] = Constants.ObjectStorage.AccessKey,
             ["ObjectStorageSettings:SecretKey"] = Constants.ObjectStorage.SecretKey,
             ["ObjectStorageSettings:BucketName"] = Constants.ObjectStorage.BucketName,
+            ["ObjectStorageSettings:ObjectStorageBaseUrl"] = s3ConnectionString
         };
 
         _host = Host.CreateDefaultBuilder()

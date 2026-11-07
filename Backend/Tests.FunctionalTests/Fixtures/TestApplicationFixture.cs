@@ -9,7 +9,7 @@ namespace Tests.FunctionalTests.Fixtures;
 public sealed class TestApplicationFixture : IAsyncLifetime
 {
     private PostgreSqlDatabase? _database;
-    private MinioObjectStorage? _objectStorage;
+    private S3MockObjectStorage? _objectStorage;
     private TestHostFactory? _hostFactory;
     private DatabaseCleaner? _databaseCleaner;
 
@@ -21,7 +21,7 @@ public sealed class TestApplicationFixture : IAsyncLifetime
         _hostFactory?.Client
         ?? throw new InvalidOperationException("Test application has not been initialized.");
 
-    public MinioObjectStorage ObjectStorage =>
+    public S3MockObjectStorage ObjectStorage =>
         _objectStorage
         ?? throw new InvalidOperationException("Object storage has not been initialized.");
 
@@ -30,10 +30,10 @@ public sealed class TestApplicationFixture : IAsyncLifetime
         _database = new PostgreSqlDatabase();
         await _database.StartAsync();
 
-        _objectStorage = new MinioObjectStorage();
+        _objectStorage = new S3MockObjectStorage();
         await _objectStorage.InitializeAsync();
 
-        _hostFactory = new TestHostFactory(_database.ConnectionString);
+        _hostFactory = new TestHostFactory(_database.ConnectionString, _objectStorage.ConnectionString);
         await _hostFactory.StartAsync();
 
         await using (var scope = Services.CreateAsyncScope())

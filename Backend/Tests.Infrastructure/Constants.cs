@@ -16,10 +16,11 @@ public static class Constants
 
     public static class ObjectStorage
     {
-        public const string Image = "minio/minio:latest";
-        public const string BucketName = "test_bucket";
+        public const string Image = "localstack/localstack:latest";
+        public const string BucketName = "test-bucket";
         public const string AccessKey = "test_access_key";
         public const string SecretKey = "test_secret_key";
+        public const int Port = 9090;
     }
 
     public static class Configuration
