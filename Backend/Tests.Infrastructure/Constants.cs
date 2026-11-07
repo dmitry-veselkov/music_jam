@@ -16,7 +16,7 @@ public static class Constants
 
     public static class ObjectStorage
     {
-        public const string Image = "adobe/s3mock:latest";
+        public const string Image = "adobe/s3mock:5.2.3";
         public const string BucketName = "test-bucket";
         public const string AccessKey = "test_access_key";
         public const string SecretKey = "test_secret_key";
