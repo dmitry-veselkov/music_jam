@@ -10,7 +10,9 @@ public class CreateQuestionTests(TestApplicationFixture fixture) : QuestionsServ
     private static readonly CreateQuestionRequest TestCreateQuestionRequest = new()
     {
         Requested = "Who is the artist?",
-        CorrectAnswer = "John Lennon"
+        CorrectAnswer = "John Lennon",
+        AnswerTrack = CreateFile("answer.mp3"),
+        QuestionTrack = CreateFile("question.mp3")
     };
 
     [Fact]
