@@ -3,6 +3,7 @@ import styles from "./PackCardList.module.css";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { DeletePackButton } from "@/features/pack/ui/DeletePackButton/DeletePackButton.tsx";
+import { Button } from "@/shared/ui/Button/Button.tsx";
 
 const PAGE_SIZE = 12;
 
@@ -25,7 +26,8 @@ const PackCardList = () => {
             key={pack.packId}
             pack={pack}
             onClick={() => navigate(`/packs/${pack.packId}`)}
-            actions={<DeletePackButton pack={pack} />}
+            deleteButton={<DeletePackButton pack={pack} />}
+            startButton={<Button text={"Запустить"} />}
           />
         ))}
       </ul>
