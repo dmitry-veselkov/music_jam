@@ -9,7 +9,7 @@ public sealed partial class GameHub
 {
     public async Task<Team> JoinGame(Guid gameId, string teamName)
     {
-        var result = waitingRoom.Join(Context.ConnectionId, gameId, teamName);
+        var result = await waitingRoomService.Join(Context.ConnectionId, gameId, teamName);
         if (result.TryGetFault(out var error, out var joined))
         {
             throw ToHubException(error);
@@ -25,7 +25,7 @@ public sealed partial class GameHub
     
     public async Task LeaveGame(Guid gameId, Guid teamId)
     {
-        var result = waitingRoom.Leave(Context.ConnectionId, gameId, teamId);
+        var result = await waitingRoomService.Leave(Context.ConnectionId, gameId, teamId);
         if (result.TryGetFault(out var error))
         {
             throw ToHubException(error);

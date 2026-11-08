@@ -1,13 +1,19 @@
-﻿using MusicJam.Runtime.Models;
-using MusicJam.Runtime.Storage;
+using MusicJam.Runtime.Models;
+using MusicJam.Runtime.Responses;
+using MusicJam.Runtime.Storages.ConnectionStorage;
+using MusicJam.Runtime.Storages.GameStorage;
+using MusicJam.Runtime.Storages.TeamStorage;
 using Shared;
 using WaitingRoomError = MusicJam.Runtime.Services.WaitingRoomService.IWaitingRoomService.WaitingRoomError;
 
 namespace MusicJam.Runtime.Services.WaitingRoomService;
 
-public sealed class WaitingRoomService(IRoomStore rooms) : IWaitingRoomService
+public sealed class WaitingRoomService(
+    IGameStorage gameStorage,
+    ITeamStorage teamStorage,
+    IConnectionStorage connectionStorage) : IWaitingRoomService
 {
-    public Result<(Team Team, IReadOnlyList<Team> Teams), WaitingRoomError> Join(
+    public async Task<Result<JoinResponse, WaitingRoomError>> Join(
         string connectionId,
         Guid gameId,
         string teamName)
@@ -23,47 +29,59 @@ public sealed class WaitingRoomService(IRoomStore rooms) : IWaitingRoomService
             return WaitingRoomError.LongName;
         }
 
-        if (rooms.GetBinding(connectionId) is not null)
+        if (await connectionStorage.Get(connectionId) is not null)
         {
             return WaitingRoomError.AlreadyInRoom;
         }
 
-        var room = rooms.GetOrCreate(gameId);
+        await gameStorage.GetOrCreate(gameId);
 
-        var team = new Team(Guid.NewGuid(), name, TeamState.Ready);
-        if (!room.TryAddTeam(team))
+        var team = new Team
+        {
+            TeamId = Guid.NewGuid(),
+            TeamName = name,
+            State = TeamState.Ready,
+        };
+
+        // Названия команд уникальны без учёта регистра
+        var nameKey = name.ToUpperInvariant();
+        if (!await teamStorage.TryAdd(gameId, nameKey, team))
         {
             return WaitingRoomError.NameTaken;
         }
 
-        rooms.BindConnection(connectionId, gameId, team.TeamId);
+        await connectionStorage.Bind(connectionId, new ConnectionBinding(gameId, team.TeamId));
 
-        return (team, room.Teams);
+        return new JoinResponse
+        {
+            Team = team,
+            Teams = await teamStorage.GetTeams(gameId),
+        };
     }
 
-    public Result<WaitingRoomError> Leave(string connectionId, Guid gameId, Guid teamId)
+    public async Task<Result<WaitingRoomError>> Leave(string connectionId, Guid gameId, Guid teamId)
     {
-        var binding = rooms.GetBinding(connectionId);
-        if (binding is not { } b || b.GameId != gameId || b.TeamId != teamId)
+        var binding = await connectionStorage.Get(connectionId);
+        if (binding is null || binding.GameId != gameId || binding.TeamId != teamId)
         {
             return WaitingRoomError.NotYourTeam;
         }
 
-        rooms.UnbindConnection(connectionId);
-        rooms.Get(gameId)?.RemoveTeam(teamId);
+        await connectionStorage.Unbind(connectionId);
+        await teamStorage.Remove(gameId, teamId);
 
         return Result<WaitingRoomError>.Success();
     }
 
-    public (Guid GameId, Guid TeamId)? Disconnect(string connectionId)
+    public async Task<ConnectionBinding?> Disconnect(string connectionId)
     {
-        if (rooms.UnbindConnection(connectionId) is not { } binding)
+        var binding = await connectionStorage.Unbind(connectionId);
+        if (binding is null)
         {
             return null;
         }
 
-        var removed = rooms.Get(binding.GameId)?.RemoveTeam(binding.TeamId);
-
+        var removed = await teamStorage.Remove(binding.GameId, binding.TeamId);
         return removed is null ? null : binding;
     }
 }

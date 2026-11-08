@@ -1,4 +1,5 @@
-﻿using MusicJam.Runtime.Models;
+using MusicJam.Runtime.Models;
+using MusicJam.Runtime.Responses;
 using Shared;
 
 namespace MusicJam.Runtime.Services.WaitingRoomService;
@@ -15,10 +16,10 @@ public interface IWaitingRoomService
         NameTaken,
         NotYourTeam
     }
-    
-    Result<(Team Team, IReadOnlyList<Team> Teams), WaitingRoomError> Join(string connectionId, Guid gameId, string teamName);
-    
-    Result<WaitingRoomError> Leave(string connectionId, Guid gameId, Guid teamId);
-    
-    (Guid GameId, Guid TeamId)? Disconnect(string connectionId);
+
+    Task<Result<JoinResponse, WaitingRoomError>> Join(string connectionId, Guid gameId, string teamName);
+
+    Task<Result<WaitingRoomError>> Leave(string connectionId, Guid gameId, Guid teamId);
+
+    Task<ConnectionBinding?> Disconnect(string connectionId);
 }
