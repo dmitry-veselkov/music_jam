@@ -1,4 +1,5 @@
-﻿using MusicJam.Studio.Infrastructure.Entities;
+﻿using Microsoft.AspNetCore.Http;
+using MusicJam.Studio.Infrastructure.Entities;
 using MusicJam.Studio.Services.QuestionsService;
 using Tests.FunctionalTests.Fixtures;
 
@@ -21,6 +22,17 @@ public abstract class QuestionsServiceTestBase(TestApplicationFixture fixture) :
         await SeedAsync(user);
 
         return user;
+    }
+    
+    protected static IFormFile CreateTestFile(string fileName = "track.mp3")
+    {
+        var bytes = "fake audio content"u8.ToArray();
+
+        return new FormFile(new MemoryStream(bytes), 0, bytes.Length, "file", fileName)
+        {
+            Headers = new HeaderDictionary(),
+            ContentType = "audio/mpeg"
+        };
     }
 
     protected async Task<Question> CreateQuestionAsync(

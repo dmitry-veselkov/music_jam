@@ -32,15 +32,15 @@ internal class QuestionsService(
         var uploadQuestionTrackResult = await tracksService.UploadTrack(request.QuestionTrack);
         if (uploadQuestionTrackResult.TryGetFault(out _, out var questionTrack))
         {
-            return IQuestionsService.QuestionError.InvalidTrack;
+            return IQuestionsService.QuestionError.CannotLoadTrack;
         }
 
         var uploadAnswerTrackResult = await tracksService.UploadTrack(request.AnswerTrack);
         if (uploadAnswerTrackResult.TryGetFault(out _, out var answerTrack))
         {
-            return IQuestionsService.QuestionError.InvalidTrack;
+            return IQuestionsService.QuestionError.CannotLoadTrack;
         }
-
+        
         var question = new Question
         {
             AnswerTrack = new Track { Id = answerTrack.Id },
