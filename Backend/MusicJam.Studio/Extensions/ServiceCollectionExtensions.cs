@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Options;
 using MusicJam.Studio.Configurations;
 using MusicJam.Studio.Services.AuthService;
-using MusicJam.Studio.Services.PackService;
+using MusicJam.Studio.Services.PacksService;
 using MusicJam.Studio.Services.QuestionsService;
 using MusicJam.Studio.Services.TokenService;
 using MusicJam.Studio.Services.TracksService;

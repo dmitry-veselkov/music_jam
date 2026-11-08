@@ -6,7 +6,7 @@ using MusicJam.Studio.Models.Packs;
 using MusicJam.Studio.Requests.Packs;
 using MusicJam.Studio.Responses;
 using MusicJam.Studio.Responses.Packs;
-using MusicJam.Studio.Services.PackService;
+using MusicJam.Studio.Services.PacksService;
 
 namespace MusicJam.Studio.Controllers;
 

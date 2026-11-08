@@ -7,7 +7,7 @@ using MusicJam.Studio.Storages;
 using MusicJam.Studio.Storages.QuestionStorage;
 using Shared;
 
-namespace MusicJam.Studio.Services.PackService;
+namespace MusicJam.Studio.Services.PacksService;
 
 public class PacksService(
     IPackStorage packStorage,
@@ -158,5 +158,4 @@ public class PacksService(
             Field = field
         };
     }
-    
 }

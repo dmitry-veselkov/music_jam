@@ -1,10 +1,9 @@
 ﻿using MusicJam.Studio.Models.Packs;
 using MusicJam.Studio.Requests.Packs;
-using MusicJam.Studio.Responses;
 using MusicJam.Studio.Responses.Packs;
 using Shared;
 
-namespace MusicJam.Studio.Services.PackService;
+namespace MusicJam.Studio.Services.PacksService;
 
 public interface IPacksService
 {

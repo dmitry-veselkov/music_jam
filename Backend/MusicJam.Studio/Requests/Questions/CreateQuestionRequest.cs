@@ -10,7 +10,9 @@ public class CreateQuestionRequest
     [Required, StringLength(512, MinimumLength = 1)]
     public string CorrectAnswer { get; set; } = string.Empty;
 
+    [Required]
     public IFormFile QuestionTrack { get; set; }
-
+    
+    [Required]
     public IFormFile AnswerTrack { get; set; }
 }
