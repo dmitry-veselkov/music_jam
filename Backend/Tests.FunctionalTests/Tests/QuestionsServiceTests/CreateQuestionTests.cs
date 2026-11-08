@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using MusicJam.Studio.Requests.Questions;
+﻿using MusicJam.Studio.Requests.Questions;
 using Shouldly;
 using Tests.FunctionalTests.Fixtures;
 
@@ -8,12 +7,12 @@ namespace Tests.FunctionalTests.Tests.QuestionsServiceTests;
 [Collection(TestCollection.Name)]
 public class CreateQuestionTests(TestApplicationFixture fixture) : QuestionsServiceTestBase(fixture)
 {
-    private static CreateQuestionRequest TestCreateQuestionRequest => new()
+    private static readonly CreateQuestionRequest TestCreateQuestionRequest = new()
     {
         Requested = "Who is the artist?",
         CorrectAnswer = "John Lennon",
-        AnswerTrack = CreateTestFile(),
-        QuestionTrack = CreateTestFile()
+        AnswerTrack = CreateFile("answer.mp3"),
+        QuestionTrack = CreateFile("question.mp3")
     };
 
     [Fact]

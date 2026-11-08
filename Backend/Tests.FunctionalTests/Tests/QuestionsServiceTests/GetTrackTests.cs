@@ -17,19 +17,11 @@ public class GetTrackTests(TestApplicationFixture fixture)
     {
         var user = await CreateUserAsync();
 
-        var question = await QuestionsService.Create(
-            user.Id,
-            new CreateQuestionRequest
-            {
-                Requested = "Test question",
-                CorrectAnswer = "Test answer"
-            });
-
-        question.IsSuccess.ShouldBeTrue();
+        var question = await CreateQuestionAsync(user.Id);
 
         var result = await QuestionsService.GetTrack(
             user.Id,
-            question.GetValueOrThrow().Id,
+            question.Id,
             trackType,
             null,
             null);
@@ -77,19 +69,11 @@ public class GetTrackTests(TestApplicationFixture fixture)
     {
         var user = await CreateUserAsync();
 
-        var question = await QuestionsService.Create(
-            user.Id,
-            new CreateQuestionRequest
-            {
-                Requested = "Test question",
-                CorrectAnswer = "Test answer"
-            });
-
-        question.IsSuccess.ShouldBeTrue();
+        var question = await CreateQuestionAsync(user.Id);
 
         var result = await QuestionsService.GetTrack(
             user.Id,
-            question.GetValueOrThrow().Id,
+            question.Id,
             (TrackType)(-1),
             null,
             null);
