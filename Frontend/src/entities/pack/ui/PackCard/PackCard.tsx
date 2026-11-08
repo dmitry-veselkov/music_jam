@@ -5,15 +5,16 @@ import { type ReactNode} from "react";
 type PackCardProps = {
   pack: PackCardDto;
   onClick?: () => void;
-  actions?: ReactNode;
+  deleteButton?: ReactNode;
+  startButton?: ReactNode;
 }
 
-export const PackCard = ({ pack, onClick, actions }: PackCardProps) => {
+export const PackCard = ({ pack, onClick, deleteButton, startButton }: PackCardProps) => {
   return (
     <div className={styles.packCard} onClick={onClick}>
-      {actions && (
+      {deleteButton && (
         <div className={styles.actions} onClick={(e) => e.stopPropagation()}>
-          {actions}
+          {deleteButton}
         </div>
       )}
       <h2 className={styles.name}>{pack.name}</h2>
@@ -27,6 +28,11 @@ export const PackCard = ({ pack, onClick, actions }: PackCardProps) => {
           {new Date(pack.creationDate).toLocaleDateString("ru-RU")}
         </time>
       </div>
+      {startButton && (
+        <div className={styles.actions} onClick={(e) => e.stopPropagation()}>
+          {startButton}
+        </div>
+      )}
     </div>
   );
 };

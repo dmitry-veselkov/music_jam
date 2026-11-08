@@ -1,0 +1,8 @@
+.cover {
+    width: 438px;
+    aspect-ratio: 1;
+    object-fit: cover;
+
+    border: 2px solid #bab9d6;
+    border-radius: 20px;
+}

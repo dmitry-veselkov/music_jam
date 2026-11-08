@@ -111,7 +111,7 @@ public class Result<TFault>
         }
 
         fault = Fault;
-        return false;
+        return true;
     }
 
     public void EnsureSuccess()

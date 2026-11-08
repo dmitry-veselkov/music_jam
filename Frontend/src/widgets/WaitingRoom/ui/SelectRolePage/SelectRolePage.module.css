@@ -1,0 +1,156 @@
+.form {
+    width: 100%;
+    max-width: 480px;
+    padding: 36px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+
+    box-sizing: border-box;
+
+    background: #1c1c1c;
+    border: 1px solid #bab9d6;
+    border-radius: 20px;
+}
+
+.title {
+    margin: 0;
+
+    color: #f8f8f8;
+    font-size: 28px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.description {
+    margin: -12px 0 0;
+
+    color: #aaa;
+    font-size: 15px;
+    text-align: center;
+    line-height: 1.5;
+}
+
+/* Выбор режима */
+
+.modeSelector {
+    display: flex;
+    gap: 12px;
+
+    padding: 6px;
+
+    background: #121212;
+    border: 1px solid #3e3e3e;
+    border-radius: 14px;
+}
+
+.modeButton {
+    flex: 1;
+    padding: 12px;
+
+    border: none;
+    border-radius: 10px;
+
+    background: transparent;
+    color: #aaa;
+
+    font-family: inherit;
+    font-size: 16px;
+
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.modeButton:hover {
+    color: white;
+}
+
+.modeButton.active {
+    background: #6d2c93;
+    color: white;
+}
+
+/* Поле ввода */
+
+.inputContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.inputContainer label {
+    color: #f8f8f8;
+    font-size: 15px;
+}
+
+.inputContainer input {
+    width: 100%;
+    padding: 14px 16px;
+
+    box-sizing: border-box;
+
+    background: #282828;
+    border: 1px solid #555;
+    border-radius: 12px;
+
+    color: white;
+    font-family: inherit;
+    font-size: 16px;
+
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.inputContainer input::placeholder {
+    color: #777;
+}
+
+.inputContainer input:focus {
+    border-color: #933ec5;
+}
+
+/* Описание режима зрителя */
+
+.viewerDescription {
+    margin: 0;
+    padding: 18px;
+
+    background: #282828;
+    border: 1px solid #3e3e3e;
+    border-radius: 12px;
+
+    color: #bab9d6;
+    font-size: 15px;
+    line-height: 1.5;
+    text-align: center;
+}
+
+/* Кнопка входа */
+
+.submitButton {
+    width: 100%;
+    padding: 15px;
+
+    border: none;
+    border-radius: 12px;
+
+    background: #32c76a;
+    color: white;
+
+    font-family: inherit;
+    font-size: 18px;
+    font-weight: 500;
+
+    cursor: pointer;
+    transition: background 0.2s, opacity 0.2s;
+}
+
+.submitButton:hover:not(:disabled) {
+    background: #29b95e;
+}
+
+.submitButton:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}

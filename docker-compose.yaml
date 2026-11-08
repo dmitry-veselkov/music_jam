@@ -6,12 +6,12 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    ports:
+    expose:
       - "5432"
     volumes:
       - postgres_data:/var/lib/postgresql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d musicjam"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
       timeout: 3s
       retries: 10
@@ -53,8 +53,13 @@ services:
     expose:
       - "8080"
     depends_on:
-      postgres:
-        condition: service_healthy
+      musicjam-studio:
+        condition: service_started
+    environment:
+      JwtSettings__SecretKey: "${JWT_SECRET}"
+      JwtSettings__Issuer: "${JWT_ISSUER}"
+      JwtSettings__Audience: "${JWT_AUDIENCE}"
+      Services__Studio: "http://musicjam-studio:8080"
 
 volumes:
   postgres_data:

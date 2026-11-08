@@ -1,0 +1,1 @@
+export const HUB_URL="/api/runtime/games";

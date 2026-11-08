@@ -52,4 +52,7 @@ export const gamesHandlers = [
     await delay(300);
     return new HttpResponse(null, { status: 204 });
   }),
+  // http.post('/api/runtime/new-game', ({ params }) => {
+  //   return HttpResponse.json(crypto.randomUUID);
+  // })
 ]
