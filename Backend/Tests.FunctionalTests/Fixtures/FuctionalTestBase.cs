@@ -1,5 +1,9 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Amazon.S3;
+using Amazon.S3.Model;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using MusicJam.Studio.Infrustructure.Data;
+using Tests.Infrastructure;
 using Tests.Infrastructure.Data;
 
 namespace Tests.FunctionalTests.Fixtures;
@@ -11,6 +15,8 @@ public abstract class FunctionalTestBase(TestApplicationFixture fixture) : IAsyn
     protected IServiceProvider Services => Fixture.Services;
 
     protected HttpClient Client => Fixture.Client;
+
+    protected IAmazonS3 S3 => Fixture.ObjectStorage.S3;
 
     private IServiceScope? _scope;
 
@@ -51,5 +57,23 @@ public abstract class FunctionalTestBase(TestApplicationFixture fixture) : IAsyn
         var seeder = new TestDataSeeder(dbContext);
 
         await seeder.SeedAsync(entity);
+    }
+
+    protected async Task<Guid> UploadObjectAsync(IFormFile file, string contentType = "audio/mpeg")
+    {
+        var objectKey = Guid.NewGuid();
+        
+        await using var stream = file.OpenReadStream();
+        
+        await S3.PutObjectAsync(new PutObjectRequest
+        {
+            BucketName = Constants.ObjectStorage.BucketName,
+            Key = objectKey.ToString(),
+            InputStream = stream,
+            ContentType = contentType,
+            AutoCloseStream = false
+        });
+
+        return objectKey;
     }
 }
