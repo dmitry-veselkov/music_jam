@@ -1,1 +1,1 @@
-export const HUB_URL="Вставить адрес хаба"
+export const HUB_URL="/api/runtime/games";
