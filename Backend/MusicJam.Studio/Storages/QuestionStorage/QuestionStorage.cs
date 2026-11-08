@@ -66,15 +66,19 @@ public class QuestionStorage(AppDbContext db) : IQuestionStorage
 
         previousQuestion.Requested = question.Requested;
         previousQuestion.CorrectAnswer = question.CorrectAnswer;
-
+        
         if (previousQuestion.QuestionTrack.ObjectKey != question.QuestionTrack.Id)
         {
-            previousQuestion.QuestionTrack = TrackStorage.TrackStorage.ToDbModel(question.QuestionTrack);
+            var questionTrack = TrackStorage.TrackStorage.ToDbModel(question.QuestionTrack);
+            db.Tracks.Add(questionTrack);
+            previousQuestion.QuestionTrack = questionTrack;
         }
 
         if (previousQuestion.AnswerTrack.ObjectKey != question.AnswerTrack.Id)
         {
-            previousQuestion.AnswerTrack = TrackStorage.TrackStorage.ToDbModel(question.AnswerTrack);
+            var answerTrack = TrackStorage.TrackStorage.ToDbModel(question.AnswerTrack);
+            db.Tracks.Add(answerTrack);
+            previousQuestion.AnswerTrack = answerTrack;
         }
         await db.SaveChangesAsync();
         return previousQuestion.ToModel();

@@ -1,4 +1,5 @@
-﻿using MusicJam.Studio.Infrastructure.Entities;
+﻿using Microsoft.AspNetCore.Http;
+using MusicJam.Studio.Infrastructure.Entities;
 using MusicJam.Studio.Services.QuestionsService;
 using Tests.FunctionalTests.Fixtures;
 
