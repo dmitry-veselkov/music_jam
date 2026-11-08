@@ -1,7 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using MusicJam.Studio.Infrastructure.Entities;
 
-namespace MusicJam.Studio.Infrustructure.Entities;
+namespace MusicJam.Studio.Infrustructure.Data.Configurations;
 
 internal sealed class PackConfiguration : IEntityTypeConfiguration<Pack>
 {

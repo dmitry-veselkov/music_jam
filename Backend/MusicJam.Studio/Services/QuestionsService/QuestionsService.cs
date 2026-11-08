@@ -15,17 +15,13 @@ internal class QuestionsService(
     ITracksService tracksService)
     : IQuestionsService
 {
-    // todo Elizaveta-Vinogradova
-    // перетащить skip и take внутрь запроса к БД, чтобы не грузить лишнее
     public async Task<Result<QuestionCardResponse[], IQuestionsService.QuestionError>> GetQuestions(
         Guid userId,
         GetQuestionsRequest request)
     {
-        var questions = await questionStorage.GetAllUserQuestions(userId);
+        var questions = await questionStorage.GetAllUserQuestions(userId, request.Take, request.Skip);
         return questions
             .Select(question => question.ToCardResponse())
-            .Skip(request.Skip)
-            .Take(request.Take)
             .ToArray();
     }
 
@@ -66,11 +62,7 @@ internal class QuestionsService(
 
         return question;
     }
-
-    // todo Elizaveta-Vinogradova
-    // дописать проверку, что удаляемый вопрос нигде не используется
-    // если же использования есть - будем либо просто блокировать такую операцию,
-    // либо будет хотя бы предупреждать пользователя, что у вас такие-то паки сломаются
+    
     public async Task<Result<Guid, IQuestionsService.QuestionError>> Delete(Guid userId, Guid questionId)
     {
         var question = await questionStorage.GetQuestion(userId, questionId);
@@ -79,19 +71,78 @@ internal class QuestionsService(
             return IQuestionsService.QuestionError.NotFound;
         }
 
+        var hasUsages = await questionStorage.HasUsages(questionId);
+        if (hasUsages)
+            return IQuestionsService.QuestionError.InUse;
+        
         await questionStorage.DeleteQuestion(userId, questionId);
         return questionId;
     }
-
-    // todo Elizaveta-Vinogradova
-    // заглушка - реализовать в рамках общей задачи по тех. долгу
-    public Task<Result<Question, IQuestionsService.QuestionError>> Update(
+    
+    public async Task<Result<Question, IQuestionsService.QuestionError>> Update(
         Guid userId,
         Guid questionId,
         PatchMode mode,
-        CreateQuestionRequest request)
+        UpdateQuestionRequest request)
     {
-        throw new NotImplementedException();
+        var previousQuestion = await questionStorage.GetQuestion(userId, questionId);
+        if (previousQuestion is null)
+        {
+            return IQuestionsService.QuestionError.NotFound;
+        }
+        
+        var questionTrackResult = await ResolveTrack(request.QuestionTrack, previousQuestion.QuestionTrack);
+        if (questionTrackResult.TryGetFault(out var questionTrackError, out var questionTrack))
+        {
+            return questionTrackError;
+        }
+
+        var answerTrackResult = await ResolveTrack(request.AnswerTrack, previousQuestion.AnswerTrack);
+        if (answerTrackResult.TryGetFault(out var answerTrackError, out var answerTrack))
+        {
+            return answerTrackError;
+        }
+
+        var question = new Question
+        {
+            Id = questionId,
+            Requested = request.Requested ?? previousQuestion.Requested,
+            CorrectAnswer = request.CorrectAnswer ?? previousQuestion.CorrectAnswer,
+            QuestionTrack = questionTrack,
+            AnswerTrack = answerTrack,
+        };
+
+        switch (mode)
+        {
+            case PatchMode.Cascade:
+                var updated = await questionStorage.UpdateQuestion(userId, question);
+                if (updated is null)
+                {
+                    return IQuestionsService.QuestionError.NotFound;
+                }
+                return updated;
+            case PatchMode.PatchCopy:
+                return await questionStorage.SaveQuestion(userId, question);
+            default:
+                throw new ArgumentOutOfRangeException(mode.ToString());
+        }
+    }
+    
+    private async Task<Result<Track, IQuestionsService.QuestionError>> ResolveTrack(
+        IFormFile? newFile,
+        Track previousTrack)
+    {
+        if (newFile is null)
+        {
+            return new Track { Id = previousTrack.Id };
+        }
+
+        var uploadResult = await tracksService.UploadTrack(newFile);
+        if (uploadResult.TryGetFault(out _, out var uploaded))
+        {
+            return IQuestionsService.QuestionError.InvalidTrack;
+        }
+        return new Track { Id = uploaded.Id };
     }
 
     public async Task<Result<TrackResponse, IQuestionsService.QuestionError>> GetTrack(

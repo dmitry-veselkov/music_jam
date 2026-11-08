@@ -1,9 +1,7 @@
 ﻿using Amazon.S3;
 using Microsoft.Extensions.Options;
 using MusicJam.Studio.Configurations;
-using MusicJam.Studio.Constants;
 using MusicJam.Studio.Services.AuthService;
-using MusicJam.Studio.Services.GameService;
 using MusicJam.Studio.Services.PackService;
 using MusicJam.Studio.Services.QuestionsService;
 using MusicJam.Studio.Services.TokenService;
@@ -26,7 +24,6 @@ public static class ServiceCollectionExtensions
             .AddScoped<ITokenService, JwtTokenService>()
             .AddScoped<IQuestionsService, QuestionsService>()
             .AddScoped<IPacksService, PacksService>()
-            .AddScoped<IGameService, GameService>()
             .AddScoped<ITracksService, TracksService>();
 
         return services;
@@ -39,8 +36,7 @@ public static class ServiceCollectionExtensions
             .AddScoped<ITrackStorage, TrackStorage>()
             .AddScoped<IQuestionStorage, QuestionStorage>()
             .AddScoped<IRoundStorage, RoundStorage>()
-            .AddScoped<IPackStorage, PackStorage>()
-            .AddScoped<IGameStorage, GameStorage>();
+            .AddScoped<IPackStorage, PackStorage>();
         return services;
     }
 

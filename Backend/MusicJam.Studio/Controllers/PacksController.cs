@@ -110,6 +110,8 @@ public class PacksController(IPacksService packsService) : ControllerBase
         {
             IPacksService.PackError.NotFound => NotFound(),
             IPacksService.PackError.InvalidRequest => BadRequest(),
+            IPacksService.PackError.DuplicateCell => BadRequest(),
+            IPacksService.PackError.QuestionNotFound => BadRequest(),
             IPacksService.PackError.UnexpectedError => StatusCode(StatusCodes.Status500InternalServerError),
             _ => throw new ArgumentOutOfRangeException(error.ToString()),
         };

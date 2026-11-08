@@ -18,13 +18,14 @@ public class PacksService(
         Guid userId,
         GetPackRequest request)
     {
-        // todo Elizaveta-Vinogradova
-        // сейчас, чтобы получить лишь список названий, мы выгружаем из БД весь пак целиком
-        // нужно использовать представления и сразу брать только то, что действительно нужно
-        var packs = await packStorage.GetPacksByUser(userId, request.Take, request.Skip);
+        var packs = await packStorage.GetShortPacksByUser(userId, request.Take, request.Skip);
 
         return packs
-            .Select(x => x.ToShortResponse())
+            .Select(x => new ShortPackResponse()
+            {
+                PackId = x.Id,
+                Name = x.Name
+            })
             .ToArray();
     }
 
@@ -32,13 +33,16 @@ public class PacksService(
         Guid userId,
         GetPackRequest request)
     {
-        // todo Elizaveta-Vinogradova
-        // для карточек паков нам не нужна информация о турах и заполненности их таблиц,
-        // поэтому здесь тоже, наверное, нужно использовать представления
-        var packs = await packStorage.GetPacksByUser(userId, request.Take, request.Skip);
+        var packs = await packStorage.GetCardPacksByUser(userId, request.Take, request.Skip);
 
         return packs
-            .Select(pack => pack.ToCardResponse())
+            .Select(x => new PackCardResponse()
+            {
+                PackId = x.Id,
+                Name = x.Name,
+                CreatedAtUtc = x.CreatedAt.ToString(),
+                UpdatedAtUtc = x.UpdatedAt.ToString()
+            })
             .ToArray();
     }
 
@@ -66,8 +70,12 @@ public class PacksService(
 
     public async Task<Result<Pack, IPacksService.PackError>> Create(Guid userId, CreatePackRequest request)
     {
-        var rounds = await GetAllRounds(userId, request);
-
+        var roundsResult = await GetAllRounds(userId, request);
+        if (roundsResult.TryGetFault(out var error, out var rounds))
+        {
+            return error;
+        }
+        
         var pack = await packStorage.SavePack(userId, new Pack
         {
             Id = request.PackId,
@@ -80,15 +88,18 @@ public class PacksService(
 
     public async Task<Result<Pack, IPacksService.PackError>> Update(Guid userId, Guid packId, UpdatePackRequest request)
     {
-        var rounds = await GetAllRounds(userId, request);
-        var pack = await packStorage.Update(userId, new Pack
+        var roundsResult = await GetAllRounds(userId, request);
+        if (roundsResult.TryGetFault(out var error, out var rounds))
+        {
+            return error;
+        }
+
+        return await packStorage.Update(userId, new Pack
         {
             Id = packId,
             Rounds = rounds,
             Name = request.Name,
         });
-
-        return pack;
     }
 
     public async Task<Result<bool, IPacksService.PackError>> Delete(Guid userId, Guid packId)
@@ -98,62 +109,54 @@ public class PacksService(
         {
             return IPacksService.PackError.NotFound;
         }
-
         return true;
     }
-
-    // todo Elizaveta-Vinogradova
-    // с этим методом явно что-то надо сделать, ибо его даже читать невозможно,
-    // а про редактирование и дебаг я вообще молчу
-    private async Task<List<Round>> GetAllRounds(Guid userId, CreatePackRequest request)
+    
+    private async Task<Result<List<Round>, IPacksService.PackError>> GetAllRounds(Guid userId, CreatePackRequest request)
     {
-        var ids = request.Rounds
-            .SelectMany(r => r.Cells)
-            .Where(q => q.QuestionId.HasValue)
-            .Select(q => q.QuestionId!.Value)
-            .Distinct()
+        if (request.Rounds.Any(HasDuplicateCells))
+            return IPacksService.PackError.DuplicateCell;
+
+        var questionIds = CollectQuestionIds(request.Rounds);
+        var questions = await questionStorage.GetQuestions(userId, questionIds);
+        if (questions.Count != questionIds.Count)
+            return IPacksService.PackError.QuestionNotFound;
+
+        return request.Rounds
+            .Select(r => BuildRound(r, questions))
             .ToList();
-
-        var questions = new Dictionary<Guid, Question?>();
-        foreach (var id in ids)
-        {
-            var question = await questionStorage.GetQuestion(userId, id);
-            questions[id] = question;
-        }
-
-        if (request.Rounds.Any(r =>
-                r.Cells.GroupBy(q => (q.Category, q.Cost)).Any(g => g.Count() > 1)))
-        {
-            return [];
-        }
-
-        return request.Rounds.Select(r => new Round
-        {
-            Name = r.Name,
-            Categories = r.Cells.Select(q => q.Category).Distinct().ToList(),
-            Field = r.Cells
-                .GroupBy(q => q.Category)
-                .ToDictionary(
-                    g => g.Key,
-                    g => g.ToDictionary(
-                        q => q.Cost,
-                        q => q.QuestionId is { } id ? questions[id] : null))
-        }).ToList();
     }
+    
+    private static bool HasDuplicateCells(CreateRoundRequest round) =>
+        round.Cells
+            .GroupBy(c => (c.Category, c.Cost))
+            .Any(g => g.Count() > 1);
 
-    private static CreatePackRequest CreateEmptyPackRequest(Guid packId)
+    private static HashSet<Guid> CollectQuestionIds(IEnumerable<CreateRoundRequest> rounds) =>
+        rounds
+            .SelectMany(r => r.Cells)
+            .Select(c => c.QuestionId)
+            .OfType<Guid>()        
+            .ToHashSet();
+
+    private static Round BuildRound(CreateRoundRequest round, IReadOnlyDictionary<Guid, Question> questions)
     {
-        return new CreatePackRequest
+        var field = new Dictionary<string, Dictionary<int, Question?>>();
+
+        foreach (var cell in round.Cells)
         {
-            PackId = packId,
-            Name = string.Empty,
-            Rounds =
-            [
-                new CreateRoundRequest
-                {
-                    Questions = []
-                }
-            ]
+            if (!field.TryGetValue(cell.Category, out var row))
+                field[cell.Category] = row = new Dictionary<int, Question?>();
+
+            row[cell.Cost] = cell.QuestionId is { } id ? questions[id] : null;
+        }
+
+        return new Round
+        {
+            Name = round.Name,
+            Categories = round.Cells.Select(c => c.Category).Distinct().ToList(),
+            Field = field
         };
     }
+    
 }

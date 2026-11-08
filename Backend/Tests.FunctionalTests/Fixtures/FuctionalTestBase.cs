@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using MusicJam.Studio.Infrustructure.Data;
+using MusicJam.Studio.Infrastructure.Data;
 using Tests.Infrastructure.Data;
 
 namespace Tests.FunctionalTests.Fixtures;

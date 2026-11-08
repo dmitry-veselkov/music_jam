@@ -12,7 +12,9 @@ public interface IPacksService
     {
         NotFound,
         InvalidRequest,
-        UnexpectedError
+        UnexpectedError,
+        QuestionNotFound,
+        DuplicateCell
     }
 
     Task<Result<ShortPackResponse[], PackError>> GetShortPacks(Guid userId, GetPackRequest query);

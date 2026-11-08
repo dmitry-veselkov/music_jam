@@ -5,7 +5,7 @@ namespace MusicJam.Studio.Requests.Packs;
 public class CreatePackRequest
 {
     [Required]
-    public Guid PackId;
+    public Guid PackId { get; set; }
 
     public string Name { get; set; } = string.Empty;
 

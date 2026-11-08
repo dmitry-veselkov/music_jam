@@ -10,7 +10,9 @@ public class UpdateQuestionRequest
     [StringLength(512, MinimumLength = 1)]
     public string? CorrectAnswer { get; set; }
 
-    public string? QuestionTrackFile { get; set; }
+    // null - оставляем трек из предыдущей версии вопроса
+    public IFormFile? QuestionTrack { get; set; }
 
-    public string? AnswerTrackFile { get; set; }
+    // null - оставляем трек из предыдущей версии вопроса
+    public IFormFile? AnswerTrack { get; set; }
 }

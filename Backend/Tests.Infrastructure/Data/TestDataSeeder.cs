@@ -1,4 +1,4 @@
-﻿using MusicJam.Studio.Infrustructure.Data;
+﻿using MusicJam.Studio.Infrastructure.Data;
 
 namespace Tests.Infrastructure.Data;
 
