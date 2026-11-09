@@ -20,7 +20,7 @@ const PackCardList = () => {
 
   const handleStartGame = async ({ packId } : { packId : string }) => {
     const { gameId } = await create.mutateAsync({ packId });
-    navigate(`/api/runtime/games/${gameId}/waiting-room`);
+    navigate(`/games/${gameId}/waiting-room`);
   }
 
   const items = data ?? []
