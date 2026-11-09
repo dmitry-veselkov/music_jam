@@ -1,6 +1,9 @@
-﻿namespace MusicJam.Runtime.Services.GameService;
+﻿using Microsoft.AspNetCore.Mvc;
+using MusicJam.Runtime.Models;
+
+namespace MusicJam.Runtime.Services.GameService;
 
 public interface IGameService
 {
-    //сюда потом взаимодействия по раундам
+    public Task<ActionResult<Game>> Create(Guid hostId, Guid packId);
 }

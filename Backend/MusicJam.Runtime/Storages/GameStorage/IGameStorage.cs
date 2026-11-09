@@ -4,6 +4,6 @@ namespace MusicJam.Runtime.Storages.GameStorage;
 
 public interface IGameStorage
 {
-    Task<Game> GetOrCreate(Guid gameId);
+    Task<Game> GetOrCreate(Guid gameId, Guid packId);
     Task<Game?> Get(Guid gameId);
 }

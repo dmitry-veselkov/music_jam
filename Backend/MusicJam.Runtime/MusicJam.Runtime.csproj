@@ -14,6 +14,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\MusicJam.Shared\MusicJam.Shared.csproj" />
+      <ProjectReference Include="..\MusicJam.Studio\MusicJam.Studio.csproj" />
     </ItemGroup>
 
     <ItemGroup>
@@ -21,5 +22,12 @@
         <Link>.dockerignore</Link>
       </Content>
     </ItemGroup>
+
+    <Target Name="ExcludeStudioAppSettings" AfterTargets="ComputeResolvedFilesToPublishList">
+    <ItemGroup>
+      <ResolvedFileToPublish Remove="@(ResolvedFileToPublish)"
+        Condition="$([System.String]::Copy('%(FullPath)').Contains('MusicJam.Studio')) And $([System.String]::Copy('%(Filename)').StartsWith('appsettings'))" />
+    </ItemGroup>
+</Target>
 
 </Project>

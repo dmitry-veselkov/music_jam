@@ -1,7 +1,6 @@
 using MusicJam.Runtime.Models;
 using MusicJam.Runtime.Responses;
 using MusicJam.Runtime.Storages.ConnectionStorage;
-using MusicJam.Runtime.Storages.GameStorage;
 using MusicJam.Runtime.Storages.TeamStorage;
 using Shared;
 using WaitingRoomError = MusicJam.Runtime.Services.WaitingRoomService.IWaitingRoomService.WaitingRoomError;
@@ -9,7 +8,6 @@ using WaitingRoomError = MusicJam.Runtime.Services.WaitingRoomService.IWaitingRo
 namespace MusicJam.Runtime.Services.WaitingRoomService;
 
 public sealed class WaitingRoomService(
-    IGameStorage gameStorage,
     ITeamStorage teamStorage,
     IConnectionStorage connectionStorage) : IWaitingRoomService
 {
@@ -33,9 +31,7 @@ public sealed class WaitingRoomService(
         {
             return WaitingRoomError.AlreadyInRoom;
         }
-
-        await gameStorage.GetOrCreate(gameId);
-
+        
         var team = new Team
         {
             TeamId = Guid.NewGuid(),
@@ -43,7 +39,6 @@ public sealed class WaitingRoomService(
             State = TeamState.Ready,
         };
 
-        // Названия команд уникальны без учёта регистра
         var nameKey = name.ToUpperInvariant();
         if (!await teamStorage.TryAdd(gameId, nameKey, team))
         {
