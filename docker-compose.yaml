@@ -52,6 +52,11 @@ services:
       dockerfile: Backend/MusicJam.Runtime/Dockerfile
     expose:
       - "8080"
+    environment:
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}"
+      JwtSettings__SecretKey: "${JWT_SECRET}"
+      JwtSettings__Issuer: "${JWT_ISSUER}"
+      JwtSettings__Audience: "${JWT_AUDIENCE}"
     depends_on:
       postgres:
         condition: service_healthy
