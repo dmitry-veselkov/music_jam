@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MusicJam.Studio.Extensions;
-using MusicJam.Studio.Infrustructure.Data;
-using MusicJam.Studio.Infrustructure.Entities;
-using DbRound = MusicJam.Studio.Infrustructure.Entities.Round;
+using MusicJam.Studio.Infrastructure.Data;
+using MusicJam.Studio.Infrastructure.Entities;
+using DbRound = MusicJam.Studio.Infrastructure.Entities.Round;
 using Question = MusicJam.Studio.Models.Packs.Question;
 using Round = MusicJam.Studio.Models.Packs.Round;
 
@@ -43,8 +43,8 @@ public class RoundStorage(AppDbContext db) : IRoundStorage
             })
             .ToList();
     }
-    
-    public List<string> GetCategories(Guid roundId)
+
+    private List<string> GetCategories(Guid roundId)
     {
         var roundQuestions = db.RoundQuestions
             .Where(x => x.RoundId == roundId)
@@ -134,9 +134,7 @@ public class RoundStorage(AppDbContext db) : IRoundStorage
         }
         return ids;
     }
-
-    // Категории общие для всех раундов (ищутся по имени), поэтому удаляем только те,
-    // на которые больше не ссылается ни одна ячейка
+    
     private void RemoveUnusedCategories(IEnumerable<Guid> ids)
     {
         var wanted = ids.Distinct().ToList();

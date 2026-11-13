@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
-using MusicJam.Studio.Infrustructure.Entities;
+using MusicJam.Studio.Infrastructure.Entities;
 using MusicJam.Studio.Services.QuestionsService;
 using Tests.FunctionalTests.Fixtures;
 

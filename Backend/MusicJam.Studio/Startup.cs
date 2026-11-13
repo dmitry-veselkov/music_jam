@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using System.Text.Json.Serialization;
-using MusicJam.Studio.Infrustructure.Data;
+using MusicJam.Studio.Infrastructure.Data;
 
 namespace MusicJam.Studio;
 

@@ -1,4 +1,4 @@
-﻿namespace MusicJam.Studio.Infrustructure.Entities;
+﻿namespace MusicJam.Studio.Infrastructure.Entities;
 public class PackRound
 {
     public Guid PackId { get; set; }
