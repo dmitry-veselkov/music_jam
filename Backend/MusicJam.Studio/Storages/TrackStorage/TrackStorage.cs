@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using MusicJam.Studio.Infrustructure.Data;
-using DbTrack = MusicJam.Studio.Infrustructure.Entities.Track;
+using MusicJam.Studio.Infrastructure.Data;
+using DbTrack = MusicJam.Studio.Infrastructure.Entities.Track;
 using Track = MusicJam.Studio.Models.Tracks.Track;
 
 namespace MusicJam.Studio.Storages.TrackStorage;

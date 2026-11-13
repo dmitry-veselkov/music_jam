@@ -1,5 +1,5 @@
 ﻿using MusicJam.Studio.Helpers;
-using MusicJam.Studio.Infrustructure.Entities;
+using MusicJam.Studio.Infrastructure.Entities;
 using MusicJam.Studio.Services.AuthService;
 using Tests.FunctionalTests.Fixtures;
 
@@ -20,7 +20,6 @@ public abstract class AuthServiceTestBase(TestApplicationFixture fixture) : Func
             Username = TestUserName,
             Email = email,
             PasswordHash = PasswordHelper.Hash(password),
-            Games = [],
             Packs = [],
             Questions = []
         };

@@ -6,7 +6,7 @@ using MusicJam.Studio.Models.Packs;
 using MusicJam.Studio.Requests.Packs;
 using MusicJam.Studio.Responses;
 using MusicJam.Studio.Responses.Packs;
-using MusicJam.Studio.Services.PackService;
+using MusicJam.Studio.Services.PacksService;
 
 namespace MusicJam.Studio.Controllers;
 
@@ -110,6 +110,8 @@ public class PacksController(IPacksService packsService) : ControllerBase
         {
             IPacksService.PackError.NotFound => NotFound(),
             IPacksService.PackError.InvalidRequest => BadRequest(),
+            IPacksService.PackError.DuplicateCell => BadRequest(),
+            IPacksService.PackError.QuestionNotFound => BadRequest(),
             IPacksService.PackError.UnexpectedError => StatusCode(StatusCodes.Status500InternalServerError),
             _ => throw new ArgumentOutOfRangeException(error.ToString()),
         };

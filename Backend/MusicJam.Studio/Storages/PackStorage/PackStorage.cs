@@ -1,10 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using MusicJam.Studio.Infrustructure.Data;
-using MusicJam.Studio.Infrustructure.Data.Configurations;
-using MusicJam.Studio.Models.Packs;
+using MusicJam.Studio.Infrastructure.Data;
+using MusicJam.Studio.Infrastructure.Entities;
 using MusicJam.Studio.Storages.RoundStorage;
-using DbPack = MusicJam.Studio.Infrustructure.Entities.Pack;
+using DbPack = MusicJam.Studio.Infrastructure.Entities.Pack;
 using Pack = MusicJam.Studio.Models.Packs.Pack;
+using Round = MusicJam.Studio.Models.Packs.Round;
 
 namespace MusicJam.Studio.Storages;
 
@@ -34,6 +34,36 @@ public class PackStorage(AppDbContext db, IRoundStorage roundStorage) : IPackSto
             });
         }
         return packs;
+    }
+    
+    public Task<List<PackShortView>> GetShortPacksByUser(Guid userId, int? take = null, int skip = 0)
+    {
+        var query = db.Packs
+            .Where(x => x.UserId == userId)
+            .OrderBy(x => x.CreatedAtUtc)
+            .Skip(skip);
+
+        if (take.HasValue)
+            query = query.Take(take.Value);
+
+        return query
+            .Select(x => new PackShortView(x.Id, x.Title))
+            .ToListAsync();
+    }
+    
+    public Task<List<PackCardView>> GetCardPacksByUser(Guid userId, int? take = null, int skip = 0)
+    {
+        var query = db.Packs
+            .Where(x => x.UserId == userId)
+            .OrderBy(x => x.CreatedAtUtc)
+            .Skip(skip);
+
+        if (take.HasValue)
+            query = query.Take(take.Value);
+
+        return query
+            .Select(x => new PackCardView(x.Id, x.Title, x.CreatedAtUtc, x.UpdatedAtUtc))
+            .ToListAsync();
     }
 
     public async Task<Pack?> GetPackByUser(Guid userId, Guid packId)
@@ -103,7 +133,6 @@ public class PackStorage(AppDbContext db, IRoundStorage roundStorage) : IPackSto
 
     public async Task<Pack> Update(Guid userId, Pack pack)
     {
-        // Берём именно сущность EF: изменения доменной модели Pack в БД не попадают
         var packDb = await db.Packs
             .FirstOrDefaultAsync(x => x.UserId == userId && x.Id == pack.Id);
         if (packDb is null)
@@ -131,6 +160,14 @@ public class PackStorage(AppDbContext db, IRoundStorage roundStorage) : IPackSto
         }
         await tx.CommitAsync();
         return ToModel(packDb, rounds);
+    }
+    
+    public async Task<List<DateTime>> GetAllUsages(Guid packId)
+    {
+        return await db.HistoryPacks
+            .Where(x => x.PackId == packId)
+            .Select(x => x.Date)
+            .ToListAsync();
     }
 
     public static Pack ToModel(DbPack e, List<Round> rounds) => new()

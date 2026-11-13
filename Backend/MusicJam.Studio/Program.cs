@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using MusicJam.Studio.Infrustructure.Data;
-using MusicJam.Studio.Infrustructure.Data.Configurations;
+using MusicJam.Studio.Infrastructure.Data;
 
 namespace MusicJam.Studio;
 

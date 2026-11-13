@@ -6,7 +6,7 @@ namespace MusicJam.Studio.Extensions;
 
 public static class QuestionExtensions
 {
-    public static Question ToModel(this Infrustructure.Entities.Question e) => new()
+    public static Question ToModel(this Infrastructure.Entities.Question e) => new()
     {
         Id = e.Id,
         Requested = e.Requested,

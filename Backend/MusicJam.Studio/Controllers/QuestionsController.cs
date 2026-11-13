@@ -78,7 +78,7 @@ public class QuestionsController(IQuestionsService questionsService) : Controlle
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> PatchQuestion(Guid questionId, [FromForm] CreateQuestionRequest request)
+    public async Task<IActionResult> PatchQuestion(Guid questionId, [FromForm] UpdateQuestionRequest request)
     {
         var userId = User.GetUserId();
 
@@ -165,6 +165,7 @@ public class QuestionsController(IQuestionsService questionsService) : Controlle
             IQuestionsService.QuestionError.InvalidTrackType => BadRequest(),
             IQuestionsService.QuestionError.InvalidTrack => BadRequest(),
             IQuestionsService.QuestionError.CannotLoadTrack => BadRequest(),
+            IQuestionsService.QuestionError.InUse => BadRequest(),
             _ => throw new ArgumentOutOfRangeException(error.ToString()),
         };
     }

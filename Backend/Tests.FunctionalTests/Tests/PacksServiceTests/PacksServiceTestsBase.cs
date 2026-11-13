@@ -1,9 +1,9 @@
-﻿using MusicJam.Studio.Infrustructure.Entities;
+﻿using MusicJam.Studio.Infrastructure.Entities;
 using MusicJam.Studio.Requests;
 using MusicJam.Studio.Requests.Packs;
-using MusicJam.Studio.Services.PackService;
+using MusicJam.Studio.Services.PacksService;
 using Tests.FunctionalTests.Fixtures;
-using DbPack = MusicJam.Studio.Infrustructure.Entities.Pack;
+using DbPack = MusicJam.Studio.Infrastructure.Entities.Pack;
 using DomainPack = MusicJam.Studio.Models.Packs.Pack;
 using Round = MusicJam.Studio.Models.Packs.Round;
 

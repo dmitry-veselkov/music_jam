@@ -1,10 +1,9 @@
 ﻿using MusicJam.Studio.Models.Packs;
 using MusicJam.Studio.Requests.Packs;
-using MusicJam.Studio.Responses;
 using MusicJam.Studio.Responses.Packs;
 using Shared;
 
-namespace MusicJam.Studio.Services.PackService;
+namespace MusicJam.Studio.Services.PacksService;
 
 public interface IPacksService
 {
@@ -12,7 +11,9 @@ public interface IPacksService
     {
         NotFound,
         InvalidRequest,
-        UnexpectedError
+        UnexpectedError,
+        QuestionNotFound,
+        DuplicateCell
     }
 
     Task<Result<ShortPackResponse[], PackError>> GetShortPacks(Guid userId, GetPackRequest query);

@@ -2,6 +2,7 @@
 using Amazon.S3.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using MusicJam.Studio.Infrastructure.Data;
 using MusicJam.Studio.Infrustructure.Data;
 using Tests.Infrastructure;
 using Tests.Infrastructure.Data;

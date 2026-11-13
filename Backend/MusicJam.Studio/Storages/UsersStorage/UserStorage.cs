@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using MusicJam.Studio.Infrustructure.Data;
-using MusicJam.Studio.Infrustructure.Data.Configurations;
-using DbUser = MusicJam.Studio.Infrustructure.Entities.User;
+using MusicJam.Studio.Infrastructure.Data;
+using DbUser = MusicJam.Studio.Infrastructure.Entities.User;
 using User = MusicJam.Studio.Models.Users.User;
 
 namespace MusicJam.Studio.Storages.UsersStorage;

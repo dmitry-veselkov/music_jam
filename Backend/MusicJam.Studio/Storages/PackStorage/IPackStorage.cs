@@ -1,4 +1,5 @@
-﻿using MusicJam.Studio.Models.Packs;
+﻿using MusicJam.Studio.Infrastructure.Entities;
+using Pack = MusicJam.Studio.Models.Packs.Pack;
 
 
 namespace MusicJam.Studio.Storages;
@@ -15,4 +16,12 @@ public interface IPackStorage
 
     
     Task<Pack> Update(Guid userId, Pack pack);
+
+    Task<List<DateTime>> GetAllUsages(Guid packId);
+    
+    Task<List<PackShortView>> GetShortPacksByUser(Guid userId, int? take = null, int skip = 0);
+    
+    Task<List<PackCardView>> GetCardPacksByUser(Guid userId, int? take = null, int skip = 0);
+
+
 }
