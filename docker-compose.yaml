@@ -6,7 +6,7 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    ports:
+    expose:
       - "5432"
     volumes:
       - postgres_data:/var/lib/postgresql
@@ -20,8 +20,8 @@ services:
     build:
       context: .
       dockerfile: Backend/MusicJam.ApiGateway/Dockerfile
-    ports:
-      - "5000:8080"
+    expose:
+      - "8080"
     depends_on:
       musicjam-studio:
         condition: service_started
