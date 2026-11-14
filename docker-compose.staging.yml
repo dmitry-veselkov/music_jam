@@ -1,12 +1,12 @@
 services:
   musicjam-gateway:
-    image: ghcr.io/<owner>/musicjam-gateway:${IMAGE_TAG}
+    image: ghcr.io/fiit-talking-tom/musicjam-gateway:${IMAGE_TAG}
 
   musicjam-studio:
-    image: ghcr.io/<owner>/musicjam-studio:${IMAGE_TAG}
+    image: ghcr.io/fiit-talking-tom/musicjam-studio:${IMAGE_TAG}
 
   musicjam-runtime:
-    image: ghcr.io/<owner>/musicjam-runtime:${IMAGE_TAG}
+    image: ghcr.io/fiit-talking-tom/musicjam-runtime:${IMAGE_TAG}
 
   nginx:
     image: nginx:1.27
