@@ -6,12 +6,12 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    ports:
+    expose:
       - "5432"
     volumes:
       - postgres_data:/var/lib/postgresql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d musicjam"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
       timeout: 3s
       retries: 10
@@ -20,8 +20,8 @@ services:
     build:
       context: .
       dockerfile: Backend/MusicJam.ApiGateway/Dockerfile
-    ports:
-      - "5000:8080"
+    expose:
+      - "8080"
     depends_on:
       musicjam-studio:
         condition: service_started
