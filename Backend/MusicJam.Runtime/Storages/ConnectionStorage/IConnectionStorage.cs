@@ -9,4 +9,5 @@ public interface IConnectionStorage
     Task<ConnectionBinding?> Get(string connectionId);
 
     Task<ConnectionBinding?> Unbind(string connectionId);
+    Task<bool> HasAny(ConnectionBinding binding);
 }

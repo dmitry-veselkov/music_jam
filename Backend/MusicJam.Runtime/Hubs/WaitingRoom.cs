@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using MusicJam.Runtime.Middlewares;
 using MusicJam.Runtime.Models;
 using MusicJam.Runtime.Services.WaitingRoomService;
 using WaitingRoomError = MusicJam.Runtime.Services.WaitingRoomService.IWaitingRoomService.WaitingRoomError;
@@ -7,9 +8,10 @@ namespace MusicJam.Runtime.Hubs;
 
 public sealed partial class GameHub
 {
-    public async Task<Team> JoinGame(Guid gameId, string teamName)
+    public async Task<Team?> JoinGame(Guid gameId, string? teamName, Role state)
     {
-        var result = await waitingRoomService.Join(Context.ConnectionId, gameId, teamName);
+        var sessionId = GetSessionId();
+        var result = await waitingRoomService.Join(Context.ConnectionId, sessionId, gameId, state, teamName);
         if (result.TryGetFault(out var error, out var joined))
         {
             throw ToHubException(error);
@@ -18,7 +20,10 @@ public sealed partial class GameHub
         var group = GroupName(gameId);
         await Groups.AddToGroupAsync(Context.ConnectionId, group);
         await Clients.Caller.RoomState(joined.Teams);
-        await Clients.OthersInGroup(group).TeamJoined(joined.Team);
+        if (joined is { IsNewTeam: true, Team: { } team })
+        {
+            await Clients.OthersInGroup(group).TeamJoined(team);
+        }
 
         return joined.Team;
     }
@@ -36,6 +41,10 @@ public sealed partial class GameHub
         await Clients.Group(group).TeamLeft(teamId);
     }
     
+    private Guid GetSessionId() =>
+        Context.GetHttpContext()?.GetSessionId()
+        ?? throw new HubException("Не удалось определить сессию");
+
     private static HubException ToHubException(WaitingRoomError error) => error switch
     {
         WaitingRoomError.EmptyName => new("Название команды не может быть пустым"),
@@ -43,6 +52,9 @@ public sealed partial class GameHub
         WaitingRoomError.AlreadyInRoom => new("Вы уже в комнате"),
         WaitingRoomError.NameTaken => new("Команда с таким названием уже есть"),
         WaitingRoomError.NotYourTeam => new("Эта команда вам не принадлежит"),
+        WaitingRoomError.GameNotFound => new("Игра не найдена"),
+        WaitingRoomError.GameAlreadyStarted => new("Игра уже началась"),
+        WaitingRoomError.InvalidRole => new("Войти можно только как player или viewer"),
         _ => throw new ArgumentOutOfRangeException(nameof(error), error, null),
     };
 }

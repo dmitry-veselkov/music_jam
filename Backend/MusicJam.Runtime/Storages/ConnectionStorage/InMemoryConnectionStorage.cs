@@ -16,6 +16,9 @@ public sealed class InMemoryConnectionStorage : IConnectionStorage
     public Task<ConnectionBinding?> Get(string connectionId) =>
         Task.FromResult(_connections.GetValueOrDefault(connectionId));
 
+    public Task<bool> HasAny(ConnectionBinding binding) =>
+        Task.FromResult(_connections.Values.Any(b => b == binding));
+
     public Task<ConnectionBinding?> Unbind(string connectionId) =>
         Task.FromResult(_connections.TryRemove(connectionId, out var binding) ? binding : null);
 }

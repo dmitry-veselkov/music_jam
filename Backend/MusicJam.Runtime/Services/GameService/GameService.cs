@@ -1,23 +1,35 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using MusicJam.Studio.Services.PackService;
+using Microsoft.AspNetCore.Mvc;
+using MusicJam.Runtime.Clients.StudioClient;
+using MusicJam.Runtime.Storages.GameStorage;
 using Game = MusicJam.Runtime.Models.Game;
 
 namespace MusicJam.Runtime.Services.GameService;
 
-public class GameService(IPacksService packsService) : IGameService
+public class GameService(IStudioClient studioClient,
+    IGameStorage gameStorage) : IGameService
 {
     //сюда потом взаимодействия по раундам
     public async Task<ActionResult<Game>> Create(Guid hostId, Guid packId)
     {
-        var pack = await packsService.GetPack(hostId, packId);
-        var gamePack = pack.GetValueOrThrow();
+        var pack = await studioClient.GetPack(packId);
+        if (pack is null)
+        {
+            return new NotFoundResult();
+        }
+
         var newGame = new Game()
         {
             GameId = Guid.NewGuid(),
             HostId = hostId,
-            Pack = gamePack,
-            PackId = packId
+            Pack = pack,
         };
+        await gameStorage.Add(newGame);
         return newGame;
+    }
+
+    public async Task<ActionResult<Game>> Get(Guid gameId)
+    {
+        var game = await gameStorage.Get(gameId);
+        return game;
     }
 }

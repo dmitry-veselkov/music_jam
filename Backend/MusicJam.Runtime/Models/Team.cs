@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace MusicJam.Runtime.Models;
 
 public enum TeamState
@@ -11,4 +13,7 @@ public sealed class Team
     public Guid TeamId { get; init; }
     public string TeamName { get; set; } = string.Empty;
     public TeamState State { get; set; }
+
+    [JsonIgnore]
+    public Guid SessionId { get; init; }
 }

@@ -2,19 +2,16 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using MusicJam.Runtime.Clients.StudioClient;
 using MusicJam.Runtime.Hubs;
-using MusicJam.Runtime.Models;
+using MusicJam.Runtime.Middlewares;
 using MusicJam.Runtime.Services.GameService;
 using MusicJam.Runtime.Services.WaitingRoomService;
 using MusicJam.Runtime.Storages.ConnectionStorage;
 using MusicJam.Runtime.Storages.GameStorage;
-using MusicJam.Runtime.Storages.TeamStorage;
 using MusicJam.Studio.Configurations;
 using MusicJam.Studio.Constants;
-using MusicJam.Studio.Extensions;
-using MusicJam.Studio.Infrustructure.Data;
 
 namespace MusicJam.Runtime;
 
@@ -55,34 +52,34 @@ public class Startup(IConfiguration configuration)
             });
         services.AddAuthorization();
 
-        services.AddControllers();
+        services.AddControllers()
+            .AddJsonOptions(o => o.JsonSerializerOptions.Converters.Add(
+                new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)));
+        
+        
         services.AddSignalR()
             .AddJsonProtocol(o => o.PayloadSerializerOptions.Converters.Add(
                 new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)));
-        services.AddSingleton<IGameStorage, InMemoryGameStorage>();
-        services.AddSingleton<ITeamStorage, InMemoryTeamStorage>();
+        services.AddSingleton<IGameStorage, GameStorage>();
         services.AddSingleton<IConnectionStorage, InMemoryConnectionStorage>();
         services.AddSingleton<IWaitingRoomService, WaitingRoomService>();
-        services.AddSingleton<IGameService, GameService>();
-        
-        services.AddDbContext<AppDbContext>(o =>
-            o.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"))
-                .UseSnakeCaseNamingConvention());
-
-        services
-            .ConfigureSettings(Configuration)
-            .AddObjectStorage()
-            .AddStorages()
-            .AddServices();
-
         services.AddScoped<IGameService, GameService>();
-        
-        
+
+        services.AddHttpContextAccessor();
+        services.AddTransient<ForwardAccessTokenHandler>();
+        services.AddHttpClient<IStudioClient, StudioClient>(client =>
+            {
+                var studioUrl = Configuration["Services:Studio"]
+                    ?? throw new InvalidOperationException("Не задан адрес Studio: Services:Studio");
+                client.BaseAddress = new Uri(studioUrl);
+            })
+            .AddHttpMessageHandler<ForwardAccessTokenHandler>();
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
         app
+            .UseMiddleware<SessionMiddleware>()
             .UseRouting()
             .UseAuthentication()
             .UseAuthorization()

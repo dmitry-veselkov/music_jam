@@ -6,5 +6,5 @@ public class Round
     
     public List<string> Categories { get; set; }
     
-    public Dictionary<string, Dictionary<int, Question?>> Field { get; set; } //У тимура questions, это responses пофиксить
+    public Dictionary<string, Dictionary<int, Question?>> Field { get; set; } 
 }

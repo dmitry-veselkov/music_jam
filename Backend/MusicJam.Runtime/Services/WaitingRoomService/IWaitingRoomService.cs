@@ -14,12 +14,20 @@ public interface IWaitingRoomService
         LongName,
         AlreadyInRoom,
         NameTaken,
-        NotYourTeam
+        NotYourTeam,
+        GameNotFound,
+        GameAlreadyStarted,
+        InvalidRole
     }
 
-    Task<Result<JoinResponse, WaitingRoomError>> Join(string connectionId, Guid gameId, string teamName);
+    Task<Result<JoinResponse, WaitingRoomError>> Join(
+        string connectionId,
+        Guid sessionId,
+        Guid gameId,
+        Role role,
+        string? teamName);
 
     Task<Result<WaitingRoomError>> Leave(string connectionId, Guid gameId, Guid teamId);
-
-    Task<ConnectionBinding?> Disconnect(string connectionId);
+    
+    Task<RemovedTeam?> Disconnect(string connectionId);
 }
