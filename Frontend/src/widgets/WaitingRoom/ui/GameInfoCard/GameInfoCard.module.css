@@ -1,0 +1,103 @@
+.card {
+    width: 100%;
+    min-height: 438px;
+    padding: 35px;
+    box-sizing: border-box;
+
+    display: flex;
+    flex-direction: column;
+    gap: 26px;
+
+    border: 2px solid #bab9d6;
+    border-radius: 20px;
+}
+
+.packName,
+.description h3 {
+    margin: 0;
+    color: white;
+    font-weight: 400;
+}
+
+.packName {
+    font-size: 20px;
+}
+
+.schedule {
+    display: flex;
+    gap: 32px;
+}
+
+.scheduleItem {
+    flex: 1;
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+
+    color: white;
+    font-size: 16px;
+}
+
+.value {
+    padding: 7px;
+    background: #282828;
+    border-radius: 18px;
+
+    color: white;
+    text-align: center;
+    font-size: 19px;
+}
+
+.description {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    color: white;
+}
+
+.description h3 {
+    font-size: 20px;
+}
+
+.description p {
+    margin: 0;
+    font-size: 15px;
+    color: #bab9d6;
+}
+
+.author {
+    display: flex;
+    align-items: center;
+    gap: 17px;
+
+    color: white;
+    font-size: 22px;
+}
+
+.author img,
+.avatarPlaceholder {
+    width: 49px;
+    height: 49px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.avatarPlaceholder {
+    background: #32c76a;
+}
+
+.mode {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    color: white;
+    font-size: 22px;
+}
+
+.modeValue {
+    color: #32c76a;
+}

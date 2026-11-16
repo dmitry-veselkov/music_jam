@@ -13,4 +13,6 @@ export const loginSchema = z.object({
   password: z.string(),
 })
 
+export type Role = 'host' | 'player' | 'viewer';
+
 export type LoginRequest = z.infer<typeof loginSchema>;

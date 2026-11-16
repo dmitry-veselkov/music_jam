@@ -1,4 +1,4 @@
-import type { AuthRequest, LoginRequest } from "@/features/auth";
+import type { AuthRequest, LoginRequest, Role } from "@/features/auth";
 import { http } from "@/shared/api/axios.ts";
 
 export const authApi = {
@@ -12,6 +12,10 @@ export const authApi = {
   },
   me: async () => {
     const response = await http.get('/auth/me')
+    return response.data;
+  },
+  checkRole: async (id : string) => {
+    const response = await http.get<{ role: Role; guid: string }>(`/runtime/user/check-role/${id}`)
     return response.data;
   }
 }
