@@ -1,15 +1,15 @@
 .card {
     width: 100%;
-    min-height: 438px;
-    padding: 35px;
+    min-height: 27rem;
+    padding: clamp(1.25rem, 3vw, 2.2rem);
     box-sizing: border-box;
 
     display: flex;
     flex-direction: column;
-    gap: 26px;
+    gap: 1.6rem;
 
     border: 2px solid #bab9d6;
-    border-radius: 20px;
+    border-radius: 1.25rem;
 }
 
 .packName,
@@ -17,85 +17,81 @@
     margin: 0;
     color: white;
     font-weight: 400;
+    overflow-wrap: anywhere;
 }
 
 .packName {
-    font-size: 20px;
+    font-size: 1.25rem;
 }
 
 .schedule {
     display: flex;
-    gap: 32px;
+    flex-wrap: wrap;
+    gap: 1rem 2rem;
 }
 
 .scheduleItem {
-    flex: 1;
+    flex: 1 1 8rem;
     min-width: 0;
 
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 0.3rem;
 
     color: white;
-    font-size: 16px;
+    font-size: 1rem;
 }
 
 .value {
-    padding: 7px;
+    padding: 0.45rem;
     background: #282828;
-    border-radius: 18px;
+    border-radius: 1.1rem;
 
     color: white;
     text-align: center;
-    font-size: 19px;
+    font-size: clamp(1rem, 1.5vw, 1.2rem);
 }
 
 .description {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-
+    gap: 0.6rem;
     color: white;
 }
 
 .description h3 {
-    font-size: 20px;
+    font-size: 1.25rem;
 }
 
 .description p {
     margin: 0;
-    font-size: 15px;
+    font-size: 0.95rem;
     color: #bab9d6;
+    overflow-wrap: anywhere;
 }
 
-.author {
+.author,
+.mode {
     display: flex;
     align-items: center;
-    gap: 17px;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
 
     color: white;
-    font-size: 22px;
+    font-size: clamp(1rem, 1.6vw, 1.375rem);
 }
 
 .author img,
 .avatarPlaceholder {
-    width: 49px;
-    height: 49px;
+    width: 3rem;
+    height: 3rem;
+    flex-shrink: 0;
     border-radius: 50%;
     object-fit: cover;
 }
 
 .avatarPlaceholder {
     background: #32c76a;
-}
-
-.mode {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-
-    color: white;
-    font-size: 22px;
 }
 
 .modeValue {
