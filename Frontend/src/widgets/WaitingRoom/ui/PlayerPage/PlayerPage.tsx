@@ -13,7 +13,7 @@ type Props = {
 const PlayerPage = ({ teamName } : Props) => {
   const { id } = useParams<{id : string}>();
   const { teams } = useRoomTeams();
-  const { currentTeam } = useJoinRoom(id!, teamName, 'player');
+  const { currentTeam } = useJoinRoom(id!, 'player', teamName);
 
   // Пока пусть будет, в будущем у этого компонента будет 2 варианта работы, или с возможностью редактирования для админа, или просто как информация для ознакмоления для зрителей и игроков
 

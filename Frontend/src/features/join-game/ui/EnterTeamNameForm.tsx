@@ -5,7 +5,7 @@ import type { Role } from "@/features/auth";
 type JoinRole = Omit<Role, 'host'>
 
 interface Props {
-  onSubmit: (name: string, role: JoinRole) => void;
+  onSubmit: (role: JoinRole, name: string | null) => void;
 }
 
 export const EnterTeamNameForm = ({ onSubmit }: Props) => {
@@ -16,14 +16,14 @@ export const EnterTeamNameForm = ({ onSubmit }: Props) => {
     e.preventDefault();
 
     if (role === "viewer") {
-      onSubmit("", role);
+      onSubmit(role, null);
       return;
     }
 
     const name = value.trim();
 
     if (name) {
-      onSubmit(name, role);
+      onSubmit(role, name);
     }
   };
 

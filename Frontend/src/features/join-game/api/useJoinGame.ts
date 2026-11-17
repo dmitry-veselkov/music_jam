@@ -3,11 +3,11 @@ import { useEffect, useState } from "react";
 import { useSignalR } from "@/features/signalr-connection";
 import type { Role } from "@/features/auth";
 
-
+// Поменять местами teamName и role
 export const useJoinRoom = (
   gameId: string,
+  role : Role,
   teamName: string | null,
-  role : Role
 ) => {
   const { connection, state } = useSignalR();
   const [currentTeam, setCurrentTeam] = useState<Team | null>(null);
@@ -17,7 +17,7 @@ export const useJoinRoom = (
     if (role === "player" && !teamName) return;
 
     connection
-      .invoke<Team>('JoinGame', gameId, teamName, role)
+      .invoke<Team>('JoinGame', gameId, role, teamName)
       .then((team) => setCurrentTeam(team))
       .catch(console.error);
 

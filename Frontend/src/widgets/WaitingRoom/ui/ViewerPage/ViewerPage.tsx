@@ -9,7 +9,15 @@ import { useParams } from "react-router-dom";
 const ViewerPage = () => {
   const { id } = useParams<{id : string}>();
   const { teams } = useRoomTeams();
-  useJoinRoom(id!, null, 'viewer');
+  useJoinRoom(id!, 'viewer', null);
+
+  if (!teams) {
+    return (
+      <div>
+        Команд пока нет
+      </div>
+    )
+  }
 
   // Пока пусть будет, в будущем у этого компонента будет 2 варианта работы, или с возможностью редактирования для админа, или просто как информация для ознакмоления для зрителей и игроков
 
