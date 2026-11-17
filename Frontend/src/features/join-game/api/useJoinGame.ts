@@ -13,7 +13,7 @@ export const useJoinRoom = (
   const [currentTeam, setCurrentTeam] = useState<Team | null>(null);
 
   useEffect(() => {
-    if (state !== 'connected' || !connection || !teamName) return;
+    if (state !== 'connected' || !connection) return;
     if (role === "player" && !teamName) return;
 
     connection

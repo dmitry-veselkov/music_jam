@@ -7,9 +7,9 @@ import { useJoinRoom } from "@/features/join-game/api/useJoinGame.ts";
 import { useParams } from "react-router-dom";
 
 const ViewerPage = () => {
-  const { id } = useParams<{id : string}>();
+  const { gameId } = useParams<{ gameId: string }>();
   const { teams } = useRoomTeams();
-  useJoinRoom(id!, 'viewer', null);
+  useJoinRoom(gameId!, 'viewer', null);
 
   if (!teams) {
     return (

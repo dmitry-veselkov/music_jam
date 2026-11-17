@@ -17,7 +17,7 @@ export const SelectRolePage = () => {
   const { data : checkRoleResponse } = useCheckRole(gameId!)
 
   useEffect(() => {
-    if (checkRoleResponse !== undefined) {
+    if (checkRoleResponse) {
       setJoinData({
         role: checkRoleResponse.role,
         teamName: checkRoleResponse.teamName,

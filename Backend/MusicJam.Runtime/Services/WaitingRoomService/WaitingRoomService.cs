@@ -14,11 +14,12 @@ public sealed class WaitingRoomService(
     public async Task<Result<JoinResponse, WaitingRoomError>> Join(
         string connectionId,
         Guid sessionId,
+        Guid? userId,
         Guid gameId,
         Role role,
         string? teamName)
     {
-        if (role is not (Role.Player or Role.Viewer))
+        if (role is not (Role.Host or Role.Player or Role.Viewer))
         {
             return WaitingRoomError.InvalidRole;
         }
@@ -34,9 +35,12 @@ public sealed class WaitingRoomService(
             return WaitingRoomError.AlreadyInRoom;
         }
 
-        var result = role == Role.Viewer
-            ? JoinAsViewer(game)
-            : JoinAsPlayer(game, sessionId, teamName);
+        var result = role switch
+        {
+            Role.Host => JoinAsHost(game, userId),
+            Role.Viewer => JoinAsViewer(game, sessionId),
+            _ => JoinAsPlayer(game, sessionId, teamName),
+        };
 
         if (result.IsSuccess)
         {
@@ -46,16 +50,31 @@ public sealed class WaitingRoomService(
         return result;
     }
 
-    private static Result<JoinResponse, WaitingRoomError> JoinAsViewer(Game game)
+    private static Result<JoinResponse, WaitingRoomError> JoinAsHost(Game game, Guid? userId)
     {
-        // Зритель может прийти в любой момент игры, команда ему не нужна.
+        if (userId is null || userId != game.HostId)
+        {
+            return WaitingRoomError.NotHost;
+        }
+
+        return new JoinResponse
+        {
+            Role = Role.Host,
+            TeamId = null,
+            TeamName = null
+        };
+    }
+
+    private static Result<JoinResponse, WaitingRoomError> JoinAsViewer(Game game, Guid sessionId)
+    {
         lock (game.Lock)
         {
+            game.Viewers.Add(sessionId);
             return new JoinResponse
             {
-                Team = null,
-                Teams = game.Teams.Values.ToArray(),
-                IsNewTeam = false,
+                Role =  Role.Viewer,
+                TeamId = null,
+                TeamName = null
             };
         }
     }
@@ -70,9 +89,9 @@ public sealed class WaitingRoomService(
                 existing.State = TeamState.Ready;
                 return new JoinResponse
                 {
-                    Team = existing,
-                    Teams = game.Teams.Values.ToArray(),
-                    IsNewTeam = false,
+                    Role = Role.Player,
+                    TeamId = existing.TeamId,
+                    TeamName = existing.TeamName
                 };
             }
 
@@ -108,9 +127,9 @@ public sealed class WaitingRoomService(
 
             return new JoinResponse
             {
-                Team = team,
-                Teams = game.Teams.Values.ToArray(),
-                IsNewTeam = true,
+                Role = Role.Player,
+                TeamId = team.TeamId,
+                TeamName = team.TeamName
             };
         }
     }
@@ -143,7 +162,7 @@ public sealed class WaitingRoomService(
         return Result<WaitingRoomError>.Success();
     }
 
-    public async Task<RemovedTeam?> Disconnect(string connectionId)
+    public async Task<DisconnectedTeam?> Disconnect(string connectionId)
     {
         var binding = await connectionStorage.Unbind(connectionId);
         if (binding is null)
@@ -151,7 +170,6 @@ public sealed class WaitingRoomService(
             return null;
         }
 
-        // Зритель уходит молча: команды у него нет.
         if (binding.Role != Role.Player || await connectionStorage.HasAny(binding))
         {
             return null;
@@ -171,14 +189,8 @@ public sealed class WaitingRoomService(
                 return null;
             }
 
-            if (game.State != GameState.Pending)
-            {
-                team.State = TeamState.Disconnected;
-                return null;
-            }
-
-            game.Teams.Remove(team.TeamId);
-            return new RemovedTeam(game.GameId, team.TeamId);
+            team.State = TeamState.Disconnected;
+            return new DisconnectedTeam(game.GameId, team);
         }
     }
 }

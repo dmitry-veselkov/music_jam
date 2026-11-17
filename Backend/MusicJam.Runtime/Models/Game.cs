@@ -21,6 +21,8 @@ public sealed class Game
 
     public Dictionary<Guid, Team> Teams { get; } = new();
 
+    public List<Guid> Viewers { get; } = new();
+
     public Team? FindTeamBySession(Guid sessionId)
     {
         lock (Lock)
@@ -28,6 +30,14 @@ public sealed class Game
             return Teams
                 .Values
                 .FirstOrDefault(team => team.SessionId == sessionId);
+        }
+    }
+    
+    public bool FindViewerBySession(Guid sessionId)
+    {
+        lock (Lock)
+        {
+            return Viewers.Contains(sessionId);
         }
     }
 }

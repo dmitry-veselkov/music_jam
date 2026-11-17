@@ -7,4 +7,5 @@ public interface IGameClient
     Task RoomState(IReadOnlyList<Team> teams);
     Task TeamJoined(Team team);
     Task TeamLeft(Guid teamId);
+    Task TeamUpdated(Team team);
 }

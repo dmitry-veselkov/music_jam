@@ -86,7 +86,7 @@ public class Startup(IConfiguration configuration)
             .UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                endpoints.MapHub<GameHub>("/api/runtime/games");
+                endpoints.MapHub<GameHub>(GameHub.Path);
             });
     }
 }

@@ -40,26 +40,26 @@ public class GameController(IGameService gameService) : ControllerBase
         var game = result.Value;
         if (game is null)
             return NotFound();
-        if (User.Identity?.IsAuthenticated == true && User.GetUserId() == game.HostId)
-            return Ok(new CheckRoleResponse()
-            {
-                Role = Role.Host,
-                TeamId = null
-            });
-
-        var sessionId = HttpContext.GetSessionId();
-        var team = game.FindTeamBySession(sessionId); 
-        return Ok(team is null
-            ? new CheckRoleResponse()
-            {
-                Role = Role.Viewer,
-                TeamId = null
-            }
-            : new CheckRoleResponse()
-            {
-                Role = Role.Player,
-                TeamId = team.TeamId
-            });
+        var session = HttpContext.GetSessionId();
+        var viewer = game.FindViewerBySession(session);
+        var team = game.FindTeamBySession(session);
+        return viewer switch
+        {
+            false when team is null => Ok(null),
+            true => Ok(new CheckRoleResponse() { Role = Role.Viewer, TeamId = null, TeamName = null }),
+            _ => Ok(new CheckRoleResponse() { Role = Role.Player, TeamId = team.TeamId, TeamName = team.TeamName })
+        };
     }
     
+    
+    [HttpGet("user/check-host/{gameId:guid}")]
+    [AllowAnonymous]
+    public async Task<IActionResult> CheckHost(Guid gameId)
+    {
+        var result = await gameService.Get(gameId);
+        var game = result.Value;
+        if (game is null)
+            return NotFound();
+        return Ok(new { isHost = User.Identity?.IsAuthenticated == true && User.GetUserId() == game.HostId });
+    }
 }

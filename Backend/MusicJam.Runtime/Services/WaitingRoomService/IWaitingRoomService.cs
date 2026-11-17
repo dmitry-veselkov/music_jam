@@ -17,17 +17,19 @@ public interface IWaitingRoomService
         NotYourTeam,
         GameNotFound,
         GameAlreadyStarted,
-        InvalidRole
+        InvalidRole,
+        NotHost
     }
 
     Task<Result<JoinResponse, WaitingRoomError>> Join(
         string connectionId,
         Guid sessionId,
+        Guid? userId,
         Guid gameId,
         Role role,
         string? teamName);
 
     Task<Result<WaitingRoomError>> Leave(string connectionId, Guid gameId, Guid teamId);
     
-    Task<RemovedTeam?> Disconnect(string connectionId);
+    Task<DisconnectedTeam?> Disconnect(string connectionId);
 }

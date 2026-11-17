@@ -6,9 +6,9 @@ import { useCheckHost } from "@/features/auth/api/useCheckHost.ts";
 
 const WaitingRoomPage = () => {
   const { gameId } = useParams<{ gameId: string }>();
-  const { data : isHost } = useCheckHost(gameId!);
+  const { data : isHost, isLoading } = useCheckHost(gameId!);
 
-  if (!gameId) return null;
+  if (!gameId || isLoading) return null;
 
   return (
     <SignalRProvider>
