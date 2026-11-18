@@ -66,6 +66,25 @@ public class PacksController(IPacksService packsService) : ControllerBase
         return pack;
     }
 
+    /// <summary>
+    /// Полный пак со всеми раундами и вопросами. Используется Runtime при старте игры.
+    /// </summary>
+    [HttpGet("{packId:guid}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<Pack>> GetPack(Guid packId)
+    {
+        var result = await packsService.GetPack(User.GetUserId(), packId);
+        if (result.TryGetFault(out var error, out var pack))
+        {
+            return ErrorResponse(error);
+        }
+
+        return pack;
+    }
+
     [HttpGet("{packId:guid}/edit")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
