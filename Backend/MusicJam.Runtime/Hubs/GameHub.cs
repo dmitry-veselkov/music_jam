@@ -8,7 +8,7 @@ public sealed partial class GameHub(
     IWaitingRoomService waitingRoomService,
     IGameService gameService) : Hub<IGameClient>
 {
-    public const string Path = "/api/runtime/games";
+    public const string Path = "/api/runtime/hub";
 
     private static string GroupName(Guid gameId) => $"game:{gameId}";
     public override async Task OnDisconnectedAsync(Exception? exception)

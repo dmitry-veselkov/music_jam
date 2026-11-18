@@ -1,1 +1,1 @@
-export const HUB_URL="/api/runtime/games";
+export const HUB_URL="/api/runtime/hub";

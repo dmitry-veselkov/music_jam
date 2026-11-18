@@ -49,10 +49,7 @@ public class PacksController(IPacksService packsService) : ControllerBase
 
         return packs;
     }
-
-    /// <summary>
-    /// Полный пак со всеми раундами и вопросами. Используется Runtime при старте игры.
-    /// </summary>
+    
     [HttpGet("{packId:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
