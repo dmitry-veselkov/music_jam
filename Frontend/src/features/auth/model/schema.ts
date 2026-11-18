@@ -13,4 +13,12 @@ export const loginSchema = z.object({
   password: z.string(),
 })
 
+export type Role = 'host' | 'player' | 'viewer';
+
+export type CheckRoleResponse = {
+  role: Role;
+  teamId: string | null;
+  teamName: string | null;
+}
+
 export type LoginRequest = z.infer<typeof loginSchema>;

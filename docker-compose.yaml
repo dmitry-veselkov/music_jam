@@ -53,8 +53,13 @@ services:
     expose:
       - "8080"
     depends_on:
-      postgres:
-        condition: service_healthy
+      musicjam-studio:
+        condition: service_started
+    environment:
+      JwtSettings__SecretKey: "${JWT_SECRET}"
+      JwtSettings__Issuer: "${JWT_ISSUER}"
+      JwtSettings__Audience: "${JWT_AUDIENCE}"
+      Services__Studio: "http://musicjam-studio:8080"
 
 volumes:
   postgres_data:

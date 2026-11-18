@@ -35,7 +35,6 @@ public class Startup(IConfiguration configuration)
                 }, ArrayPool<char>.Shared, options));
             options.RespectBrowserAcceptHeader = true;
         })
-        // enum'ы во входящем JSON — строками, как их шлёт фронт ("Hosted"/"Hostless")
         .AddJsonOptions(options =>
             options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
