@@ -1,4 +1,4 @@
-﻿namespace MusicJam.Studio.Infrustructure.Entities;
+﻿namespace MusicJam.Studio.Infrastructure.Entities;
 
 public class Pack : Entity
 {
@@ -9,3 +9,7 @@ public class Pack : Entity
     public DateTime UpdatedAtUtc { get; set; }
     public List<PackRound> Rounds { get; set; } = [];
 }
+
+public sealed record PackShortView(Guid Id, string Name);
+
+public sealed record PackCardView(Guid Id, string Name, DateTime CreatedAt, DateTime UpdatedAt);

@@ -3,7 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using MusicJam.Studio.Infrustructure.Data;
+using MusicJam.Studio.Infrastructure.Data;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
@@ -22,7 +22,7 @@ namespace MusicJam.Studio.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("MusicJam.Studio.Infrustructure.Entities.Category", b =>
+            modelBuilder.Entity("MusicJam.Studio.Infrastructure.Entities.Category", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -45,58 +45,23 @@ namespace MusicJam.Studio.Migrations
                     b.ToTable("categories", (string)null);
                 });
 
-            modelBuilder.Entity("MusicJam.Studio.Infrustructure.Entities.Game", b =>
+            modelBuilder.Entity("MusicJam.Studio.Infrastructure.Entities.HistoryPack", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(512)
-                        .HasColumnType("character varying(512)")
-                        .HasColumnName("description");
-
-                    b.Property<DateTime>("GameTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("game_time");
-
-                    b.Property<int>("Mode")
-                        .HasColumnType("integer")
-                        .HasColumnName("mode");
-
                     b.Property<Guid>("PackId")
                         .HasColumnType("uuid")
                         .HasColumnName("pack_id");
 
-                    b.Property<int>("State")
-                        .HasColumnType("integer")
-                        .HasColumnName("state");
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("date");
 
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("title");
+                    b.HasKey("PackId")
+                        .HasName("pk_history_pack");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_games");
-
-                    b.HasIndex("PackId")
-                        .HasDatabaseName("ix_games_pack_id");
-
-                    b.HasIndex("UserId")
-                        .HasDatabaseName("ix_games_user_id");
-
-                    b.ToTable("games", (string)null);
+                    b.ToTable("history_pack", (string)null);
                 });
 
-            modelBuilder.Entity("MusicJam.Studio.Infrustructure.Entities.Pack", b =>
+            modelBuilder.Entity("MusicJam.Studio.Infrastructure.Entities.Pack", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -134,7 +99,7 @@ namespace MusicJam.Studio.Migrations
                     b.ToTable("packs", (string)null);
                 });
 
-            modelBuilder.Entity("MusicJam.Studio.Infrustructure.Entities.PackRound", b =>
+            modelBuilder.Entity("MusicJam.Studio.Infrastructure.Entities.PackRound", b =>
                 {
                     b.Property<Guid>("PackId")
                         .HasColumnType("uuid")
@@ -157,7 +122,7 @@ namespace MusicJam.Studio.Migrations
                     b.ToTable("pack_round", (string)null);
                 });
 
-            modelBuilder.Entity("MusicJam.Studio.Infrustructure.Entities.Question", b =>
+            modelBuilder.Entity("MusicJam.Studio.Infrastructure.Entities.Question", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -201,7 +166,7 @@ namespace MusicJam.Studio.Migrations
                     b.ToTable("questions", (string)null);
                 });
 
-            modelBuilder.Entity("MusicJam.Studio.Infrustructure.Entities.QuestionUsages", b =>
+            modelBuilder.Entity("MusicJam.Studio.Infrastructure.Entities.QuestionUsages", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -228,7 +193,7 @@ namespace MusicJam.Studio.Migrations
                     b.ToTable("question_usage", (string)null);
                 });
 
-            modelBuilder.Entity("MusicJam.Studio.Infrustructure.Entities.Round", b =>
+            modelBuilder.Entity("MusicJam.Studio.Infrastructure.Entities.Round", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -247,7 +212,7 @@ namespace MusicJam.Studio.Migrations
                     b.ToTable("rounds", (string)null);
                 });
 
-            modelBuilder.Entity("MusicJam.Studio.Infrustructure.Entities.RoundQuestion", b =>
+            modelBuilder.Entity("MusicJam.Studio.Infrastructure.Entities.RoundQuestion", b =>
                 {
                     b.Property<Guid>("RoundId")
                         .HasColumnType("uuid")
@@ -277,40 +242,7 @@ namespace MusicJam.Studio.Migrations
                     b.ToTable("round_question", (string)null);
                 });
 
-            modelBuilder.Entity("MusicJam.Studio.Infrustructure.Entities.Statistic", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<int>("LossesCount")
-                        .HasColumnType("integer")
-                        .HasColumnName("losses_count");
-
-                    b.Property<int>("TotalCount")
-                        .HasColumnType("integer")
-                        .HasColumnName("total_count");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_id");
-
-                    b.Property<int>("WinsCount")
-                        .HasColumnType("integer")
-                        .HasColumnName("wins_count");
-
-                    b.HasKey("Id")
-                        .HasName("pk_statistics");
-
-                    b.HasIndex("UserId")
-                        .IsUnique()
-                        .HasDatabaseName("ix_statistics_user_id");
-
-                    b.ToTable("statistics", (string)null);
-                });
-
-            modelBuilder.Entity("MusicJam.Studio.Infrustructure.Entities.Track", b =>
+            modelBuilder.Entity("MusicJam.Studio.Infrastructure.Entities.Track", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -327,7 +259,7 @@ namespace MusicJam.Studio.Migrations
                     b.ToTable("tracks", (string)null);
                 });
 
-            modelBuilder.Entity("MusicJam.Studio.Infrustructure.Entities.User", b =>
+            modelBuilder.Entity("MusicJam.Studio.Infrastructure.Entities.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -355,30 +287,19 @@ namespace MusicJam.Studio.Migrations
                     b.ToTable("users", (string)null);
                 });
 
-            modelBuilder.Entity("MusicJam.Studio.Infrustructure.Entities.Game", b =>
+            modelBuilder.Entity("MusicJam.Studio.Infrastructure.Entities.HistoryPack", b =>
                 {
-                    b.HasOne("MusicJam.Studio.Infrustructure.Entities.Pack", "Pack")
+                    b.HasOne("MusicJam.Studio.Infrastructure.Entities.Pack", null)
                         .WithMany()
                         .HasForeignKey("PackId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_games_packs_pack_id");
-
-                    b.HasOne("MusicJam.Studio.Infrustructure.Entities.User", "User")
-                        .WithMany("Games")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_games_users_user_id");
-
-                    b.Navigation("Pack");
-
-                    b.Navigation("User");
+                        .HasConstraintName("fk_history_pack_packs_pack_id");
                 });
 
-            modelBuilder.Entity("MusicJam.Studio.Infrustructure.Entities.Pack", b =>
+            modelBuilder.Entity("MusicJam.Studio.Infrastructure.Entities.Pack", b =>
                 {
-                    b.HasOne("MusicJam.Studio.Infrustructure.Entities.User", null)
+                    b.HasOne("MusicJam.Studio.Infrastructure.Entities.User", null)
                         .WithMany("Packs")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -386,44 +307,44 @@ namespace MusicJam.Studio.Migrations
                         .HasConstraintName("fk_packs_users_user_id");
                 });
 
-            modelBuilder.Entity("MusicJam.Studio.Infrustructure.Entities.PackRound", b =>
+            modelBuilder.Entity("MusicJam.Studio.Infrastructure.Entities.PackRound", b =>
                 {
-                    b.HasOne("MusicJam.Studio.Infrustructure.Entities.Pack", "Pack")
+                    b.HasOne("MusicJam.Studio.Infrastructure.Entities.Pack", "Pack")
                         .WithMany("Rounds")
                         .HasForeignKey("PackId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_pack_round_packs_pack_id");
 
-                    b.HasOne("MusicJam.Studio.Infrustructure.Entities.Round", "Round")
+                    b.HasOne("MusicJam.Studio.Infrastructure.Entities.Round", "Round")
                         .WithMany()
                         .HasForeignKey("RoundId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_pack_round_rounds_round_id");
+                        .HasConstraintName("fk_pack_round_round_round_id");
 
                     b.Navigation("Pack");
 
                     b.Navigation("Round");
                 });
 
-            modelBuilder.Entity("MusicJam.Studio.Infrustructure.Entities.Question", b =>
+            modelBuilder.Entity("MusicJam.Studio.Infrastructure.Entities.Question", b =>
                 {
-                    b.HasOne("MusicJam.Studio.Infrustructure.Entities.Track", "AnswerTrack")
+                    b.HasOne("MusicJam.Studio.Infrastructure.Entities.Track", "AnswerTrack")
                         .WithMany()
                         .HasForeignKey("AnswerTrackId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_questions_tracks_answer_track_id");
 
-                    b.HasOne("MusicJam.Studio.Infrustructure.Entities.Track", "QuestionTrack")
+                    b.HasOne("MusicJam.Studio.Infrastructure.Entities.Track", "QuestionTrack")
                         .WithMany()
                         .HasForeignKey("QuestionTrackId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_questions_tracks_question_track_id");
 
-                    b.HasOne("MusicJam.Studio.Infrustructure.Entities.User", "User")
+                    b.HasOne("MusicJam.Studio.Infrastructure.Entities.User", "User")
                         .WithMany("Questions")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -437,16 +358,16 @@ namespace MusicJam.Studio.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("MusicJam.Studio.Infrustructure.Entities.QuestionUsages", b =>
+            modelBuilder.Entity("MusicJam.Studio.Infrastructure.Entities.QuestionUsages", b =>
                 {
-                    b.HasOne("MusicJam.Studio.Infrustructure.Entities.Pack", "Pack")
+                    b.HasOne("MusicJam.Studio.Infrastructure.Entities.Pack", "Pack")
                         .WithMany()
                         .HasForeignKey("PackId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_question_usage_packs_pack_id");
 
-                    b.HasOne("MusicJam.Studio.Infrustructure.Entities.Question", "Question")
+                    b.HasOne("MusicJam.Studio.Infrastructure.Entities.Question", "Question")
                         .WithMany()
                         .HasForeignKey("QuestionId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -458,21 +379,21 @@ namespace MusicJam.Studio.Migrations
                     b.Navigation("Question");
                 });
 
-            modelBuilder.Entity("MusicJam.Studio.Infrustructure.Entities.RoundQuestion", b =>
+            modelBuilder.Entity("MusicJam.Studio.Infrastructure.Entities.RoundQuestion", b =>
                 {
-                    b.HasOne("MusicJam.Studio.Infrustructure.Entities.Category", "Category")
+                    b.HasOne("MusicJam.Studio.Infrastructure.Entities.Category", "Category")
                         .WithMany()
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_round_question_categories_category_id");
 
-                    b.HasOne("MusicJam.Studio.Infrustructure.Entities.Question", "Question")
+                    b.HasOne("MusicJam.Studio.Infrastructure.Entities.Question", "Question")
                         .WithMany()
                         .HasForeignKey("QuestionId")
                         .HasConstraintName("fk_round_question_questions_question_id");
 
-                    b.HasOne("MusicJam.Studio.Infrustructure.Entities.Round", "Round")
+                    b.HasOne("MusicJam.Studio.Infrastructure.Entities.Round", "Round")
                         .WithMany("Questions")
                         .HasForeignKey("RoundId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -486,32 +407,18 @@ namespace MusicJam.Studio.Migrations
                     b.Navigation("Round");
                 });
 
-            modelBuilder.Entity("MusicJam.Studio.Infrustructure.Entities.Statistic", b =>
-                {
-                    b.HasOne("MusicJam.Studio.Infrustructure.Entities.User", "User")
-                        .WithOne()
-                        .HasForeignKey("MusicJam.Studio.Infrustructure.Entities.Statistic", "UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_statistics_users_user_id");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("MusicJam.Studio.Infrustructure.Entities.Pack", b =>
+            modelBuilder.Entity("MusicJam.Studio.Infrastructure.Entities.Pack", b =>
                 {
                     b.Navigation("Rounds");
                 });
 
-            modelBuilder.Entity("MusicJam.Studio.Infrustructure.Entities.Round", b =>
+            modelBuilder.Entity("MusicJam.Studio.Infrastructure.Entities.Round", b =>
                 {
                     b.Navigation("Questions");
                 });
 
-            modelBuilder.Entity("MusicJam.Studio.Infrustructure.Entities.User", b =>
+            modelBuilder.Entity("MusicJam.Studio.Infrastructure.Entities.User", b =>
                 {
-                    b.Navigation("Games");
-
                     b.Navigation("Packs");
 
                     b.Navigation("Questions");

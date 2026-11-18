@@ -12,6 +12,7 @@ public interface IQuestionsService
     public enum QuestionError
     {
         NotFound,
+        InUse,
         InvalidTrack,
         InvalidTrackType,
         CannotLoadTrack,
@@ -26,7 +27,7 @@ public interface IQuestionsService
     Task<Result<Guid, QuestionError>> Delete(Guid userId, Guid questionId);
 
     Task<Result<Question, QuestionError>> Update(Guid userId, Guid questionId, PatchMode mode,
-        CreateQuestionRequest request);
+        UpdateQuestionRequest request);
 
     Task<Result<TrackResponse, QuestionError>> GetTrack(
         Guid userId,

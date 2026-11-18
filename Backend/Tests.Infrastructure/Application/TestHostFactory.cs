@@ -4,10 +4,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.TestHost;
 
-
 namespace Tests.Infrastructure.Application;
 
-public sealed class TestHostFactory(string connectionString) : IAsyncDisposable
+public sealed class TestHostFactory(string dbConnectionString, string s3ConnectionString) : IAsyncDisposable
 {
     private IHost? _host;
 
@@ -17,17 +16,20 @@ public sealed class TestHostFactory(string connectionString) : IAsyncDisposable
 
     public HttpClient Client =>
         _host?.GetTestClient()
-        ?? throw new InvalidOperationException(
-            "Test host has not been started.");
+        ?? throw new InvalidOperationException("Test host has not been started.");
 
     public async Task StartAsync()
     {
         var configuration = new Dictionary<string, string?>
         {
-            ["ConnectionStrings:DefaultConnection"] = connectionString,
-            ["JwtSettings:Issuer"] = "MusicJam.Tests",
-            ["JwtSettings:Audience"] = "MusicJam.Tests",
-            ["JwtSettings:SecretKey"] = "TestSecretKey_AtLeast32CharactersLong!"
+            ["ConnectionStrings:DefaultConnection"] = dbConnectionString,
+            ["JwtSettings:Issuer"] = Constants.Configuration.JwtSettingsIssuer,
+            ["JwtSettings:Audience"] = Constants.Configuration.JwtSettingsAudience,
+            ["JwtSettings:SecretKey"] = Constants.Configuration.JwtSettingsSecretKey,
+            ["ObjectStorageSettings:AccessKey"] = Constants.ObjectStorage.AccessKey,
+            ["ObjectStorageSettings:SecretKey"] = Constants.ObjectStorage.SecretKey,
+            ["ObjectStorageSettings:BucketName"] = Constants.ObjectStorage.BucketName,
+            ["ObjectStorageSettings:ObjectStorageBaseUrl"] = s3ConnectionString
         };
 
         _host = Host.CreateDefaultBuilder()

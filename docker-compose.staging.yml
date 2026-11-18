@@ -1,0 +1,34 @@
+services:
+  musicjam-gateway:
+    image: ghcr.io/fiit-talking-tom/musicjam-gateway:${IMAGE_TAG}
+
+  musicjam-studio:
+    image: ghcr.io/fiit-talking-tom/musicjam-studio:${IMAGE_TAG}
+
+  musicjam-runtime:
+    image: ghcr.io/fiit-talking-tom/musicjam-runtime:${IMAGE_TAG}
+
+  nginx:
+    image: nginx:1.27
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - certbot_www:/var/www/certbot:ro
+      - certbot_certs:/etc/letsencrypt:ro
+    depends_on:
+      - musicjam-gateway
+
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - certbot_www:/var/www/certbot
+      - certbot_certs:/etc/letsencrypt
+    entrypoint: >
+      sh -c "trap exit TERM; while :; do certbot renew; sleep 12h; done"
+
+volumes:
+  certbot_www:
+  certbot_certs:

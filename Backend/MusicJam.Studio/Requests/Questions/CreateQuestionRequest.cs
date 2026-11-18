@@ -12,7 +12,7 @@ public class CreateQuestionRequest
 
     [Required]
     public IFormFile QuestionTrack { get; set; }
-
+    
     [Required]
     public IFormFile AnswerTrack { get; set; }
 }
