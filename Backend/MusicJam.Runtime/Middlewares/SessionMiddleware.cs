@@ -9,9 +9,8 @@ public sealed class SessionMiddleware(RequestDelegate next)
     {
         if (!Guid.TryParse(context.Request.Cookies[SessionCookie.Name], out var sessionId))
         {
-            // Хаб сессии не выдаёт: negotiate/WebSocket идут параллельно с HTTP-запросами
-            // и перезаписали бы куку другим id. Сессию выдают только обычные HTTP-эндпоинты.
-            if (context.Request.Path.StartsWithSegments(GameHub.Path))
+            var path = context.Request.Path;
+            if (path == GameHub.Path || path.StartsWithSegments(GameHub.Path + "/negotiate"))
             {
                 return next(context);
             }

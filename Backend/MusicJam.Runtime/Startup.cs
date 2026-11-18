@@ -7,6 +7,7 @@ using MusicJam.Runtime.Clients.StudioClient;
 using MusicJam.Runtime.Hubs;
 using MusicJam.Runtime.Middlewares;
 using MusicJam.Runtime.Services.GameService;
+using MusicJam.Runtime.Services.UserService;
 using MusicJam.Runtime.Services.WaitingRoomService;
 using MusicJam.Runtime.Storages.ConnectionStorage;
 using MusicJam.Runtime.Storages.GameStorage;
@@ -64,6 +65,7 @@ public class Startup(IConfiguration configuration)
         services.AddSingleton<IConnectionStorage, InMemoryConnectionStorage>();
         services.AddSingleton<IWaitingRoomService, WaitingRoomService>();
         services.AddScoped<IGameService, GameService>();
+        services.AddScoped<IUserService, UserService>();
 
         services.AddHttpContextAccessor();
         services.AddTransient<ForwardAccessTokenHandler>();
