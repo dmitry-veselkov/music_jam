@@ -9,12 +9,12 @@ import GamesPage from "@/pages/GamesPage/GamesPage.tsx";
 import WaitingRoomPage from "@/pages/WaitingRoomPage/WaitingRoomPage.tsx";
 
 export const routes = createBrowserRouter([
-    { path: '/', element : <StartPage />},
-    { path: '/register', element : <RegistrationPage />},
-    { path: '/login', element : <LoginPage />},
-    { path: '/account', element : <AccountPage />},
-    { path: '/packs', element: <Packs />},
-    { path: '/packs/:id', element: <Pack />},
-    { path : '/games', element : <GamesPage />},
-    { path : '/games/:gameId/waiting-room', element : <WaitingRoomPage />},
+  { path: '/', element : <StartPage />},
+  { path: '/register', element : <RegistrationPage />},
+  { path: '/login', element : <LoginPage />},
+  { path: '/account', element : <AccountPage />},
+  { path: '/packs', element: <Packs />},
+  { path: '/packs/:id', element: <Pack />},
+  { path : '/games', element : <GamesPage />},
+  { path : '/games/:gameId/waiting-room', element : <WaitingRoomPage />},
 ])
