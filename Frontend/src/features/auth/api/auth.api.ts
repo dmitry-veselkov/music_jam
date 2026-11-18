@@ -15,11 +15,11 @@ export const authApi = {
     return response.data;
   },
   checkRole: async (id : string) => {
-    const response = await http.get<CheckRoleResponse>(`/runtime/user/check-role/${id}`)
+    const response = await http.get<CheckRoleResponse>(`/runtime/games/${id}/users/check-role`)
     return response.data;
   },
   checkHost: async (id: string) => {
-    const response = await http.get<{isHost : boolean}>(`/runtime/user/check-host/${id}`)
+    const response = await http.get<{isHost : boolean}>(`/runtime/games/${id}/users/check-host`)
     return response.data;
   }
 }
