@@ -16,12 +16,6 @@ const AccountPage = () => {
         >
           Паки
         </div>
-        <div
-          className={styles.myGames}
-          onClick={() => navigate('/games')}
-        >
-          Игры
-        </div>
       </div>
     </div>
   );
