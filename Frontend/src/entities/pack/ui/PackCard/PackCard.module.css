@@ -36,9 +36,8 @@
 
 .dates {
     position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
+    top: 60%;
+    /*left: 30%;*/
     box-sizing: border-box;
 
     display: flex;

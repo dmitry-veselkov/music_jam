@@ -7,7 +7,7 @@ public static class ClaimsPrincipalExtensions
     // todo veselkov.d вызывать на уровне Middlewares и в контроллерах использовать User.Id
     public static Guid GetUserId(this ClaimsPrincipal principal)
     {
-        var claimValue = principal.FindFirstValue(ClaimTypes.NameIdentifier);
+        var claimValue = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
         if (!Guid.TryParse(claimValue, out var userId))
         {
