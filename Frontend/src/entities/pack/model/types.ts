@@ -4,8 +4,8 @@ export type PackShort = {
 }
 
 export type PackCardDto = PackShort & {
-  creationDate : string;
-  lastUpdateDate : string;
+  createdAtUtc : string;
+  updatedAtUtc : string;
   // usages : PackShort[]
 }
 
