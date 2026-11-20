@@ -21,11 +21,11 @@ export const PackCard = ({ pack, onClick, deleteButton, startButton }: PackCardP
       <div className={styles.dates}>
         <time className={styles.date}>
           <span>Обновлён:</span>
-          {new Date(pack.lastUpdateDate).toLocaleDateString("ru-RU")}
+          {new Date(pack.updatedAtUtc).toLocaleDateString("ru-RU")}
         </time>
         <time className={styles.date}>
           <span>Создан:</span>
-          {new Date(pack.creationDate).toLocaleDateString("ru-RU")}
+          {new Date(pack.createdAtUtc).toLocaleDateString("ru-RU")}
         </time>
       </div>
       {startButton && (

@@ -7,17 +7,17 @@ import { paginate } from "@/app/mocks/paginate.ts";
 import type { PackRequest, RoundRequest } from "@/features/pack";
 import { questionsDb } from "@/app/mocks/data/questionsDb.ts";
 
-const toCard = (pack: PackDto, creationDate = new Date().toISOString()): PackCardDto => ({
+const toCard = (pack: PackDto, createdAtUtc = new Date().toISOString()): PackCardDto => ({
   packId: pack.packId,
   name: pack.name,
-  creationDate,
-  lastUpdateDate: new Date().toISOString(),
+  createdAtUtc,
+  updatedAtUtc: new Date().toISOString(),
 });
 
 const syncCard = (pack: PackDto) => {
   const idx = packsCards.findIndex((c) => c.packId === pack.packId);
   if (idx === -1) packsCards.push(toCard(pack));
-  else packsCards[idx] = { ...packsCards[idx], ...toCard(pack, packsCards[idx].creationDate) };
+  else packsCards[idx] = { ...packsCards[idx], ...toCard(pack, packsCards[idx].createdAtUtc) };
 };
 
 const toRoundDto = (round: RoundRequest): RoundDto => ({
