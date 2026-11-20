@@ -21,6 +21,11 @@ internal class InviteService(
         };
     }
 
+    public Task<Result<string, IInviteService.InviteError>> JoinGameByCode(string code)
+    {
+        throw new NotImplementedException();
+    }
+
     private static string GenerateCode()
     {
         return RandomNumberGenerator.GetString(CodeAlphabet, CodeLength);
