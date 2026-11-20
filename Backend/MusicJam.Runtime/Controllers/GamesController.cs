@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MusicJam.Runtime.Requests;
+using MusicJam.Runtime.Responses;
 using MusicJam.Runtime.Services.GameService;
 using MusicJam.Studio.Constants;
 using MusicJam.Studio.Extensions;
@@ -15,7 +16,7 @@ public class GamesController(IGameService gameService) : ControllerBase
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> CreateGame([FromBody] CreateGameRequest request)
+    public async Task<ActionResult<CreateGameResponse>> CreateGame([FromBody] CreateGameRequest request)
     {
         var hostId = User.GetUserId();
         var result = await gameService.Create(hostId, request.PackId);
@@ -24,7 +25,14 @@ public class GamesController(IGameService gameService) : ControllerBase
             return ErrorResponse(error);
         }
 
-        return Ok(new { gameId = game.GameId });
+        var response = new CreateGameResponse
+        {
+            GameId = game.GameId,
+            InviteCode = game.InviteInfo.Code,
+            InviteLink = game.InviteInfo.Link
+        };
+
+        return response;
     }
 
     private ActionResult ErrorResponse(IGameService.GameError error)
