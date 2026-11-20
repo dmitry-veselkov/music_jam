@@ -6,10 +6,10 @@
 public class GameInviteInfo
 {
     /// <summary>
-    /// Подключение по 6-значному коду
+    /// Подключение по n-значному коду
     /// </summary>
     public string Code { get; set; }
-    
+
     /// <summary>
     /// Подключение по пригласительной ссылке
     /// </summary>

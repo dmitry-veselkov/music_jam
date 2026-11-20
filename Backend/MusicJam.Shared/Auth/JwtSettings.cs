@@ -1,4 +1,4 @@
-﻿namespace MusicJam.Studio.Configurations;
+﻿namespace Shared.Auth;
 
 public class JwtSettings
 {

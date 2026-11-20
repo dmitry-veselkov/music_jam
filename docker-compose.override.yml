@@ -6,3 +6,9 @@ services:
   musicjam-gateway:
     ports:
       - "5000:8080"
+      
+  musicjam-runtime:
+    environment:
+      Environment__SslEnabled: false
+      Environment__Domain: "localhost"
+      Environment__Port: 5000

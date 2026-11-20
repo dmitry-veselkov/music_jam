@@ -59,7 +59,6 @@ services:
       JwtSettings__SecretKey: "${JWT_SECRET}"
       JwtSettings__Issuer: "${JWT_ISSUER}"
       JwtSettings__Audience: "${JWT_AUDIENCE}"
-      Services__Studio: "http://musicjam-studio:8080"
 
 volumes:
   postgres_data:

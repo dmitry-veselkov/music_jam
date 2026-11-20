@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using MusicJam.Studio.Configurations;
 using MusicJam.Studio.Constants;
 using MusicJam.Studio.Extensions;
 using Newtonsoft.Json;
@@ -12,6 +11,7 @@ using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using System.Text.Json.Serialization;
 using MusicJam.Studio.Infrastructure.Data;
+using Shared.Auth;
 
 namespace MusicJam.Studio;
 

@@ -7,6 +7,9 @@ services:
 
   musicjam-runtime:
     image: ghcr.io/fiit-talking-tom/musicjam-runtime:${IMAGE_TAG}
+    environment:
+      Environment__SslEnabled: true
+      Environment__Domain: "test.musicjam.fun"
 
   nginx:
     image: nginx:1.27

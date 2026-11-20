@@ -7,12 +7,14 @@ using MusicJam.Runtime.Clients.StudioClient;
 using MusicJam.Runtime.Hubs;
 using MusicJam.Runtime.Middlewares;
 using MusicJam.Runtime.Services.GameService;
+using MusicJam.Runtime.Services.InviteService;
 using MusicJam.Runtime.Services.UserService;
 using MusicJam.Runtime.Services.WaitingRoomService;
 using MusicJam.Runtime.Storages.ConnectionStorage;
 using MusicJam.Runtime.Storages.GameStorage;
-using MusicJam.Studio.Configurations;
 using MusicJam.Studio.Constants;
+using Shared;
+using Shared.Auth;
 
 namespace MusicJam.Runtime;
 
@@ -22,9 +24,11 @@ public class Startup(IConfiguration configuration)
 
     public void ConfigureServices(IServiceCollection services)
     {
+        services.AddOptions<EnvironmentSettings>().BindConfiguration(EnvironmentSettings.SectionName);
+
         var jwtSettings = new JwtSettings();
         Configuration.GetSection(nameof(JwtSettings)).Bind(jwtSettings);
-        
+
         services
             .AddAuthentication(options =>
             {
@@ -56,8 +60,8 @@ public class Startup(IConfiguration configuration)
         services.AddControllers()
             .AddJsonOptions(o => o.JsonSerializerOptions.Converters.Add(
                 new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)));
-        
-        
+
+
         services.AddSignalR()
             .AddJsonProtocol(o => o.PayloadSerializerOptions.Converters.Add(
                 new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)));
@@ -65,14 +69,16 @@ public class Startup(IConfiguration configuration)
         services.AddSingleton<IConnectionStorage, InMemoryConnectionStorage>();
         services.AddSingleton<IWaitingRoomService, WaitingRoomService>();
         services.AddScoped<IGameService, GameService>();
+        services.Decorate<IGameService, GameServiceLoggerDecorator>();
         services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IInviteService, InviteService>();
 
         services.AddHttpContextAccessor();
         services.AddTransient<ForwardAccessTokenHandler>();
         services.AddHttpClient<IStudioClient, StudioClient>(client =>
             {
                 var studioUrl = Configuration["Services:Studio"]
-                    ?? throw new InvalidOperationException("Не задан адрес Studio: Services:Studio");
+                                ?? throw new InvalidOperationException("Не задан адрес Studio: Services:Studio");
                 client.BaseAddress = new Uri(studioUrl);
             })
             .AddHttpMessageHandler<ForwardAccessTokenHandler>();
