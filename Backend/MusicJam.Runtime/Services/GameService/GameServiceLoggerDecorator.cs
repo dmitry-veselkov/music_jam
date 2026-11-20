@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using MusicJam.Runtime.Models;
+﻿using MusicJam.Runtime.Models;
 using Shared;
 
 namespace MusicJam.Runtime.Services.GameService;
@@ -35,7 +34,7 @@ public class GameServiceLoggerDecorator(
         return result;
     }
 
-    public async Task<ActionResult<Game>> Get(Guid gameId)
+    public async Task<Result<Game, IGameService.GameError>> Get(Guid gameId)
     {
         return await gameService.Get(gameId);
     }

@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Mvc;
 using MusicJam.Runtime.Clients.StudioClient;
 using MusicJam.Runtime.Services.InviteService;
 using MusicJam.Runtime.Storages.GameStorage;
@@ -37,9 +36,15 @@ public class GameService(
         return newGame;
     }
 
-    public async Task<ActionResult<Game>> Get(Guid gameId)
+    public async Task<Result<Game, IGameService.GameError>> Get(Guid gameId)
     {
         var game = await gameStorage.Get(gameId);
+
+        if (game is null)
+        {
+            return IGameService.GameError.GameNotFound;
+        }
+        
         return game;
     }
 }
