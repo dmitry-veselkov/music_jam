@@ -4,15 +4,13 @@ using MusicJam.Runtime.Requests;
 using MusicJam.Runtime.Services.GameService;
 using MusicJam.Studio.Constants;
 using MusicJam.Studio.Extensions;
-using Shared;
 
 namespace MusicJam.Runtime.Controllers;
-
 
 [ApiController]
 [Route("/api/runtime/games")]
 [Authorize(AuthenticationSchemes = AuthConstants.DefaultAuthorizationScheme)]
-public class GameController(IGameService gameService) : ControllerBase
+public class GamesController(IGameService gameService) : ControllerBase
 {
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -21,14 +19,14 @@ public class GameController(IGameService gameService) : ControllerBase
     {
         var hostId = User.GetUserId();
         var result = await gameService.Create(hostId, request.PackId);
-        if(result.TryGetFault(out var error, out var game))
+        if (result.TryGetFault(out var error, out var game))
         {
             return ErrorResponse(error);
         }
 
-        return Ok(new {gameId = game.GameId});
+        return Ok(new { gameId = game.GameId });
     }
-    
+
     private ActionResult ErrorResponse(IGameService.GameError error)
     {
         return error switch
