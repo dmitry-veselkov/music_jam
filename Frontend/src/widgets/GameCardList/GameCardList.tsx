@@ -6,7 +6,7 @@ import { DeleteGameButton } from "@/features/game";
 import { EditGameButton } from "@/features/game";
 
 const PAGE_SIZE = 12;
-
+// Для будущего внедрения проведенных игр
 const GameCardList = () => {
   const [page, setPage] = useState(0);
   const { data } = useGames({ skip: page * PAGE_SIZE, take: PAGE_SIZE });
