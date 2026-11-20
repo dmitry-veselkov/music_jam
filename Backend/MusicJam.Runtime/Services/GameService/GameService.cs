@@ -21,14 +21,14 @@ public class GameService(
         }
 
         var gameId = Guid.NewGuid();
-        var inviteInfo = inviteService.CreateInviteInfo(gameId);
+        var invite = await inviteService.CreateInvite(gameId);
 
         var newGame = new Game
         {
             GameId = gameId,
             HostId = hostId,
             Pack = pack,
-            InviteInfo = inviteInfo
+            Invite = invite
         };
 
         await gameStorage.Add(newGame);

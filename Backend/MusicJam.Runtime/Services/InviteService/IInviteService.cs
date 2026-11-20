@@ -8,10 +8,13 @@ public interface IInviteService
     public enum InviteError
     {
         InviteNotFound,
-        InvalidCodeFormat
+        InvalidCode,
+        InvalidLink,
     }
 
-    public GameInviteInfo CreateInviteInfo(Guid gameId);
+    public Task<GameInvite> CreateInvite(Guid gameId);
 
     public Task<Result<string, InviteError>> JoinGameByCode(string code);
+
+    public Task<Result<string, InviteError>> JoinGameByLink(Guid inviteId);
 }

@@ -30,8 +30,8 @@ public class GamesController(IGameService gameService) : ControllerBase
         var response = new CreateGameResponse
         {
             GameId = game.GameId,
-            InviteCode = game.InviteInfo.Code,
-            InviteLink = game.InviteInfo.Link
+            InviteCode = game.Invite.Code,
+            InviteLink = game.Invite.Link
         };
 
         return response;

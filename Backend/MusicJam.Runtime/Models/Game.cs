@@ -15,7 +15,7 @@ public sealed class Game
     public Guid HostId { get; set; }
     public Pack Pack { get; set; }
     public GameState State { get; set; } = GameState.Pending;
-    public GameInviteInfo InviteInfo { get; set; }
+    public GameInvite Invite { get; set; }
     public object Lock { get; } = new();
 
     public Dictionary<Guid, Team> Teams { get; } = new();
