@@ -22,6 +22,7 @@ public class GameServiceLoggerDecorator(
                 "Failed to create a new game. HostId: {HostId}, Error: {Error}",
                 hostId,
                 error);
+
             return error;
         }
 
@@ -31,7 +32,7 @@ public class GameServiceLoggerDecorator(
             hostId,
             packId);
 
-        return result;
+        return game;
     }
 
     public async Task<Result<Game, IGameService.GameError>> Get(Guid gameId)

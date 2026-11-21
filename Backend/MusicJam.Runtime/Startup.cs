@@ -7,7 +7,7 @@ using MusicJam.Runtime.Clients.StudioClient;
 using MusicJam.Runtime.Hubs;
 using MusicJam.Runtime.Middlewares;
 using MusicJam.Runtime.Services.GameService;
-using MusicJam.Runtime.Services.InviteService;
+using MusicJam.Runtime.Services.InvitesService;
 using MusicJam.Runtime.Services.UserService;
 using MusicJam.Runtime.Services.WaitingRoomService;
 using MusicJam.Runtime.Storages.ConnectionStorage;
@@ -74,6 +74,7 @@ public class Startup(IConfiguration configuration)
         services.Decorate<IGameService, GameServiceLoggerDecorator>();
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IInvitesService, InvitesService>();
+        services.Decorate<IInvitesService, InvitesServiceLoggerDecorator>();
 
         services.AddHttpContextAccessor();
         services.AddTransient<ForwardAccessTokenHandler>();

@@ -1,5 +1,5 @@
 using MusicJam.Runtime.Clients.StudioClient;
-using MusicJam.Runtime.Services.InviteService;
+using MusicJam.Runtime.Services.InvitesService;
 using MusicJam.Runtime.Storages.GameStorage;
 using Shared;
 using Game = MusicJam.Runtime.Models.Game;

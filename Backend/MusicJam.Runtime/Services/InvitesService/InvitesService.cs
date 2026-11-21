@@ -4,7 +4,7 @@ using MusicJam.Runtime.Models;
 using MusicJam.Runtime.Storages.InvitesStorage;
 using Shared;
 
-namespace MusicJam.Runtime.Services.InviteService;
+namespace MusicJam.Runtime.Services.InvitesService;
 
 internal class InvitesService(
     IOptions<EnvironmentSettings> environmentSettings,

@@ -1,7 +1,7 @@
 ﻿using MusicJam.Runtime.Models;
 using Shared;
 
-namespace MusicJam.Runtime.Services.InviteService;
+namespace MusicJam.Runtime.Services.InvitesService;
 
 public interface IInvitesService
 {

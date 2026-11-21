@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MusicJam.Runtime.Services.InviteService;
+using MusicJam.Runtime.Services.InvitesService;
 
 namespace MusicJam.Runtime.Controllers;
 
