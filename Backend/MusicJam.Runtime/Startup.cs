@@ -12,6 +12,7 @@ using MusicJam.Runtime.Services.UserService;
 using MusicJam.Runtime.Services.WaitingRoomService;
 using MusicJam.Runtime.Storages.ConnectionStorage;
 using MusicJam.Runtime.Storages.GameStorage;
+using MusicJam.Runtime.Storages.InvitesStorage;
 using MusicJam.Studio.Constants;
 using Shared;
 using Shared.Auth;
@@ -68,6 +69,7 @@ public class Startup(IConfiguration configuration)
         services.AddSingleton<IGameStorage, GameStorage>();
         services.AddSingleton<IConnectionStorage, InMemoryConnectionStorage>();
         services.AddSingleton<IWaitingRoomService, WaitingRoomService>();
+        services.AddSingleton<IInvitesStorage, InMemoryInvitesStorage>();
         services.AddScoped<IGameService, GameService>();
         services.Decorate<IGameService, GameServiceLoggerDecorator>();
         services.AddScoped<IUserService, UserService>();
