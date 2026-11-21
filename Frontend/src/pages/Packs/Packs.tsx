@@ -1,4 +1,4 @@
-import Header from "@/widgets/Header/Header.tsx";
+import Header from "@/widgets/Header/ui/Header.tsx";
 import styles from "./Packs.module.css"
 import PackCardList from "@/widgets/PackCardList/PackCardList.tsx";
 import { Button } from "@/shared/ui/Button/Button.tsx";

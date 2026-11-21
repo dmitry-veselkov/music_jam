@@ -1,4 +1,4 @@
-import Header from "@/widgets/Header/Header.tsx";
+import Header from "@/widgets/Header/ui/Header.tsx";
 import styles from "./GamesPage.module.css"
 import { Button } from "@/shared/ui/Button/Button.tsx";
 import GameCardList from "@/widgets/GameCardList/GameCardList.tsx";

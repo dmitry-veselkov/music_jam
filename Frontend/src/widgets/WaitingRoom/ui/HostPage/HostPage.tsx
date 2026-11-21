@@ -6,7 +6,7 @@ import { Button } from "@/shared/ui/Button/Button.tsx";
 import { useRoomTeams } from "@/features/join-game/api/useRoomTeams.ts";
 import { useJoinRoom } from "@/features/join-game/api/useJoinGame.ts";
 import { useParams } from "react-router-dom";
-import Header from "@/widgets/Header/Header.tsx";
+import Header from "@/widgets/Header/ui/Header.tsx";
 
 
 const HostPage = () => {

@@ -10,5 +10,9 @@ export const gameApi = {
   getById: async (id: string) => {
     const { data } = await http.get<GameDto>(`/games/${id}`)
     return data;
+  },
+  getByCode: async (code: string) => {
+    const { data } = await http.get(`/invites/join-game/by-code?code=${code}`);
+    return data;
   }
 }

@@ -1,4 +1,3 @@
-import { Button } from "@/shared/ui/Button/Button.tsx";
 import Logo from "@/shared/ui/Logo/Logo.tsx";
 import styles from "./Header.module.css";
 import { useNavigate } from "react-router";
@@ -24,8 +23,19 @@ const Header = () => {
     error.response?.status === 401;
   console.log(isUnauthorized, user);
 
-  const loginBtnSettings = {text: 'Вход', id: 'login-btn', variant: 'outline', onClick : () => navigate("/login")} as const;
-  const registerBtnSettings = {text: 'Регистрация', id: 'register-btn', variant: 'secondary', onClick : () => navigate("/register")} as const;
+  const loginBtnSettings = {
+    text: 'Войти',
+    id: 'login-btn',
+    variant: 'outline',
+    onClick: () => navigate('/login'),
+  } as const;
+
+  const registerBtnSettings = {
+    text: 'Зарегистрироваться',
+    id: 'register-btn',
+    variant: 'secondary',
+    onClick: () => navigate('/register'),
+  } as const;
 
   return (
     <div className={styles.headerTop}>
@@ -41,8 +51,8 @@ const Header = () => {
         {isUnauthorized
           ? (
             <div className={styles.authButtons}>
-              <Button { ...loginBtnSettings} />
-              <Button { ...registerBtnSettings}/>
+              <button { ...loginBtnSettings}>Войти</button>
+              <button { ...registerBtnSettings}>Зарегестрироваться</button>
             </div>
             )
           : <AccountBadge />

@@ -1,6 +1,6 @@
 .headerTop {
     width: 100%;
-    padding: 20px 40px;
+    padding: 1.25rem var(--page-padding);
     flex-shrink: 0;
     background-color: var(--color-bg);
 }
@@ -10,10 +10,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    /*padding: 0 10px;*/
     gap: var(--spacing-md);
     flex-wrap: wrap;
-    /*margin: 0;*/
 }
 
 .headerNavigation {
@@ -47,6 +45,41 @@
     display: flex;
     gap: 12px;
     flex-wrap: wrap;
+}
+
+.authButtons > button {
+    min-height: 46px;
+    padding: 0 24px;
+    border-radius: 999px;
+    font-family: Montserrat, sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.authButtons > button:first-child {
+    border: 1px solid #f8f8f8;
+    background: transparent;
+    color: #f8f8f8;
+    transition: background 0.2s ease;
+}
+
+.authButtons > button:first-child:hover {
+    background: rgb(248 248 248 / 10%);
+}
+
+.authButtons > button:last-child {
+    background: #282828;
+    color: #f8f8f8;
+    box-shadow: 0 0 9px rgb(248 248 248 / 35%);
+    transition:
+            box-shadow 0.2s ease,
+            background 0.2s ease;
+}
+
+.authButtons > button:last-child:hover {
+    background: #383838;
+    box-shadow: 0 0 14px rgb(248 248 248 / 55%);
 }
 
 .userProfileLink {
@@ -154,4 +187,15 @@
         height: 30px;
         font-size: 0.85rem;
     }
+
+    .authButtons {
+        gap: 8px;
+    }
+
+    .authButtons > button {
+        min-height: 40px;
+        padding: 0 14px;
+        font-size: 13px;
+    }
+
 }

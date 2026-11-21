@@ -1,6 +1,6 @@
 import styles from "./AccountPage.module.css";
 import { useNavigate } from "react-router";
-import Header from "@/widgets/Header/Header.tsx";
+import Header from "@/widgets/Header/ui/Header.tsx";
 
 const AccountPage = () => {
   const navigate = useNavigate();

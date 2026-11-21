@@ -16,3 +16,11 @@ export const useGame = (id? : string) => {
     enabled: !!id,
   })
 }
+
+export const useGameByCode = (code : string) => {
+  return useQuery({
+    queryKey: ['gameByCode', code],
+    queryFn : () => gameApi.getByCode(code),
+    enabled: !!code,
+  })
+}

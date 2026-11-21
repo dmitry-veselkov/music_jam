@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import PackEditor from "@/widgets/Pack/ui/PackEditor/PackEditor.tsx";
-import Header from "@/widgets/Header/Header.tsx";
+import Header from "@/widgets/Header/ui/Header.tsx";
 import styles from "./Pack.module.css"
 
 const Pack = () => {
