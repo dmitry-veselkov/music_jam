@@ -16,6 +16,25 @@
     /*margin: 0;*/
 }
 
+.headerNavigation {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(1.25rem, 4vw, 5rem);
+}
+
+.headerNavigation a {
+    color: var(--color-text);
+    text-decoration: none;
+    font-size: clamp(.9rem, 1.35vw, 1.35rem);
+    transition: color .2s ease;
+}
+
+.headerNavigation a:hover,
+.headerNavigation a:focus-visible {
+    color: var(--color-primary);
+}
+
 .headerRight {
     display: flex;
     align-items: center;

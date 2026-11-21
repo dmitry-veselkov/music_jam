@@ -9,7 +9,7 @@ const Packs = () => {
 
   return (
     <div>
-      <Header showAuthButtons={false}/>
+      <Header />
       <div className={styles.packsContent}>
         <div className={styles.packOptions}>
           <h1>Мои паки</h1>

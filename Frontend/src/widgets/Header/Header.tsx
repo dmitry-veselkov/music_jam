@@ -2,13 +2,27 @@ import { Button } from "@/shared/ui/Button/Button.tsx";
 import Logo from "@/shared/ui/Logo/Logo.tsx";
 import styles from "./Header.module.css";
 import { useNavigate } from "react-router";
+import { useMe } from "@/features/auth/api/useMe.ts";
+import AccountBadge from "@/shared/ui/AccountBadge/AccountBadge.tsx";
+import axios from "axios";
 
-type HeaderProps = {
-  showAuthButtons?: boolean;
-}
+const navigation = [
+  { label: "О проекте", href: "#about" },
+  { label: "Помощь", href: "#help" },
+];
 
-const Header = ({ showAuthButtons = true } : HeaderProps) => {
+const Header = () => {
+  const { data : user, isPending, error } = useMe();
   const navigate = useNavigate();
+
+  if (isPending) {
+    return null;
+  }
+
+  const isUnauthorized =
+    axios.isAxiosError(error) &&
+    error.response?.status === 401;
+  console.log(isUnauthorized, user);
 
   const loginBtnSettings = {text: 'Вход', id: 'login-btn', variant: 'outline', onClick : () => navigate("/login")} as const;
   const registerBtnSettings = {text: 'Регистрация', id: 'register-btn', variant: 'secondary', onClick : () => navigate("/register")} as const;
@@ -17,12 +31,22 @@ const Header = ({ showAuthButtons = true } : HeaderProps) => {
     <div className={styles.headerTop}>
       <header className={styles.headerContent}>
         <Logo />
-        {showAuthButtons && (
-          <div className={styles.authButtons}>
-            <Button { ...loginBtnSettings} />
-            <Button { ...registerBtnSettings}/>
-          </div>
-        )}
+        <nav className={styles.headerNavigation} aria-label="Основная навигация">
+          {navigation.map((item) => (
+            <a key={item.href} href={item.href}>
+              {item.label}
+            </a>
+          ))}
+        </nav>
+        {isUnauthorized
+          ? (
+            <div className={styles.authButtons}>
+              <Button { ...loginBtnSettings} />
+              <Button { ...registerBtnSettings}/>
+            </div>
+            )
+          : <AccountBadge />
+        }
       </header>
     </div>
   );

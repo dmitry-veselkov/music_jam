@@ -16,7 +16,7 @@ const HostPage = () => {
 
   return (
     <>
-      <Header showAuthButtons={false}/>
+      <Header />
       <main className={styles.container}>
         <h1>Зал ожидания</h1>
 

@@ -11,7 +11,7 @@ const GamesPage = () => {
 
   return (
     <div>
-      <Header showAuthButtons={false}/>
+      <Header />
       <div className={styles.gamesContent}>
         <div className={styles.gameOptions}>
           <h1>Мои игры</h1>

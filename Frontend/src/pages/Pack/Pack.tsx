@@ -7,7 +7,7 @@ const Pack = () => {
   const { id } = useParams<{id : string}>();
   return (
     <div className={styles.page}>
-      <Header showAuthButtons={false} />
+      <Header />
       <PackEditor packId={id!} />
     </div>
   );

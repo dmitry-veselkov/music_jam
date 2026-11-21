@@ -29,7 +29,7 @@ const PlayerPage = ({ teamName } : Props) => {
 
   return (
     <>
-      <Header showAuthButtons={false} />
+      <Header />
       <main className={styles.container}>
         <div className={styles.footer}>
           <h1>Зал ожидания</h1>

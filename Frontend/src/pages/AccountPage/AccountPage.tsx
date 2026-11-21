@@ -7,7 +7,7 @@ const AccountPage = () => {
 
   return (
     <div>
-      <Header showAuthButtons={false}/>
+      <Header />
       <h1 className={styles.title}>Мой аккаунт</h1>
       <div className={styles.info}>
         <div
