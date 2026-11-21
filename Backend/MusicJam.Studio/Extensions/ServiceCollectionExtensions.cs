@@ -11,6 +11,7 @@ using MusicJam.Studio.Storages.QuestionStorage;
 using MusicJam.Studio.Storages.RoundStorage;
 using MusicJam.Studio.Storages.TrackStorage;
 using MusicJam.Studio.Storages.UsersStorage;
+using Shared.Auth;
 
 namespace MusicJam.Studio.Extensions;
 

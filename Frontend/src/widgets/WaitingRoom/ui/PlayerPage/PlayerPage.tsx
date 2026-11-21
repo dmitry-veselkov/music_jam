@@ -5,7 +5,7 @@ import { GameCover } from "@/widgets/WaitingRoom/ui/GameCover/GameCover.tsx";
 import { useJoinRoom } from "@/features/join-game/api/useJoinGame.ts";
 import { useParams } from "react-router-dom";
 import { useRoomTeams } from "@/features/join-game/api/useRoomTeams.ts";
-import Header from "@/widgets/Header/Header.tsx";
+import Header from "@/widgets/Header/ui/Header.tsx";
 import { useNavigate } from "react-router";
 import { useLeaveGame } from "@/features/join-game/api/useLeaveGame.ts";
 
@@ -29,7 +29,7 @@ const PlayerPage = ({ teamName } : Props) => {
 
   return (
     <>
-      <Header showAuthButtons={false} />
+      <Header />
       <main className={styles.container}>
         <div className={styles.footer}>
           <h1>Зал ожидания</h1>

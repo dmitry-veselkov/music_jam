@@ -20,8 +20,11 @@ public sealed partial class GameHub
             throw ToHubException(error);
         }
 
-        var game = (await gameService.Get(gameId)).Value
-                   ?? throw ToHubException(WaitingRoomError.GameNotFound);
+        var getGameResult = await gameService.Get(gameId);
+        if (getGameResult.TryGetFault(out _, out var game))
+        {
+            throw ToHubException(WaitingRoomError.GameNotFound);   
+        }
 
         List<Team> teams;
         Team? team = null;

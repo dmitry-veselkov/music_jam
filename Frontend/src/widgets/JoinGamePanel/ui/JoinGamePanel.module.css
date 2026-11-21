@@ -1,0 +1,19 @@
+.joinGamePanel {
+    display: grid;
+    gap: 1.5rem;
+    padding: clamp(1.25rem, 2.5vw, 2.5rem);
+    border-radius: 1.5rem;
+    background: var(--color-surface);
+}
+
+.joinGamePanelHeading h2 {
+    margin: 0 0 .4rem;
+    color: var(--color-text);
+    font-size: clamp(1.25rem, 2vw, 1.75rem);
+}
+
+.joinGamePanelHeading p {
+    margin: 0;
+    color: #bab9d6;
+    font-size: .95rem;
+}

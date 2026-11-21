@@ -1,4 +1,4 @@
-import { EnterTeamNameForm } from "@/features/join-game/ui/EnterTeamNameForm.tsx";
+import { EnterTeamNameForm } from "@/features/join-game/ui/EnterTeamNameForm/EnterTeamNameForm.tsx";
 import PlayerPage from "@/widgets/WaitingRoom/ui/PlayerPage/PlayerPage.tsx";
 import ViewerPage from "@/widgets/WaitingRoom/ui/ViewerPage/ViewerPage.tsx";
 import { useEffect, useState } from "react";

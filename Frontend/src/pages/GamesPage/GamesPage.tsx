@@ -1,4 +1,4 @@
-import Header from "@/widgets/Header/Header.tsx";
+import Header from "@/widgets/Header/ui/Header.tsx";
 import styles from "./GamesPage.module.css"
 import { Button } from "@/shared/ui/Button/Button.tsx";
 import GameCardList from "@/widgets/GameCardList/GameCardList.tsx";
@@ -11,7 +11,7 @@ const GamesPage = () => {
 
   return (
     <div>
-      <Header showAuthButtons={false}/>
+      <Header />
       <div className={styles.gamesContent}>
         <div className={styles.gameOptions}>
           <h1>Мои игры</h1>

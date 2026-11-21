@@ -1,0 +1,29 @@
+.heroSection {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(20rem, 1fr);
+    align-items: center;
+    gap: clamp(2rem, 5vw, 6rem);
+}
+
+.heroSectionAbout h1 {
+    margin: 0 0 .5rem;
+    color: var(--color-primary);
+    font-size: clamp(2.25rem, 4.2vw, 4rem);
+    line-height: 1.12;
+    overflow-wrap: anywhere;
+}
+
+.heroSectionAbout p {
+    max-width: 38rem;
+    margin: 0;
+    color: var(--color-text);
+    font-size: clamp(1rem, 1.65vw, 1.65rem);
+    line-height: 1.5;
+}
+
+@media (max-width: 52rem) {
+    .heroSection {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 2rem;
+    }
+}

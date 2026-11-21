@@ -1,13 +1,13 @@
 import styles from "./AccountPage.module.css";
 import { useNavigate } from "react-router";
-import Header from "@/widgets/Header/Header.tsx";
+import Header from "@/widgets/Header/ui/Header.tsx";
 
 const AccountPage = () => {
   const navigate = useNavigate();
 
   return (
     <div>
-      <Header showAuthButtons={false}/>
+      <Header />
       <h1 className={styles.title}>Мой аккаунт</h1>
       <div className={styles.info}>
         <div

@@ -13,10 +13,9 @@ public sealed class Game
 {
     public Guid GameId { get; init; }
     public Guid HostId { get; set; }
-    
     public Pack Pack { get; set; }
     public GameState State { get; set; } = GameState.Pending;
-
+    public GameInvite Invite { get; set; }
     public object Lock { get; } = new();
 
     public Dictionary<Guid, Team> Teams { get; } = new();
@@ -32,7 +31,7 @@ public sealed class Game
                 .FirstOrDefault(team => team.SessionId == sessionId);
         }
     }
-    
+
     public bool FindViewerBySession(Guid sessionId)
     {
         lock (Lock)
@@ -41,4 +40,3 @@ public sealed class Game
         }
     }
 }
-

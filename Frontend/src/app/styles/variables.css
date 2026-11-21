@@ -1,4 +1,6 @@
 ﻿:root {
+    --page-padding: clamp(1rem, 4vw, 2.5rem);
+
     --color-bg: #121212;
     --color-surface: #1e1e1e;
     --color-primary: #1db954;

@@ -3,9 +3,9 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using MusicJam.Studio.Configurations;
 using MusicJam.Studio.Constants;
 using MusicJam.Studio.Models.Users;
+using Shared.Auth;
 
 namespace MusicJam.Studio.Services.TokenService;
 

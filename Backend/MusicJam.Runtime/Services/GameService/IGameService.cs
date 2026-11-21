@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using MusicJam.Runtime.Models;
+﻿using MusicJam.Runtime.Models;
 using Shared;
 
 namespace MusicJam.Runtime.Services.GameService;
@@ -14,5 +13,5 @@ public interface IGameService
     
     public Task<Result<Game, GameError>> Create(Guid hostId, Guid packId);
     
-    public Task<ActionResult<Game>> Get(Guid gameId);
+    public Task<Result<Game, GameError>> Get(Guid gameId);
 }

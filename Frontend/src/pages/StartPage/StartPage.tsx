@@ -1,17 +1,19 @@
 import styles from "./StartPage.module.css"
-import Header from "@/widgets/Header/Header.tsx";
+import Header from "@/widgets/Header/ui/Header.tsx";
 import Footer from "@/widgets/Footer/Footer.tsx";
 import Layout from "@/shared/ui/Layout/Layout.tsx";
+import HeroSection from "@/widgets/HeroSection/HeroSection.tsx";
+import CreateGameSection from "@/widgets/CreateGameSection/CreateGameSection.tsx";
 
 const StartPage = () => {
   return (
     <Layout>
       <Header />
-      <main className={styles.heroSection}>
-        <h1 className={styles.heroTitle}>Музыкальный свояк</h1>
-        <p className={styles.heroDescription}>
-          Соревнуйся в знании любимых треков вместе с друзьями!
-        </p>
+      <main className={styles.homePage}>
+        <div className={styles.pageContainer}>
+          <HeroSection />
+          <CreateGameSection />
+        </div>
       </main>
       <Footer />
     </Layout>
