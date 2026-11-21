@@ -35,6 +35,8 @@ internal class InvitesService(
 
     public async Task<Result<string, IInvitesService.InviteError>> JoinGameByCode(string code)
     {
+        code = code.Trim().ToUpperInvariant();
+
         if (!IsValidCode(code))
         {
             return IInvitesService.InviteError.InvalidCode;
