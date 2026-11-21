@@ -6,10 +6,10 @@ using Shared;
 
 namespace MusicJam.Runtime.Services.InviteService;
 
-internal class InviteService(
+internal class InvitesService(
     IOptions<EnvironmentSettings> environmentSettings,
     IInvitesStorage invitesStorage)
-    : IInviteService
+    : IInvitesService
 {
     private string BaseUrl => environmentSettings.Value.BaseUrl;
 
@@ -33,33 +33,33 @@ internal class InviteService(
         return invite;
     }
 
-    public async Task<Result<string, IInviteService.InviteError>> JoinGameByCode(string code)
+    public async Task<Result<string, IInvitesService.InviteError>> JoinGameByCode(string code)
     {
         if (!IsValidCode(code))
         {
-            return IInviteService.InviteError.InvalidCode;
+            return IInvitesService.InviteError.InvalidCode;
         }
 
         var invite = await invitesStorage.GetInviteByCode(code);
         if (invite is null)
         {
-            return IInviteService.InviteError.InviteNotFound;
+            return IInvitesService.InviteError.InviteNotFound;
         }
 
         return BuildWaitingRoomUrl(invite.GameId);
     }
 
-    public async Task<Result<string, IInviteService.InviteError>> JoinGameByLink(Guid inviteId)
+    public async Task<Result<string, IInvitesService.InviteError>> JoinGameByLink(Guid inviteId)
     {
         if (inviteId == Guid.Empty)
         {
-            return IInviteService.InviteError.InvalidLink;
+            return IInvitesService.InviteError.InvalidLink;
         }
 
         var invite = await invitesStorage.GetInviteById(inviteId);
         if (invite is null)
         {
-            return IInviteService.InviteError.InviteNotFound;
+            return IInvitesService.InviteError.InviteNotFound;
         }
 
         return BuildWaitingRoomUrl(invite.GameId);
@@ -82,6 +82,6 @@ internal class InviteService(
 
     private string BuildInviteLink(Guid inviteId)
     {
-        return $"{BaseUrl}/api/invites/join-game/by-link/{inviteId}";
+        return $"{BaseUrl}/api/invites/join-game/by-link?inviteId={inviteId}";
     }
 }

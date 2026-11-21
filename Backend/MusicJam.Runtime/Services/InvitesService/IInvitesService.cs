@@ -3,7 +3,7 @@ using Shared;
 
 namespace MusicJam.Runtime.Services.InviteService;
 
-public interface IInviteService
+public interface IInvitesService
 {
     public enum InviteError
     {

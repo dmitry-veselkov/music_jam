@@ -71,7 +71,7 @@ public class Startup(IConfiguration configuration)
         services.AddScoped<IGameService, GameService>();
         services.Decorate<IGameService, GameServiceLoggerDecorator>();
         services.AddScoped<IUserService, UserService>();
-        services.AddScoped<IInviteService, InviteService>();
+        services.AddScoped<IInvitesService, InvitesService>();
 
         services.AddHttpContextAccessor();
         services.AddTransient<ForwardAccessTokenHandler>();

@@ -9,7 +9,7 @@ namespace MusicJam.Runtime.Services.GameService;
 public class GameService(
     IStudioClient studioClient,
     IGameStorage gameStorage,
-    IInviteService inviteService) : IGameService
+    IInvitesService invitesService) : IGameService
 {
     //сюда потом взаимодействия по раундам
     public async Task<Result<Game, IGameService.GameError>> Create(Guid hostId, Guid packId)
@@ -21,7 +21,7 @@ public class GameService(
         }
 
         var gameId = Guid.NewGuid();
-        var invite = await inviteService.CreateInvite(gameId);
+        var invite = await invitesService.CreateInvite(gameId);
 
         var newGame = new Game
         {

@@ -7,7 +7,7 @@ namespace MusicJam.Runtime.Controllers;
 [ApiController]
 [AllowAnonymous]
 [Route("api/invites")]
-public class InvitesController(IInviteService inviteService) : ControllerBase
+public class InvitesController(IInvitesService invitesService) : ControllerBase
 {
     private const string JoinGameBaseUrl = "join-game";
     private const string JoinGameByCodeUrl = $"{JoinGameBaseUrl}/by-code";
@@ -20,7 +20,7 @@ public class InvitesController(IInviteService inviteService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult> JoinGameByCode([FromQuery] string code)
     {
-        var result = await inviteService.JoinGameByCode(code);
+        var result = await invitesService.JoinGameByCode(code);
         return result.TryGetFault(out var error, out var waitingRoomUrl)
             ? ErrorResponse(error)
             : Redirect(waitingRoomUrl);
@@ -31,20 +31,20 @@ public class InvitesController(IInviteService inviteService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult> JoinGameByLink([FromQuery] string code)
+    public async Task<ActionResult> JoinGameByLink([FromQuery] Guid inviteId)
     {
-        var result = await inviteService.JoinGameByCode(code);
+        var result = await invitesService.JoinGameByLink(inviteId);
         return result.TryGetFault(out var error, out var waitingRoomUrl)
             ? ErrorResponse(error)
             : Redirect(waitingRoomUrl);
     }
 
-    private ActionResult ErrorResponse(IInviteService.InviteError error)
+    private ActionResult ErrorResponse(IInvitesService.InviteError error)
     {
         return error switch
         {
-            IInviteService.InviteError.InviteNotFound => NotFound(),
-            IInviteService.InviteError.InvalidCode => BadRequest(),
+            IInvitesService.InviteError.InviteNotFound => NotFound(),
+            IInvitesService.InviteError.InvalidCode => BadRequest(),
             _ => throw new ArgumentOutOfRangeException(error.ToString()),
         };
     }
